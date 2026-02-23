@@ -52,8 +52,30 @@ echo "4. Full pipeline (transposed + humanized)"
     | "${BIN_DIR}/to-midi" --out demo-full.mid
 echo "   -> demo-full.mid"
 
-# Demo 5: Inspect JSONL stream
-echo "5. Inspect event stream (first 10 events)"
+# Demo 5: Euclidean rhythm (Cuban tresillo)
+echo "5. Euclidean rhythm E(3,8) - Cuban tresillo"
+"${BIN_DIR}/euclid" --steps 8 --pulses 3 --repeat 4 \
+    | "${BIN_DIR}/to-midi" --out demo-euclid-3-8.mid
+echo "   -> demo-euclid-3-8.mid"
+
+# Demo 6: Euclidean rhythm (4-on-the-floor)
+echo "6. Euclidean rhythm E(4,16) - 4-on-the-floor kick"
+"${BIN_DIR}/euclid" --steps 16 --pulses 4 --note 36 --repeat 2 \
+    | "${BIN_DIR}/humanize" --seed 99 --jitter-ticks 4 --jitter-vel 8 \
+    | "${BIN_DIR}/to-midi" --out demo-euclid-4-16.mid
+echo "   -> demo-euclid-4-16.mid"
+
+# Demo 7: Layered drums (kick + hihat)
+echo "7. Layered drums (kick E(4,16) + hihat E(8,16))"
+{
+    "${BIN_DIR}/euclid" --steps 16 --pulses 4 --note 36 --ch 9 --repeat 2;
+    "${BIN_DIR}/euclid" --steps 16 --pulses 8 --note 42 --ch 9 --vel 80 --repeat 2;
+} | "${BIN_DIR}/humanize" --seed 77 --jitter-ticks 6 \
+  | "${BIN_DIR}/to-midi" --out demo-layered-drums.mid
+echo "   -> demo-layered-drums.mid"
+
+# Demo 8: Inspect JSONL stream
+echo "8. Inspect event stream (first 10 events)"
 "${BIN_DIR}/motif" --base 60 --bpm 120 | head -10
 echo "   ..."
 
