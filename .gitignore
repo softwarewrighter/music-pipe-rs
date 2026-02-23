@@ -1,0 +1,56 @@
+# Rust / Cargo
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Build artifacts
+*.so
+*.rlib
+*.dll
+*.dylib
+*.exe
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Debug
+*.pdb
+
+# Testing
+*.profraw
+*.profdata
+
+# Generated files
+*.mid
+*.midi
+output/
+
+# Local configuration
+.env
+.env.local
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Coverage
+coverage/
+*.lcov
+tarpaulin-report.html
+
+# Documentation build
+/doc/
+
+# Benchmark results
+criterion/
+
+# OS files
+Thumbs.db
+.DS_Store

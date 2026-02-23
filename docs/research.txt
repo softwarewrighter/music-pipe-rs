@@ -1,0 +1,1144 @@
+
+
+
+
+You said:
+
+gen-music-links.txt
+Document
+Please analyze the uploaded text file resources and links specifically related to generative music, that allow commercial use for generated music, and especially consider the technology, and techniques discussed.  I want to pursue adding features to my cli-midi-rs project.  Also consider the current state of: https://github.com/softwarewrighter/midi-cli-rs and related: https://github.com/softwarewrighter/midi-cli-rs/wiki
+
+ChatGPT said:
+You want to:
+
+Analyze your uploaded generative-music links (commercially usable, tech-focused).
+
+Extract techniques and architectural patterns.
+
+Evaluate the current state of midi-cli-rs.
+
+Propose concrete features and architectural directions for cli-midi-rs that align with modern generative music tooling.
+
+Stay grounded in licensing, practical tech, and commercial viability.
+
+Good. Let’s treat this like a systems design review for a music engine.
+
+1. What Your Uploaded Resources Actually Emphasize
+From your uploaded file 
+gen-music-links
+
+ the themes are consistent:
+
+Core Themes
+Analog synth modeling
+
+Drum synthesis (procedural, not sample-based)
+
+Generative composition systems
+
+Creative coding ecosystems
+
+Eurorack / modular thinking
+
+Opusmodus (Lisp-based algorithmic composition)
+
+This is not “AI text-to-music SaaS.”
+This is algorithmic, compositional, signal-oriented music generation.
+
+That’s important.
+
+You’re orbiting around:
+
+Deterministic generative systems
+Synthesized sound over sample reuse
+Pattern engines over black-box diffusion
+
+This is good for commercial use because:
+
+Algorithmic composition is copyright-safe.
+
+Procedural synthesis avoids sample licensing.
+
+MIDI-first workflows are DAW-compatible.
+
+2. Technology Patterns Emerging From These Resources
+Let’s distill the techniques.
+
+A. Modular Synthesis Thinking
+Analog synth and Eurorack posts suggest:
+
+Oscillators (sine, square, saw)
+
+Envelopes (ADSR)
+
+LFOs
+
+Filters (LPF, HPF, band-pass)
+
+Modulation routing
+
+This suggests:
+
+Your CLI should support modular MIDI signal routing, not just note emission.
+
+Even if you don’t synth audio, you can encode:
+
+Velocity curves
+
+CC modulation
+
+Pitch bend automation
+
+Expression shaping
+
+Think: “MIDI as control voltage.”
+
+B. Procedural Drum Synthesis
+The JS drum synthesis articles suggest:
+
+Drums are built from:
+
+Noise bursts
+
+Pitch envelopes
+
+Filter sweeps
+
+Very short decay curves
+
+In MIDI terms, this implies:
+
+Microtiming control
+
+Velocity randomness
+
+Layered drum pattern logic
+
+Parameterizable drum archetypes (kick/snare/hihat)
+
+You don’t need audio generation.
+
+You need:
+
+Pattern engines
+
+Velocity modeling
+
+Timing jitter control
+
+Swing as first-class citizen
+
+C. Generative Composition Systems (Opusmodus Angle)
+Opusmodus is a Lisp DSL for algorithmic composition.
+
+That’s the important bit:
+It’s not random music.
+It’s programmable composition.
+
+Key ideas:
+
+Motif transformation
+
+Transposition
+
+Inversion
+
+Retrograde
+
+Rhythm morphing
+
+Rule systems
+
+This strongly suggests:
+
+midi-cli-rs should evolve into a compositional DSL.
+
+3. Current State of midi-cli-rs (High-Level Assessment)
+From your repo and wiki direction, it appears:
+
+CLI-based MIDI file generation
+
+Structured commands
+
+Basic event sequencing
+
+It feels like a MIDI event emitter, not yet a compositional engine.
+
+You’re at:
+
+Level 1:
+Emit notes and patterns.
+
+You want:
+
+Level 3–4:
+Composable generative engine.
+
+4. Strategic Direction: What cli-midi-rs Should Become
+Think of it as:
+
+A Unix-like pipeline engine for generative MIDI.
+
+Because you love pipelines. And they’re correct here.
+
+5. Architectural Proposal
+Let’s think in layers.
+
+Layer 1: Core Musical Primitives
+You need pure data structures:
+
+struct Note {
+    pitch: u8,
+    velocity: u8,
+    start: u32,
+    duration: u32,
+}
+
+struct Motif {
+    notes: Vec<Note>,
+}
+
+struct Pattern {
+    motifs: Vec<Motif>,
+}
+Immutable transformations preferred.
+
+Layer 2: Transform Engine
+Functional transformations:
+
+fn transpose(m: &Motif, semitones: i8) -> Motif
+fn invert(m: &Motif, center: u8) -> Motif
+fn retrograde(m: &Motif) -> Motif
+fn stretch_time(m: &Motif, factor: f32) -> Motif
+fn humanize(m: &Motif, seed: u64) -> Motif
+This mirrors Opusmodus ideas — but in Rust.
+
+Layer 3: Generative Engines
+Different engines:
+
+Markov-based note transitions
+
+Euclidean rhythm generator
+
+L-system composition
+
+Cellular automata rhythm grids
+
+Rule-based harmonic engines
+
+Constraint solvers (e.g., no parallel fifths)
+
+Each engine produces a Motif.
+
+Layer 4: DSL / CLI Interface
+Right now CLI probably looks imperative.
+
+You should move toward:
+
+midi-cli motif "C4 E4 G4" \
+  | transpose 7 \
+  | invert 60 \
+  | humanize --amount 0.05 \
+  | write output.mid
+Now you’ve built musical pipes.
+
+This aligns beautifully with your IBM pipeline fascination.
+
+6. High-Value Features to Add
+Now we get practical.
+
+1. Euclidean Rhythm Generator
+This is huge in generative circles.
+
+--euclid steps=16 pulses=5 rotation=2
+Essential for techno / experimental patterns.
+
+2. Deterministic Random Engine
+All generative output should be:
+
+--seed 42
+So runs are reproducible.
+
+Critical for commercial and production workflows.
+
+3. Scale & Mode System
+Add first-class:
+
+Scale definition
+
+Key
+
+Modal transformations
+
+Chord constraints
+
+Without this, generation sounds chaotic.
+
+4. Velocity & Expression Modeling
+Add envelope generators at MIDI level:
+
+Velocity curves
+
+CC automation curves
+
+Pitch bend sweeps
+
+Think “synthesis behavior without audio.”
+
+5. Probabilistic Rules
+Example:
+
+--probability note=C4=0.7
+Weighted motif branching.
+
+6. Motif Grammar
+Define motif patterns as grammar rules:
+
+A -> A B
+B -> A
+L-systems for music.
+
+7. Live Mode (Future)
+Long-term:
+
+MIDI out streaming
+
+Real-time generative loops
+
+MIDI clock sync
+
+That would elevate it beyond file generator.
+
+7. Commercial Use Considerations
+Because you care about that.
+
+Safe:
+
+Algorithmic composition
+
+Deterministic rule-based generation
+
+Self-generated MIDI
+
+No pretrained model copying
+
+Risky:
+
+Training on copyrighted MIDI
+
+Embedding model weights from proprietary sources
+
+If you ever add ML:
+Train only on public domain or self-created data.
+
+8. Advanced Direction (If You Want to Go Deep)
+Given your systems mind…
+
+Add a "Compositional IR"
+Intermediate representation:
+
+Graph of transformations
+
+DAG of motif evolution
+
+Serializable as JSON
+
+This allows:
+
+Visualization
+
+Replay
+
+Mutation tracking
+
+Versioned composition states
+
+Now it becomes a research tool.
+
+9. Big Idea: Turn It Into a Generative Music Workbench
+Given your homelab + AI ambitions:
+
+You could:
+
+Add Rust-based rule engines
+
+Add WASM frontend visualizer
+
+Add evolution / mutation engine
+
+Track motif fitness metrics
+
+Run generative sweeps overnight
+
+Your cluster generating structured music, not just models.
+
+10. Suggested Next Milestone Roadmap
+Phase 1:
+
+Euclidean rhythms
+
+Deterministic RNG
+
+Scale constraints
+
+Phase 2:
+
+Transform DSL
+
+Motif transformations
+
+Humanization engine
+
+Phase 3:
+
+Grammar-based generation
+
+Markov chain module
+
+Live MIDI output
+
+Phase 4:
+
+Visualization + DAG composition model
+
+Fitness scoring
+
+11. Philosophical Observation
+You’re circling something interesting.
+
+Most “AI music” today is diffusion or transformer-based generation.
+
+But generative music systems like those in your links are:
+
+Deterministic
+
+Transparent
+
+Composable
+
+Explainable
+
+Programmable
+
+Which aligns much better with your engineering temperament.
+
+You’re building a musical compiler, not a jukebox.
+
+And that is a much more interesting project.
+
+If you'd like, I can next:
+
+Propose a concrete Rust crate layout for a generative DSL
+
+Design a musical IR + transform graph system
+
+Or outline how to integrate procedural drum synthesis logic directly into MIDI generation without audio engines
+
+There’s a surprisingly deep design space here.
+
+
+Sources
+
+You said:
+I'd like to explore one specific suggestion: a music pipeline.  Can we create a Rust-based Proof-of-concept that focuses on this approach?  Want a small MVP example using readily available rust crates to build the pipeline stages.
+
+ChatGPT said:
+You want a Rust proof-of-concept that demonstrates a Unix-style music pipeline: small MVP, pipeable stages, built from readily available crates, and immediately useful as a foundation for cli-midi-rs evolution.
+
+Below is a design that’s deliberately “boring in the right way”: each stage is a tiny CLI that reads JSONL (JSON per line) from stdin, transforms events, and writes JSONL to stdout. The final stage renders to a MIDI file.
+
+That gives you:
+
+composability (|)
+
+testability (golden JSONL fixtures)
+
+deterministic replay (--seed)
+
+easy integration with other tools (jq, awk, etc.)
+
+High-level architecture
+Requirements
+Pipeline stages are separate commands.
+
+Data format is stream-friendly (line-oriented).
+
+Stages can be chained:
+
+motif → transpose → humanize → to-midi
+
+Minimal scope, but real MIDI output.
+
+Approach
+JSONL event stream as the “musical IR” (intermediate representation).
+
+Each stage:
+
+parses stdin lines into Event
+
+transforms them
+
+writes events back out
+
+Final stage converts to a .mid.
+
+Data model (the “music IR”)
+For MVP, we only need notes and metadata:
+
+NoteOn { t, ch, key, vel }
+
+NoteOff { t, ch, key }
+
+Tempo { t, bpm } (optional)
+
+End { t } (optional)
+
+Time t is integer ticks (not seconds). Keep it simple.
+
+Crates to use
+clap — CLI
+
+serde, serde_json — JSONL parse/emit
+
+anyhow — errors
+
+rand, rand_chacha — deterministic randomness for humanize
+
+midly — MIDI writing (solid, common Rust MIDI crate)
+
+Optional later:
+
+rayon (batch transforms), thiserror, insta (snapshot tests)
+
+MVP repo layout
+Single Cargo workspace, multiple bins:
+
+music-pipe/
+  Cargo.toml                # workspace
+  crates/
+    music-ir/               # shared Event types + JSONL helpers
+    stage-motif/            # generate a simple motif
+    stage-transpose/        # transpose notes
+    stage-humanize/         # jitter timing/velocity (seeded)
+    stage-to-midi/          # write .mid using midly
+Why a workspace?
+
+Shared types stay consistent.
+
+Each stage stays tiny and focused.
+
+Code: music-ir crate
+crates/music-ir/Cargo.toml
+
+[package]
+name = "music-ir"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+crates/music-ir/src/lib.rs
+
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
+use std::io::{self, BufRead, Write};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum Event {
+    NoteOn { t: u32, ch: u8, key: u8, vel: u8 },
+    NoteOff { t: u32, ch: u8, key: u8 },
+    Tempo { t: u32, bpm: u32 },
+    End { t: u32 },
+}
+
+pub fn read_events_from_stdin() -> Result<Vec<Event>> {
+    let stdin = io::stdin();
+    let mut out = Vec::new();
+    for (i, line) in stdin.lock().lines().enumerate() {
+        let line = line.context("stdin read failed")?;
+        if line.trim().is_empty() {
+            continue;
+        }
+        let ev: Event = serde_json::from_str(&line)
+            .with_context(|| format!("invalid JSON on line {}", i + 1))?;
+        out.push(ev);
+    }
+    Ok(out)
+}
+
+pub fn write_events_to_stdout(events: &[Event]) -> Result<()> {
+    let stdout = io::stdout();
+    let mut w = io::BufWriter::new(stdout.lock());
+    for ev in events {
+        serde_json::to_writer(&mut w, ev)?;
+        w.write_all(b"\n")?;
+    }
+    w.flush()?;
+    Ok(())
+}
+This reads the whole stream into memory for MVP simplicity. Later you can stream-transform line-by-line.
+
+Stage 1: motif generator
+crates/stage-motif/Cargo.toml
+
+[package]
+name = "stage-motif"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "motif"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+crates/stage-motif/src/main.rs
+
+use anyhow::Result;
+use clap::Parser;
+use music_ir::{write_events_to_stdout, Event};
+
+#[derive(Parser, Debug)]
+struct Args {
+    /// Base MIDI note number (e.g., 60 = middle C)
+    #[arg(long, default_value_t = 60)]
+    base: u8,
+
+    /// Channel 0-15
+    #[arg(long, default_value_t = 0)]
+    ch: u8,
+
+    /// Ticks per quarter note used by downstream; here only used for defaults
+    #[arg(long, default_value_t = 480)]
+    tpq: u32,
+
+    /// BPM emitted as a Tempo event at t=0
+    #[arg(long, default_value_t = 120)]
+    bpm: u32,
+}
+
+fn main() -> Result<()> {
+    let a = Args::parse();
+
+    // Simple arpeggio motif: C E G C'
+    let keys = [a.base, a.base + 4, a.base + 7, a.base + 12];
+    let dur = a.tpq / 2; // eighth note
+    let vel = 96u8;
+
+    let mut events = Vec::new();
+    events.push(Event::Tempo { t: 0, bpm: a.bpm });
+
+    let mut t = 0u32;
+    for &k in &keys {
+        events.push(Event::NoteOn { t, ch: a.ch, key: k, vel });
+        events.push(Event::NoteOff { t: t + dur, ch: a.ch, key: k });
+        t += dur;
+    }
+    events.push(Event::End { t });
+
+    write_events_to_stdout(&events)
+}
+Stage 2: transpose
+crates/stage-transpose/Cargo.toml
+
+[package]
+name = "stage-transpose"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "transpose"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+crates/stage-transpose/src/main.rs
+
+use anyhow::Result;
+use clap::Parser;
+use music_ir::{read_events_from_stdin, write_events_to_stdout, Event};
+
+#[derive(Parser, Debug)]
+struct Args {
+    /// Semitones, can be negative
+    #[arg(long)]
+    semitones: i16,
+}
+
+fn clamp_u8(v: i16) -> u8 {
+    v.clamp(0, 127) as u8
+}
+
+fn main() -> Result<()> {
+    let a = Args::parse();
+    let mut events = read_events_from_stdin()?;
+
+    for ev in &mut events {
+        match ev {
+            Event::NoteOn { key, .. } => {
+                *key = clamp_u8(*key as i16 + a.semitones);
+            }
+            Event::NoteOff { key, .. } => {
+                *key = clamp_u8(*key as i16 + a.semitones);
+            }
+            _ => {}
+        }
+    }
+
+    write_events_to_stdout(&events)
+}
+Stage 3: humanize (timing + velocity, seeded)
+crates/stage-humanize/Cargo.toml
+
+[package]
+name = "stage-humanize"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "humanize"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+rand = "0.8"
+rand_chacha = "0.3"
+crates/stage-humanize/src/main.rs
+
+use anyhow::Result;
+use clap::Parser;
+use music_ir::{read_events_from_stdin, write_events_to_stdout, Event};
+use rand::{Rng, SeedableRng};
+use rand_chacha::ChaCha8Rng;
+
+#[derive(Parser, Debug)]
+struct Args {
+    /// Deterministic seed
+    #[arg(long, default_value_t = 42)]
+    seed: u64,
+
+    /// Max tick jitter applied to NoteOn/NoteOff (+/-)
+    #[arg(long, default_value_t = 8)]
+    jitter_ticks: i32,
+
+    /// Max velocity jitter applied to NoteOn (+/-)
+    #[arg(long, default_value_t = 10)]
+    jitter_vel: i16,
+}
+
+fn clamp_u32_i32(base: u32, delta: i32) -> u32 {
+    let v = base as i64 + delta as i64;
+    v.max(0) as u32
+}
+
+fn clamp_u8_i16(base: u8, delta: i16) -> u8 {
+    let v = base as i16 + delta;
+    v.clamp(1, 127) as u8
+}
+
+fn main() -> Result<()> {
+    let a = Args::parse();
+    let mut rng = ChaCha8Rng::seed_from_u64(a.seed);
+
+    let mut events = read_events_from_stdin()?;
+
+    for ev in &mut events {
+        match ev {
+            Event::NoteOn { t, vel, .. } => {
+                let dt = rng.gen_range(-a.jitter_ticks..=a.jitter_ticks);
+                *t = clamp_u32_i32(*t, dt);
+
+                let dv = rng.gen_range(-a.jitter_vel..=a.jitter_vel);
+                *vel = clamp_u8_i16(*vel, dv);
+            }
+            Event::NoteOff { t, .. } => {
+                let dt = rng.gen_range(-a.jitter_ticks..=a.jitter_ticks);
+                *t = clamp_u32_i32(*t, dt);
+            }
+            _ => {}
+        }
+    }
+
+    // Important: After jitter, events might be out of order.
+    events.sort_by_key(|e| match e {
+        Event::NoteOn { t, .. } => *t,
+        Event::NoteOff { t, .. } => *t,
+        Event::Tempo { t, .. } => *t,
+        Event::End { t } => *t,
+    });
+
+    write_events_to_stdout(&events)
+}
+Stage 4: to-midi (writes .mid)
+crates/stage-to-midi/Cargo.toml
+
+[package]
+name = "stage-to-midi"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "to-midi"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+midly = "0.5"
+crates/stage-to-midi/src/main.rs
+
+use anyhow::{Context, Result};
+use clap::Parser;
+use midly::{
+    Format, Header, MetaMessage, MidiMessage, Smf, Timing, TrackEvent, TrackEventKind,
+};
+use music_ir::{read_events_from_stdin, Event};
+use std::{fs, path::PathBuf};
+
+#[derive(Parser, Debug)]
+struct Args {
+    /// Output MIDI path
+    #[arg(long)]
+    out: PathBuf,
+
+    /// Ticks per quarter note
+    #[arg(long, default_value_t = 480)]
+    tpq: u16,
+}
+
+fn bpm_to_mpqn(bpm: u32) -> u32 {
+    // microseconds per quarter note = 60_000_000 / bpm
+    60_000_000u32 / bpm.max(1)
+}
+
+fn main() -> Result<()> {
+    let a = Args::parse();
+    let mut events = read_events_from_stdin()?;
+
+    // Ensure sorted by time (good hygiene)
+    events.sort_by_key(|e| match e {
+        Event::NoteOn { t, .. } => *t,
+        Event::NoteOff { t, .. } => *t,
+        Event::Tempo { t, .. } => *t,
+        Event::End { t } => *t,
+    });
+
+    let header = Header::new(Format::SingleTrack, Timing::Metrical(a.tpq.into()));
+    let mut track: Vec<TrackEvent> = Vec::new();
+
+    let mut last_t: u32 = 0;
+
+    for ev in events {
+        let t = match &ev {
+            Event::NoteOn { t, .. } => *t,
+            Event::NoteOff { t, .. } => *t,
+            Event::Tempo { t, .. } => *t,
+            Event::End { t } => *t,
+        };
+
+        let delta = t.saturating_sub(last_t);
+        last_t = t;
+
+        let kind = match ev {
+            Event::Tempo { bpm, .. } => TrackEventKind::Meta(MetaMessage::Tempo(
+                bpm_to_mpqn(bpm).into(),
+            )),
+            Event::NoteOn { ch, key, vel, .. } => {
+                TrackEventKind::Midi {
+                    channel: ch.into(),
+                    message: MidiMessage::NoteOn { key: key.into(), vel: vel.into() },
+                }
+            }
+            Event::NoteOff { ch, key, .. } => {
+                TrackEventKind::Midi {
+                    channel: ch.into(),
+                    message: MidiMessage::NoteOff { key: key.into(), vel: 64.into() },
+                }
+            }
+            Event::End { .. } => {
+                // We'll emit EndOfTrack below, ignore here
+                continue;
+            }
+        };
+
+        track.push(TrackEvent { delta: delta.into(), kind });
+    }
+
+    // End of track marker
+    track.push(TrackEvent {
+        delta: 0.into(),
+        kind: TrackEventKind::Meta(MetaMessage::EndOfTrack),
+    });
+
+    let smf = Smf { header, tracks: vec![track] };
+    let mut buf = Vec::new();
+    smf.write(&mut buf).context("failed to encode MIDI")?;
+
+    fs::write(&a.out, buf).with_context(|| format!("failed to write {:?}", a.out))?;
+    Ok(())
+}
+Workspace Cargo.toml
+At repo root:
+
+[workspace]
+members = [
+  "crates/music-ir",
+  "crates/stage-motif",
+  "crates/stage-transpose",
+  "crates/stage-humanize",
+  "crates/stage-to-midi",
+]
+resolver = "2"
+Run the MVP (the whole point)
+Build:
+
+cargo build --release
+Generate a MIDI:
+
+./target/release/motif --base 60 --bpm 120 \
+  | ./target/release/transpose --semitones 7 \
+  | ./target/release/humanize --seed 123 --jitter-ticks 6 --jitter-vel 8 \
+  | ./target/release/to-midi --out out.mid --tpq 480
+You now have a real pipeline:
+
+stage 1 produces notes
+
+stage 2 shifts pitch
+
+stage 3 adds deterministic “human” wobble
+
+stage 4 outputs .mid
+
+Pros / Cons / Risks
+Pros
+Composability: add stages without changing others.
+
+Debuggability: inspect stream with head, jq, rg.
+
+Reproducibility: --seed makes outputs stable.
+
+DAW-friendly: ends in standard MIDI.
+
+Cons
+JSONL is verbose.
+
+Parsing overhead if you scale to huge streams (still fine for typical MIDI densities).
+
+Some transforms want “context” (e.g., quantize across bars) → you may need buffering.
+
+Risks
+Event ordering after transforms (fixed here with sort).
+
+Humanize can cause negative times (we clamp at 0).
+
+NoteOn/NoteOff pairing can break if you do wilder transforms later (solution: add note_id later).
+
+Natural next upgrades (still small)
+Streaming transforms: avoid Vec<Event> for most stages.
+
+Add note_id to correlate On/Off robustly through transforms.
+
+Add quantize stage (grid + swing).
+
+Add euclid stage to generate rhythm gates (super useful).
+
+Add scale-lock stage to constrain pitches to a scale.
+
+If you want, I can also give you a single-crate version (one binary with subcommands: music pipe motif | transpose | ...) that behaves like separate stages but ships as one artifact. It’s slightly less “pure Unix”, but easier to distribute and closer to how midi-cli-rs might want to evolve.
+
+
+You said:
+what should I name the root directory for a new gitub repo for this (the pipe approach you fleshed out, not the single-crate version)?
+
+ChatGPT said:
+You’re naming an idea, not just a directory. That matters.
+
+This project is:
+
+Unix-style
+
+Modular
+
+Stream-based
+
+Deterministic
+
+Composable
+
+Rust-native
+
+MIDI-focused
+
+Generative
+
+So the name should reflect pipes + music + composition, not “AI music toy.”
+
+Let’s evaluate categories.
+
+Category 1 — Literal / Descriptive
+These are clear and practical.
+
+✅ midi-pipe-rs
+Very direct.
+
+Fits your naming style.
+
+Immediately understandable.
+
+Slightly narrow (MIDI-only).
+
+✅ music-pipe-rs
+Broader.
+
+Future-proof if you later add OSC or control streams.
+
+Clean and obvious.
+
+music-pipeline-rs
+Slightly heavier.
+
+Sounds more enterprise than creative.
+
+Category 2 — Unix Heritage Inspired
+This fits your IBM / POSIX / pipeline fascination beautifully.
+
+🔥 sonic-pipes
+Clean.
+
+Memorable.
+
+Not Rust-specific (which is fine).
+
+🔥 contrapunt
+Wordplay on contrapuntal + punt (pipe).
+
+Subtle, maybe too clever.
+
+🔥 meloduct
+Melody + conduct.
+
+Suggests signal flow.
+
+noteflow
+Very readable.
+
+Soft but solid.
+
+Category 3 — Slightly Playful but Serious
+🔥 midistrm
+MIDI stream.
+
+Hacker aesthetic.
+
+Might be slightly cryptic.
+
+🔥 musipipe
+Simple.
+
+Memorable.
+
+Clean.
+
+pipephonic
+Pipe + symphonic.
+
+Slightly whimsical but not silly.
+
+Category 4 — Architectural / Compiler Vibe
+Because this is actually closer to a compiler than a synth.
+
+🔥 motifc
+Motif compiler.
+
+Short and sharp.
+
+🔥 sonic-ir
+Because you literally built a musical IR.
+
+Very honest name.
+
+midir
+MIDI IR.
+
+Clean, but ambiguous.
+
+My Strong Recommendation
+Given your ecosystem and how you name things:
+
+🥇 music-pipe-rs
+Reasons:
+
+Clear.
+
+Extensible.
+
+Describes architecture.
+
+Doesn't limit to MIDI forever.
+
+Matches your “engineering-first” style.
+
+Works cleanly as:
+
+music-pipe-rs
+
+music-pipe
+
+or eventually music-pipe-cli
+
+If you want something slightly more brandable but still serious:
+
+🥈 sonic-pipes
+That one has personality without being silly.
+
+Naming Strategy Consideration
+This repo will likely:
+
+Spawn experiments.
+
+Be used in demos.
+
+Be mentioned in videos.
+
+Possibly evolve into a framework.
+
+Ask yourself:
+
+Do you want:
+
+a tool name
+
+or a research platform name
+
+If tool:
+→ music-pipe-rs
+
+If platform:
+→ sonic-pipes
+
+If you'd like, I can also suggest:
+
+A clean GitHub description line.
+
+A README opening paragraph.
+
+Or a consistent naming scheme that keeps it aligned with midi-cli-rs without confusion.
+
+Do you like this personality?
+
+
+
+
+
+
+
