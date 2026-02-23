@@ -8,73 +8,73 @@ This document tracks the implementation tasks for music-pipe-rs MVP.
 
 ### 1.1 Project Setup
 
-- [ ] Initialize Cargo workspace
-- [ ] Create crates directory structure
-- [ ] Add root Cargo.toml with workspace members
-- [ ] Create .gitignore for Rust project
-- [ ] Initial commit with documentation
+- [x] Initialize Cargo workspace
+- [x] Create crates directory structure
+- [x] Add root Cargo.toml with workspace members
+- [x] Create .gitignore for Rust project
+- [x] Initial commit with documentation
 
 ### 1.2 music-ir Crate
 
-- [ ] Create music-ir/Cargo.toml
-- [ ] Define Event enum with serde serialization
-- [ ] Implement read_events_from_stdin()
-- [ ] Implement write_events_to_stdout()
-- [ ] Add unit tests for serialization roundtrip
-- [ ] Add doc comments
+- [x] Create music-ir/Cargo.toml
+- [x] Define Event enum with serde serialization
+- [x] Implement read_events_from_stdin()
+- [x] Implement write_events_to_stdout()
+- [x] Add unit tests for serialization roundtrip
+- [x] Add doc comments
 
 ### 1.3 stage-motif
 
-- [ ] Create stage-motif/Cargo.toml with [[bin]] section
-- [ ] Implement CLI args (base, ch, tpq, bpm)
-- [ ] Generate simple arpeggio motif
-- [ ] Output JSONL to stdout
-- [ ] Add --help documentation
-- [ ] Test: verify valid JSONL output
+- [x] Create stage-motif/Cargo.toml with [[bin]] section
+- [x] Implement CLI args (base, ch, tpq, bpm)
+- [x] Generate simple arpeggio motif
+- [x] Output JSONL to stdout
+- [x] Add --help documentation
+- [x] Test: verify valid JSONL output
 
 ### 1.4 stage-transpose
 
-- [ ] Create stage-transpose/Cargo.toml
-- [ ] Implement CLI args (semitones)
-- [ ] Read events from stdin
-- [ ] Apply transposition with clamping (0-127)
-- [ ] Write events to stdout
-- [ ] Test: transpose up/down, edge cases
+- [x] Create stage-transpose/Cargo.toml
+- [x] Implement CLI args (semitones)
+- [x] Read events from stdin
+- [x] Apply transposition with clamping (0-127)
+- [x] Write events to stdout
+- [x] Test: transpose up/down, edge cases
 
 ### 1.5 stage-humanize
 
-- [ ] Create stage-humanize/Cargo.toml
-- [ ] Implement CLI args (seed, jitter-ticks, jitter-vel)
-- [ ] Initialize ChaCha8Rng from seed
-- [ ] Apply timing jitter to NoteOn/NoteOff
-- [ ] Apply velocity jitter to NoteOn
-- [ ] Sort events by time after modification
-- [ ] Test: determinism with same seed
+- [x] Create stage-humanize/Cargo.toml
+- [x] Implement CLI args (seed, jitter-ticks, jitter-vel)
+- [x] Initialize ChaCha8Rng from seed
+- [x] Apply timing jitter to NoteOn/NoteOff
+- [x] Apply velocity jitter to NoteOn
+- [x] Sort events by time after modification
+- [x] Test: determinism with same seed
 
 ### 1.6 stage-to-midi
 
-- [ ] Create stage-to-midi/Cargo.toml
-- [ ] Implement CLI args (out, tpq)
-- [ ] Read events from stdin
-- [ ] Build midly SMF structure
-- [ ] Convert absolute time to delta time
-- [ ] Handle Tempo events (microseconds per quarter)
-- [ ] Write .mid file
-- [ ] Test: output plays in DAW
+- [x] Create stage-to-midi/Cargo.toml
+- [x] Implement CLI args (out, tpq)
+- [x] Read events from stdin
+- [x] Build midly SMF structure
+- [x] Convert absolute time to delta time
+- [x] Handle Tempo events (microseconds per quarter)
+- [x] Write .mid file
+- [x] Test: output plays in DAW
 
 ### 1.7 Integration
 
-- [ ] Create examples/demo.sh with full pipeline
-- [ ] End-to-end test: motif | transpose | humanize | to-midi
-- [ ] Verify output.mid in MIDI player/DAW
-- [ ] Document pipeline usage in README
+- [x] Create examples/demo.sh with full pipeline
+- [x] End-to-end test: motif | transpose | humanize | to-midi
+- [x] Verify output.mid in MIDI player/DAW
+- [x] Document pipeline usage in README
 
 ### 1.8 Quality
 
-- [ ] All crates pass `cargo test`
-- [ ] All crates pass `cargo clippy -- -D warnings`
-- [ ] All code formatted with `cargo fmt`
-- [ ] All docs pass markdown-checker
+- [x] All crates pass `cargo test`
+- [x] All crates pass `cargo clippy -- -D warnings`
+- [x] All code formatted with `cargo fmt`
+- [x] All docs pass markdown-checker
 
 ## Phase 2: Extended Stages (Post-MVP)
 

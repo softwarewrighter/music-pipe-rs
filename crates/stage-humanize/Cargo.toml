@@ -1,0 +1,16 @@
+[package]
+name = "stage-humanize"
+version = "0.1.0"
+edition = "2021"
+description = "Add human-like timing and velocity variation for music-pipe-rs"
+
+[[bin]]
+name = "humanize"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+rand = "0.8"
+rand_chacha = "0.3"

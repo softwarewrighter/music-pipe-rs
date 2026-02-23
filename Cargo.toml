@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "crates/music-ir",
+  "crates/stage-motif",
+  "crates/stage-transpose",
+  "crates/stage-humanize",
+  "crates/stage-to-midi",
+]
+resolver = "2"

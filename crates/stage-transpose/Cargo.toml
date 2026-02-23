@@ -1,0 +1,14 @@
+[package]
+name = "stage-transpose"
+version = "0.1.0"
+edition = "2021"
+description = "Transpose MIDI notes for music-pipe-rs"
+
+[[bin]]
+name = "transpose"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }

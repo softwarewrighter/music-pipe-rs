@@ -1,0 +1,15 @@
+[package]
+name = "stage-to-midi"
+version = "0.1.0"
+edition = "2021"
+description = "Convert JSONL events to MIDI file for music-pipe-rs"
+
+[[bin]]
+name = "to-midi"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
+midly = "0.5"

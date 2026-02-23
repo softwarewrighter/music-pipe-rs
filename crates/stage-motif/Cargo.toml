@@ -1,0 +1,14 @@
+[package]
+name = "stage-motif"
+version = "0.1.0"
+edition = "2021"
+description = "Generate musical motifs for music-pipe-rs"
+
+[[bin]]
+name = "motif"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }
