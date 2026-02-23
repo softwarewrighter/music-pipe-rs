@@ -1,0 +1,12 @@
+[package]
+name = "music-pipe"
+version = "0.1.0"
+edition = "2021"
+description = "Unix-style pipeline for generative MIDI music"
+
+[[bin]]
+name = "music-pipe"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }

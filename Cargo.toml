@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "crates/music-ir",
+  "crates/music-pipe",
   "crates/stage-motif",
   "crates/stage-transpose",
   "crates/stage-humanize",
