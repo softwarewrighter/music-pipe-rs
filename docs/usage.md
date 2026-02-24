@@ -65,8 +65,8 @@ seed [N] | [generator] | [transform...] | to-midi --out file.mid
 | Stage | Key Parameters |
 |-------|----------------|
 | seed | `[N]` positional (auto if omitted) |
-| motif | `--base`, `--bpm`, `--notes`, `--complexity`, `--repeat` |
-| euclid | `--steps`, `--pulses`, `--note`, `--bpm`, `--repeat` |
+| motif | `--base`, `--bpm`, `--notes`, `--complexity`, `--repeat`, `--patch`, `--dur`, `--rest-prob`, `--chord-prob`, `--swing` |
+| euclid | `--steps`, `--pulses`, `--note`, `--bpm`, `--repeat`, `--vel-var`, `--accent`, `--ghost`, `--skip` |
 | transpose | `--semitones` |
 | scale | `--root`, `--mode` |
 | humanize | `--jitter-ticks`, `--jitter-vel` |
@@ -200,17 +200,31 @@ motif [OPTIONS]
 |--------|---------|-------------|
 | `--base` | 60 | Base MIDI note (60 = middle C) |
 | `--ch` | 0 | MIDI channel (0-15) |
+| `--patch` | (none) | MIDI program/instrument (0=piano, 32=acoustic bass, 33=electric bass) |
 | `--tpq` | 480 | Ticks per quarter note |
-| `--bpm` | 120 | Tempo in BPM |
+| `--bpm` | 120 | Tempo in BPM (0 = no tempo event) |
 | `--vel` | 96 | Velocity (1-127) |
 | `--notes` | 8 | Number of notes to generate |
 | `--complexity` | 5 | Melodic complexity (1-10). Higher = more variation |
 | `--repeat` | 1 | Number of repetitions |
+| `--dur` | 0.5 | Note duration multiplier (0.5=eighth, 1.0=quarter, 2.0=half) |
+| `--rest-prob` | 0.0 | Probability of rest instead of note (0.0-1.0) |
+| `--chord-prob` | 0.0 | Probability of chord instead of single note (0.0-1.0) |
+| `--swing` | 0.0 | Swing amount for triplet feel (0.0=straight, 0.33=triplet) |
 
 **Complexity:**
 - 1-3: Simple, chord-focused melodies
 - 4-6: Balanced melodic lines
 - 7-10: Complex, adventurous patterns with larger intervals
+
+**Common MIDI Programs:**
+| Program | Instrument |
+|---------|------------|
+| 0 | Acoustic Grand Piano |
+| 25 | Acoustic Guitar (steel) |
+| 32 | Acoustic Bass |
+| 33 | Electric Bass (finger) |
+| 34 | Electric Bass (pick) |
 
 **Examples:**
 ```bash
@@ -222,11 +236,17 @@ seed 12345 | motif --base 72 --notes 24 --complexity 8 --bpm 140
 
 # Simple, calm phrase
 seed 12345 | motif --base 60 --notes 12 --complexity 2 --bpm 80
+
+# Jazz piano with rests, chords, and swing
+seed 12345 | motif --base 60 --notes 24 --rest-prob 0.25 --chord-prob 0.2 --swing 0.15
+
+# Walking bass (quarter notes, acoustic bass)
+seed 12345 | motif --base 36 --notes 16 --dur 1.0 --patch 32 --complexity 2
 ```
 
 ### euclid - Generate Euclidean Rhythms
 
-Generates Euclidean rhythms - evenly distributed pulses across steps.
+Generates Euclidean rhythms - evenly distributed pulses across steps. Uses pipeline seed for variation parameters.
 
 ```bash
 euclid [OPTIONS]
@@ -244,6 +264,10 @@ euclid [OPTIONS]
 | `--duration` | 0 | Note duration (0=auto) |
 | `--bpm` | 120 | Tempo (0=no tempo event) |
 | `--repeat` | 1 | Repetitions |
+| `--vel-var` | 0 | Velocity variation range (+/-) |
+| `--accent` | 0.0 | Probability of accent (1.3x velocity) |
+| `--ghost` | 0.0 | Probability of ghost note (0.5x velocity) |
+| `--skip` | 0.0 | Probability of skipping a hit |
 
 **Common patterns:**
 | Name | Steps | Pulses | Style |
@@ -258,11 +282,14 @@ euclid [OPTIONS]
 # House kick pattern
 seed | euclid --steps 16 --pulses 4 --note 36
 
-# Hi-hat pattern
-seed | euclid --steps 16 --pulses 8 --note 42 --vel 60
+# Hi-hat pattern with ghost notes
+seed | euclid --steps 16 --pulses 8 --note 42 --vel 60 --ghost 0.2
 
-# Snare on 2 and 4
-seed | euclid --steps 16 --pulses 2 --note 38 --rotation 4
+# Snare on 2 and 4 with accents
+seed | euclid --steps 16 --pulses 2 --note 38 --rotation 4 --accent 0.15
+
+# Human-feel kick with velocity variation and occasional skips
+seed | euclid --steps 8 --pulses 3 --note 36 --vel 80 --vel-var 10 --skip 0.08
 ```
 
 ### transpose - Shift Pitch
@@ -493,6 +520,7 @@ Each event is a JSON object on its own line (JSONL):
 ```json
 {"type":"Seed","seed":12345}
 {"type":"Tempo","t":0,"bpm":120}
+{"type":"ProgramChange","t":0,"ch":0,"program":32}
 {"type":"NoteOn","t":0,"ch":0,"key":60,"vel":96}
 {"type":"NoteOff","t":240,"ch":0,"key":60}
 {"type":"End","t":480}
@@ -500,10 +528,11 @@ Each event is a JSON object on its own line (JSONL):
 
 | Field | Description |
 |-------|-------------|
-| `type` | Event type: Seed, Tempo, NoteOn, NoteOff, End |
+| `type` | Event type: Seed, Tempo, ProgramChange, NoteOn, NoteOff, End |
 | `seed` | Pipeline seed value (Seed only) |
 | `t` | Absolute time in ticks |
 | `bpm` | Beats per minute (Tempo only) |
+| `program` | MIDI program/instrument 0-127 (ProgramChange only) |
 | `ch` | MIDI channel 0-15 |
 | `key` | MIDI note number 0-127 |
 | `vel` | Velocity 1-127 |

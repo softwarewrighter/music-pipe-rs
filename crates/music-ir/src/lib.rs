@@ -20,6 +20,15 @@ pub enum Event {
         /// The seed value
         seed: u64,
     },
+    /// Program/instrument change
+    ProgramChange {
+        /// Absolute time in ticks
+        t: u32,
+        /// MIDI channel (0-15)
+        ch: u8,
+        /// Program number (0-127)
+        program: u8,
+    },
     /// A note begins playing
     NoteOn {
         /// Absolute time in ticks
@@ -59,6 +68,7 @@ impl Event {
     pub fn time(&self) -> u32 {
         match self {
             Event::Seed { .. } => 0,
+            Event::ProgramChange { t, .. } => *t,
             Event::NoteOn { t, .. } => *t,
             Event::NoteOff { t, .. } => *t,
             Event::Tempo { t, .. } => *t,
@@ -70,6 +80,7 @@ impl Event {
     pub fn set_time(&mut self, new_t: u32) {
         match self {
             Event::Seed { .. } => {}
+            Event::ProgramChange { t, .. } => *t = new_t,
             Event::NoteOn { t, .. } => *t = new_t,
             Event::NoteOff { t, .. } => *t = new_t,
             Event::Tempo { t, .. } => *t = new_t,

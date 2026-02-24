@@ -125,6 +125,42 @@ seed 12345 | motif | jq .
 - [Architecture](docs/architecture.md) - System design and data flow
 - [Design Decisions](docs/design.md) - Technical choices and rationale
 
+## Example Demo Scripts
+
+The `examples/` directory contains ready-to-run demo scripts:
+
+### pipe-demo.sh - Simple Pipeline Demo
+Shows the basic pipeline with visualization and audio playback.
+
+```bash
+./examples/pipe-demo.sh
+```
+- Generates a melody with sparkline visualization
+- Converts to MIDI, renders to WAV, and plays audio
+- Great for understanding the basic pipeline flow
+
+### demo.sh - Feature Showcase
+Comprehensive demo showing all stages and features.
+
+```bash
+./examples/demo.sh
+```
+- 10 demos covering motif, euclid, scales, modes, and more
+- Each demo generates a MIDI file with visualization
+- Final demo plays audio to demonstrate full workflow
+
+### trio-demo.sh - Multi-Instrument Jazz Trio
+Creates a complete jazz trio arrangement with piano, bass, and drums.
+
+```bash
+./examples/trio-demo.sh
+```
+- **Piano**: Bluesy melody with chords, rests, and swing (`--chord-prob`, `--rest-prob`, `--swing`)
+- **Bass**: Walking bass line with acoustic bass patch (`--dur 1.0`, `--patch 32`)
+- **Drums**: Hi-hat, snare, kick, and ride with dynamic variation (`--vel-var`, `--accent`, `--ghost`, `--skip`)
+- Plays each instrument solo, then the full trio together
+- Demonstrates multi-channel composition and expressive parameters
+
 ## Event Format
 
 Stages communicate via JSONL (JSON Lines). Each event is a single JSON object:
@@ -132,6 +168,7 @@ Stages communicate via JSONL (JSON Lines). Each event is a single JSON object:
 ```json
 {"type":"Seed","seed":12345}
 {"type":"Tempo","t":0,"bpm":120}
+{"type":"ProgramChange","t":0,"ch":1,"program":32}
 {"type":"NoteOn","t":0,"ch":0,"key":60,"vel":96}
 {"type":"NoteOff","t":240,"ch":0,"key":60}
 {"type":"End","t":480}

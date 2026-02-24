@@ -21,6 +21,10 @@ struct Args {
     #[arg(long, default_value_t = 0)]
     ch: u8,
 
+    /// MIDI program/patch (0-127). Common: 0=piano, 32=acoustic bass, 33=electric bass, 25=guitar
+    #[arg(long)]
+    patch: Option<u8>,
+
     /// Ticks per quarter note
     #[arg(long, default_value_t = 480)]
     tpq: u32,
@@ -44,6 +48,22 @@ struct Args {
     /// Melodic complexity (1-10). Higher = more variation.
     #[arg(long, default_value_t = 5)]
     complexity: u8,
+
+    /// Note duration multiplier (0.5=eighth, 1.0=quarter, 2.0=half)
+    #[arg(long, default_value_t = 0.5)]
+    dur: f64,
+
+    /// Probability of rest instead of note (0.0-1.0)
+    #[arg(long, default_value_t = 0.0)]
+    rest_prob: f64,
+
+    /// Probability of playing a chord (0.0-1.0)
+    #[arg(long, default_value_t = 0.0)]
+    chord_prob: f64,
+
+    /// Swing amount (0.0=straight, 0.33=triplet swing, 0.5=hard swing)
+    #[arg(long, default_value_t = 0.0)]
+    swing: f64,
 }
 
 /// Simple deterministic RNG (LCG)
@@ -108,30 +128,87 @@ fn main() -> Result<()> {
         });
     }
 
+    // Emit program change if specified
+    if let Some(program) = args.patch {
+        events.push(Event::ProgramChange {
+            t: 0,
+            ch: args.ch,
+            program,
+        });
+    }
+
     // Generate seed-driven melodic pattern
     let notes = generate_melody(&mut rng, args.base, args.notes, args.complexity);
 
-    // Note duration: eighth note = tpq / 2
-    let dur = args.tpq / 2;
+    // Base note duration (quarter note = tpq, so dur multiplier applies)
+    let base_dur = (args.tpq as f64 * args.dur) as u32;
+
+    // Swing offset for off-beat notes
+    let swing_offset = (base_dur as f64 * args.swing) as u32;
 
     let mut t = 0u32;
     for _ in 0..args.repeat {
-        for &key in &notes {
+        for (i, &key) in notes.iter().enumerate() {
+            // Apply swing to off-beat notes (odd indices)
+            let actual_t = if i % 2 == 1 {
+                t + swing_offset
+            } else {
+                t
+            };
+
+            // Check for rest
+            if rng.next_bool(args.rest_prob) {
+                t += base_dur;
+                continue;
+            }
+
             // Clamp key to valid MIDI range
             let key = key.clamp(0, 127);
 
-            events.push(Event::NoteOn {
-                t,
-                ch: args.ch,
-                key,
-                vel: args.vel,
-            });
-            events.push(Event::NoteOff {
-                t: t + dur,
-                ch: args.ch,
-                key,
-            });
-            t += dur;
+            // Check for chord
+            if rng.next_bool(args.chord_prob) {
+                // Generate a chord (root + 3rd + 5th or root + 3rd)
+                let chord_type = rng.next_range(3);
+                let chord_notes: Vec<u8> = match chord_type {
+                    0 => vec![key, (key + 4).min(127), (key + 7).min(127)], // major triad
+                    1 => vec![key, (key + 3).min(127), (key + 7).min(127)], // minor triad
+                    _ => vec![key, (key + 4).min(127)], // just root + 3rd
+                };
+
+                // Slightly lower velocity for chords to not overpower
+                let chord_vel = (args.vel as f64 * 0.85) as u8;
+
+                for &note in &chord_notes {
+                    events.push(Event::NoteOn {
+                        t: actual_t,
+                        ch: args.ch,
+                        key: note,
+                        vel: chord_vel,
+                    });
+                }
+                for &note in &chord_notes {
+                    events.push(Event::NoteOff {
+                        t: actual_t + base_dur,
+                        ch: args.ch,
+                        key: note,
+                    });
+                }
+            } else {
+                // Single note
+                events.push(Event::NoteOn {
+                    t: actual_t,
+                    ch: args.ch,
+                    key,
+                    vel: args.vel,
+                });
+                events.push(Event::NoteOff {
+                    t: actual_t + base_dur,
+                    ch: args.ch,
+                    key,
+                });
+            }
+
+            t += base_dur;
         }
     }
 
@@ -180,8 +257,7 @@ fn generate_melody(rng: &mut Rng, base: u8, length: usize, complexity: u8) -> Ve
             target + octave_shift - current
         } else if rng.next_bool(0.6) {
             // Stepwise motion (scale degree)
-            let step = rng.next_range_inclusive(-2, 2);
-            step
+            rng.next_range_inclusive(-2, 2)
         } else {
             // Skip (larger interval)
             rng.next_range_inclusive(-max_interval, max_interval)
@@ -246,7 +322,7 @@ mod tests {
         let melody = generate_melody(&mut rng, 60, 16, 10);
 
         for &note in &melody {
-            assert!(note >= 48 && note <= 84, "Note {} out of range", note);
+            assert!((48..=84).contains(&note), "Note {} out of range", note);
         }
     }
 

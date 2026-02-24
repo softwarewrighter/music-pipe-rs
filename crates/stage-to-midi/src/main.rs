@@ -51,6 +51,12 @@ fn main() -> Result<()> {
                 let mpqn = bpm_to_microseconds_per_quarter(bpm);
                 TrackEventKind::Meta(MetaMessage::Tempo(mpqn.into()))
             }
+            Event::ProgramChange { ch, program, .. } => TrackEventKind::Midi {
+                channel: ch.into(),
+                message: MidiMessage::ProgramChange {
+                    program: program.into(),
+                },
+            },
             Event::NoteOn { ch, key, vel, .. } => TrackEventKind::Midi {
                 channel: ch.into(),
                 message: MidiMessage::NoteOn {

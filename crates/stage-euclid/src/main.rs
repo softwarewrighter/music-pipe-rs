@@ -11,7 +11,7 @@
 
 use anyhow::Result;
 use clap::Parser;
-use music_ir::{write_events_to_stdout, Event};
+use music_ir::{extract_seed, read_events_from_stdin, write_events_to_stdout, Event};
 
 /// Generate Euclidean rhythms
 #[derive(Parser, Debug)]
@@ -58,10 +58,65 @@ struct Args {
     /// Number of pattern repetitions
     #[arg(long, default_value_t = 1)]
     repeat: u32,
+
+    /// Velocity variation range (+/- this amount)
+    #[arg(long, default_value_t = 0)]
+    vel_var: u8,
+
+    /// Probability of accent (1.3x velocity) per hit
+    #[arg(long, default_value_t = 0.0)]
+    accent: f64,
+
+    /// Probability of ghost note (0.5x velocity) per hit
+    #[arg(long, default_value_t = 0.0)]
+    ghost: f64,
+
+    /// Probability of skipping a hit entirely
+    #[arg(long, default_value_t = 0.0)]
+    skip: f64,
+}
+
+/// Simple deterministic RNG (LCG)
+struct Rng {
+    state: u64,
+}
+
+impl Rng {
+    fn new(seed: u64) -> Self {
+        Self { state: seed }
+    }
+
+    fn next(&mut self) -> u64 {
+        self.state = self.state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        self.state
+    }
+
+    /// Random bool with given probability (0.0 - 1.0)
+    fn next_bool(&mut self, probability: f64) -> bool {
+        (self.next() as f64 / u64::MAX as f64) < probability
+    }
+
+    /// Random integer in range [-range, +range]
+    fn next_range_signed(&mut self, range: i32) -> i32 {
+        if range == 0 {
+            return 0;
+        }
+        let full_range = (range * 2 + 1) as u64;
+        ((self.next() % full_range) as i32) - range
+    }
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
+
+    // Read any existing events from stdin (to get seed)
+    let input_events = read_events_from_stdin().unwrap_or_default();
+
+    // Extract seed from input, default to 42 if not provided
+    let seed = extract_seed(&input_events).unwrap_or(42);
+    let mut rng = Rng::new(seed);
 
     // Generate the Euclidean pattern
     let pattern = euclidean_rhythm(args.steps as usize, args.pulses as usize);
@@ -94,13 +149,36 @@ fn main() -> Result<()> {
 
         for (step, &hit) in pattern.iter().enumerate() {
             if hit {
+                // Check for skip
+                if rng.next_bool(args.skip) {
+                    continue;
+                }
+
                 let t = base_t + (step as u32) * args.step_ticks;
+
+                // Calculate velocity with variation
+                let mut vel = args.vel as i32;
+
+                // Apply random variation
+                if args.vel_var > 0 {
+                    vel += rng.next_range_signed(args.vel_var as i32);
+                }
+
+                // Check for accent or ghost
+                if rng.next_bool(args.accent) {
+                    vel = (vel as f64 * 1.3) as i32;
+                } else if rng.next_bool(args.ghost) {
+                    vel = (vel as f64 * 0.5) as i32;
+                }
+
+                // Clamp velocity to valid range
+                let vel = vel.clamp(1, 127) as u8;
 
                 events.push(Event::NoteOn {
                     t,
                     ch: args.ch,
                     key: args.note,
-                    vel: args.vel,
+                    vel,
                 });
 
                 events.push(Event::NoteOff {
