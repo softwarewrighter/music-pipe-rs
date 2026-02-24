@@ -100,11 +100,13 @@ fn main() -> Result<()> {
 
     let mut rng = Rng::new(seed);
 
-    // Emit tempo event at start
-    events.push(Event::Tempo {
-        t: 0,
-        bpm: args.bpm,
-    });
+    // Emit tempo event at start (skip if bpm is 0)
+    if args.bpm > 0 {
+        events.push(Event::Tempo {
+            t: 0,
+            bpm: args.bpm,
+        });
+    }
 
     // Generate seed-driven melodic pattern
     let notes = generate_melody(&mut rng, args.base, args.notes, args.complexity);
