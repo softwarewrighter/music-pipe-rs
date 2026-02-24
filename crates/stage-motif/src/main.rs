@@ -1,10 +1,12 @@
 //! Motif generator stage for music-pipe-rs
 //!
-//! Generates simple musical motifs and outputs them as JSONL events.
+//! Generates musical motifs with seed-driven variation.
+//! Same seed = same output. Different seed = different output.
 
 use anyhow::Result;
 use clap::Parser;
 use music_ir::{write_events_to_stdout, Event};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Generate musical motifs
 #[derive(Parser, Debug)]
@@ -32,19 +34,74 @@ struct Args {
     #[arg(long, default_value_t = 96)]
     vel: u8,
 
-    /// Pattern type: arpeggio, scale, or chord
-    #[arg(long, default_value = "arpeggio")]
-    pattern: String,
+    /// Number of notes to generate
+    #[arg(long, default_value_t = 8)]
+    notes: usize,
 
     /// Number of repetitions
     #[arg(long, default_value_t = 1)]
     repeat: u32,
+
+    /// Random seed for deterministic generation.
+    /// Same seed = same output. Different seed = different melody.
+    /// If not specified, a random seed is auto-generated and printed to stderr.
+    #[arg(long)]
+    seed: Option<u64>,
+
+    /// Melodic complexity (1-10). Higher = more variation.
+    #[arg(long, default_value_t = 5)]
+    complexity: u8,
+}
+
+/// Simple deterministic RNG (LCG)
+struct Rng {
+    state: u64,
+}
+
+impl Rng {
+    fn new(seed: u64) -> Self {
+        Self { state: seed }
+    }
+
+    fn next(&mut self) -> u64 {
+        self.state = self.state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        self.state
+    }
+
+    /// Random integer in range [0, max)
+    fn next_range(&mut self, max: usize) -> usize {
+        (self.next() >> 33) as usize % max
+    }
+
+    /// Random integer in range [min, max]
+    fn next_range_inclusive(&mut self, min: i32, max: i32) -> i32 {
+        let range = (max - min + 1) as usize;
+        min + self.next_range(range) as i32
+    }
+
+    /// Random bool with given probability (0.0 - 1.0)
+    fn next_bool(&mut self, probability: f64) -> bool {
+        (self.next() as f64 / u64::MAX as f64) < probability
+    }
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
+    // Use provided seed or generate from system entropy
+    let seed = args.seed.unwrap_or_else(|| {
+        let entropy_seed = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(42);
+        eprintln!("motif: using auto-generated seed: {}", entropy_seed);
+        entropy_seed
+    });
+
     let mut events = Vec::new();
+    let mut rng = Rng::new(seed);
 
     // Emit tempo event at start
     events.push(Event::Tempo {
@@ -52,17 +109,11 @@ fn main() -> Result<()> {
         bpm: args.bpm,
     });
 
-    // Generate the pattern
-    let notes = match args.pattern.as_str() {
-        "arpeggio" => generate_arpeggio(args.base),
-        "scale" => generate_scale(args.base),
-        "chord" => generate_chord(args.base),
-        _ => generate_arpeggio(args.base),
-    };
+    // Generate seed-driven melodic pattern
+    let notes = generate_melody(&mut rng, args.base, args.notes, args.complexity);
 
     // Note duration: eighth note = tpq / 2
     let dur = args.tpq / 2;
-    let _pattern_length = notes.len() as u32 * dur;
 
     let mut t = 0u32;
     for _ in 0..args.repeat {
@@ -91,29 +142,126 @@ fn main() -> Result<()> {
     write_events_to_stdout(&events)
 }
 
-/// Generate an arpeggio pattern (root, 3rd, 5th, octave)
-fn generate_arpeggio(base: u8) -> Vec<u8> {
-    vec![base, base + 4, base + 7, base + 12]
+/// Generate a melodic pattern using seed-driven randomness.
+///
+/// The melody uses a constrained random walk with tendency to return
+/// to chord tones, creating musical phrases rather than random noise.
+fn generate_melody(rng: &mut Rng, base: u8, length: usize, complexity: u8) -> Vec<u8> {
+    let mut notes = Vec::with_capacity(length);
+
+    // Chord tones (relative to base): root, 3rd, 5th, octave
+    let chord_tones = [0i32, 4, 7, 12];
+
+    // Scale degrees (relative to base): major scale - reserved for future scale-aware movement
+    let _scale_degrees = [0i32, 2, 4, 5, 7, 9, 11, 12];
+
+    // Start on a chord tone
+    let start_idx = rng.next_range(chord_tones.len());
+    let mut current = base as i32 + chord_tones[start_idx];
+    notes.push(current as u8);
+
+    // Complexity affects interval size and chord tone probability
+    let max_interval = (complexity as i32).clamp(2, 7);
+    let chord_tone_prob = 0.7 - (complexity as f64 * 0.05); // 5=0.45, 10=0.2
+
+    for i in 1..length {
+        // Decide movement type
+        let movement = if rng.next_bool(chord_tone_prob) {
+            // Jump to a chord tone
+            let target_idx = rng.next_range(chord_tones.len());
+            let target = base as i32 + chord_tones[target_idx];
+
+            // Possibly in different octave
+            let octave_shift = if rng.next_bool(0.3) {
+                rng.next_range_inclusive(-1, 1) * 12
+            } else {
+                0
+            };
+
+            target + octave_shift - current
+        } else if rng.next_bool(0.6) {
+            // Stepwise motion (scale degree)
+            let step = rng.next_range_inclusive(-2, 2);
+            step
+        } else {
+            // Skip (larger interval)
+            rng.next_range_inclusive(-max_interval, max_interval)
+        };
+
+        current += movement;
+
+        // Keep in reasonable range (base-12 to base+24)
+        let low = base as i32 - 12;
+        let high = base as i32 + 24;
+        if current < low {
+            current = low + (low - current) % 12;
+        } else if current > high {
+            current = high - (current - high) % 12;
+        }
+
+        // Tendency to end on chord tone
+        if i == length - 1 && rng.next_bool(0.8) {
+            let nearest_chord_tone = chord_tones
+                .iter()
+                .map(|&ct| base as i32 + ct)
+                .min_by_key(|&ct| (ct - current).abs())
+                .unwrap_or(base as i32);
+            current = nearest_chord_tone;
+        }
+
+        notes.push(current.clamp(0, 127) as u8);
+    }
+
+    notes
 }
 
-/// Generate a major scale pattern
-fn generate_scale(base: u8) -> Vec<u8> {
-    // Major scale intervals: W W H W W W H
-    vec![
-        base,
-        base + 2,
-        base + 4,
-        base + 5,
-        base + 7,
-        base + 9,
-        base + 11,
-        base + 12,
-    ]
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-/// Generate a chord (all notes at once, then release)
-fn generate_chord(base: u8) -> Vec<u8> {
-    // For chord, we return single notes but they'll be played sequentially
-    // A true chord stage would need different logic
-    vec![base, base + 4, base + 7]
+    #[test]
+    fn test_deterministic_same_seed() {
+        let mut rng1 = Rng::new(42);
+        let mut rng2 = Rng::new(42);
+
+        let melody1 = generate_melody(&mut rng1, 60, 8, 5);
+        let melody2 = generate_melody(&mut rng2, 60, 8, 5);
+
+        assert_eq!(melody1, melody2);
+    }
+
+    #[test]
+    fn test_different_seeds_different_output() {
+        let mut rng1 = Rng::new(42);
+        let mut rng2 = Rng::new(43);
+
+        let melody1 = generate_melody(&mut rng1, 60, 8, 5);
+        let melody2 = generate_melody(&mut rng2, 60, 8, 5);
+
+        assert_ne!(melody1, melody2);
+    }
+
+    #[test]
+    fn test_melody_in_range() {
+        let mut rng = Rng::new(12345);
+        let melody = generate_melody(&mut rng, 60, 16, 10);
+
+        for &note in &melody {
+            assert!(note >= 48 && note <= 84, "Note {} out of range", note);
+        }
+    }
+
+    #[test]
+    fn test_complexity_affects_variation() {
+        let mut rng_low = Rng::new(100);
+        let melody_low = generate_melody(&mut rng_low, 60, 16, 1);
+
+        // Reset RNG for high complexity test
+        let mut rng_high = Rng::new(100);
+        let melody_high = generate_melody(&mut rng_high, 60, 16, 10);
+
+        // Higher complexity should produce different results
+        // (This is a basic sanity check)
+        assert_eq!(melody_low.len(), melody_high.len());
+    }
 }

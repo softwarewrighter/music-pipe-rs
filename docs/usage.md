@@ -5,11 +5,15 @@ This guide covers human and AI agent usage of music-pipe-rs for generating MIDI 
 ## Quick Reference
 
 ```bash
-# Generate a 10-second intro melody
-motif --base 60 --bpm 120 --pattern arpeggio --repeat 8 \
+# Generate a 10-second intro melody (auto-random seed)
+motif --base 60 --bpm 120 --notes 16 --complexity 6 --repeat 2 \
   | scale --root C --mode major \
-  | humanize --seed 42 \
+  | humanize \
   | to-midi --out intro.mid
+
+# Reproducible melody (explicit seed)
+motif --seed 12345 --base 60 --bpm 120 --notes 16 \
+  | to-midi --out melody.mid
 
 # Generate drum pattern
 euclid --steps 16 --pulses 4 --note 36 --repeat 4 \
@@ -62,7 +66,7 @@ motif -h
 
 | Stage | Key Parameters |
 |-------|----------------|
-| motif | `--base` (note), `--bpm`, `--pattern`, `--repeat` |
+| motif | `--base` (note), `--bpm`, `--seed` (auto if omitted), `--notes`, `--complexity`, `--repeat` |
 | euclid | `--steps`, `--pulses`, `--note`, `--bpm`, `--repeat` |
 | transpose | `--semitones` |
 | scale | `--root`, `--mode` |
@@ -104,19 +108,27 @@ motif -h
 
 ### Common Recipes
 
-**5-second intro melody:**
+**5-second intro melody (auto-seed for variety):**
 ```bash
-motif --base 60 --bpm 120 --pattern arpeggio --repeat 5 \
+motif --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
+  | scale --root C --mode major \
+  | humanize --jitter-ticks 8 \
+  | to-midi --out intro.mid
+```
+
+**Reproducible intro (same output every time):**
+```bash
+motif --seed 12345 --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
   | scale --root C --mode major \
   | humanize --seed 42 --jitter-ticks 8 \
   | to-midi --out intro.mid
 ```
 
-**10-second outro (slower, fading feel):**
+**10-second outro (slower, minor key):**
 ```bash
-motif --base 60 --bpm 80 --pattern arpeggio --repeat 8 --vel 80 \
+motif --base 60 --bpm 80 --notes 20 --complexity 3 --repeat 2 --vel 80 \
   | scale --root A --mode minor \
-  | humanize --seed 99 --jitter-ticks 12 --jitter-vel 15 \
+  | humanize --jitter-ticks 12 --jitter-vel 15 \
   | to-midi --out outro.mid
 ```
 
@@ -130,16 +142,16 @@ motif --base 60 --bpm 80 --pattern arpeggio --repeat 8 --vel 80 \
 
 **Full arrangement (melody + bass + drums):**
 ```bash
-# Melody
-motif --base 72 --bpm 110 --pattern arpeggio --repeat 6 --ch 0 > /tmp/mel.jsonl
+# Melody (seed 100 for reproducibility)
+motif --seed 100 --base 72 --bpm 110 --notes 16 --complexity 6 --repeat 2 --ch 0 > /tmp/mel.jsonl
 
-# Bass (octave lower, channel 1)
-motif --base 48 --bpm 0 --pattern arpeggio --repeat 6 --ch 1 --vel 90 > /tmp/bass.jsonl
+# Bass (same seed for coherence, octave lower, channel 1)
+motif --seed 100 --base 48 --bpm 0 --notes 16 --complexity 3 --repeat 2 --ch 1 --vel 90 > /tmp/bass.jsonl
 
 # Drums
 {
-  euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 0 --repeat 3;
-  euclid --steps 16 --pulses 6 --note 42 --ch 9 --vel 55 --bpm 0 --repeat 3;
+  euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 0 --repeat 4;
+  euclid --steps 16 --pulses 6 --note 42 --ch 9 --vel 55 --bpm 0 --repeat 4;
 } > /tmp/drums.jsonl
 
 # Combine and output
@@ -154,7 +166,8 @@ cat /tmp/mel.jsonl /tmp/bass.jsonl /tmp/drums.jsonl \
 
 ### motif - Generate Melodic Patterns
 
-Generates musical motifs as JSONL events.
+Generates seed-driven musical motifs with deterministic randomness.
+Same seed = same output. Different seed = different melody.
 
 ```bash
 motif [OPTIONS]
@@ -162,30 +175,39 @@ motif [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
+| `--seed` | auto | Random seed. Omit for auto-generated (printed to stderr) |
 | `--base` | 60 | Base MIDI note (60 = middle C) |
 | `--ch` | 0 | MIDI channel (0-15) |
 | `--tpq` | 480 | Ticks per quarter note |
 | `--bpm` | 120 | Tempo in BPM |
 | `--vel` | 96 | Velocity (1-127) |
-| `--pattern` | arpeggio | Pattern type: arpeggio, scale, chord |
+| `--notes` | 8 | Number of notes to generate |
+| `--complexity` | 5 | Melodic complexity (1-10). Higher = more variation |
 | `--repeat` | 1 | Number of repetitions |
 
-**Patterns:**
-- `arpeggio` - Root, 3rd, 5th, octave (4 notes)
-- `scale` - Major scale up one octave (8 notes)
-- `chord` - Root, 3rd, 5th (3 notes, sequential)
+**Seed behavior:**
+- If `--seed` is omitted, a random seed is generated and printed to stderr
+- Use the printed seed to reproduce the exact same melody later
+- Different seeds produce different (but musically coherent) melodies
+
+**Complexity:**
+- 1-3: Simple, chord-focused melodies
+- 4-6: Balanced melodic lines
+- 7-10: Complex, adventurous patterns with larger intervals
 
 **Examples:**
 ```bash
-# Simple C major arpeggio
-motif --base 60 --pattern arpeggio
+# Auto-seed melody (different each run)
+motif --base 60 --notes 16 --complexity 5
 
-# G major scale at 140 BPM
-motif --base 67 --pattern scale --bpm 140
+# Reproducible melody
+motif --seed 12345 --base 60 --notes 16
 
-# Repeated pattern for 10 seconds at 120 BPM
-# 4 notes per pattern, eighth notes = 1 second per pattern
-motif --base 60 --bpm 120 --repeat 10
+# Complex, energetic pattern
+motif --seed 999 --base 72 --notes 24 --complexity 8 --bpm 140
+
+# Simple, calm phrase
+motif --seed 42 --base 60 --notes 12 --complexity 2 --bpm 80
 ```
 
 ### euclid - Generate Euclidean Rhythms

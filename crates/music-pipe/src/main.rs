@@ -38,13 +38,14 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Generate melodic patterns (arpeggio, scale, chord)
+    /// Generate seed-driven melodic patterns
     ///
-    /// Creates JSONL events for melodic content.
+    /// Creates JSONL events with deterministic randomness.
+    /// Same seed = same output. Omit seed for auto-generated variety.
     ///
     /// Examples:
-    ///   music-pipe motif --base 60 --pattern arpeggio --repeat 4
-    ///   music-pipe motif --base 72 --bpm 140 --pattern scale
+    ///   music-pipe motif --notes 16 --complexity 5           # auto-seed
+    ///   music-pipe motif --seed 12345 --notes 16 --repeat 2  # reproducible
     #[command(name = "motif")]
     Motif {
         /// Show all options
@@ -130,7 +131,7 @@ ARCHITECTURE:
 
 STAGES:
   Generators (create events):
-    motif     - Melodic patterns (arpeggio, scale, chord)
+    motif     - Seed-driven melodic patterns (auto-seed if omitted)
     euclid    - Euclidean rhythms (drums, percussion)
 
   Transforms (modify events):
@@ -154,18 +155,21 @@ AI AGENT USAGE:
 
 const EXAMPLES: &str = r#"
 EXAMPLES:
-  # Simple melody
-  motif --base 60 --bpm 120 --repeat 4 | to-midi --out melody.mid
+  # Auto-seed melody (different each run)
+  motif --notes 16 --bpm 120 | to-midi --out melody.mid
+
+  # Reproducible melody (same seed = same output)
+  motif --seed 12345 --notes 16 --repeat 2 | to-midi --out melody.mid
 
   # Melody in C major with humanization
-  motif --base 60 --repeat 8 | scale --root C --mode major | humanize | to-midi --out out.mid
+  motif --notes 20 --complexity 5 | scale --root C --mode major | humanize | to-midi --out out.mid
 
   # Drum pattern (kick + hihat)
   { euclid --steps 16 --pulses 4 --note 36;
     euclid --steps 16 --pulses 8 --note 42 --vel 60 --bpm 0; } | to-midi --out drums.mid
 
   # Video intro (5 seconds)
-  motif --base 72 --bpm 130 --repeat 6 | scale --root G --mode major | humanize --seed 42 | to-midi --out intro.mid
+  motif --seed 42 --base 72 --bpm 130 --notes 16 --complexity 6 | scale --root G --mode major | humanize | to-midi --out intro.mid
 
 MORE INFO:
   music-pipe reference    Quick parameter reference
@@ -179,13 +183,15 @@ QUICK REFERENCE
 
 GENERATORS
 ----------
-motif --base <NOTE> --bpm <BPM> --pattern <TYPE> --repeat <N> --ch <CH> --vel <VEL>
-  --base     MIDI note (60=middle C)        [default: 60]
-  --bpm      Tempo                          [default: 120]
-  --pattern  arpeggio|scale|chord           [default: arpeggio]
-  --repeat   Repetitions                    [default: 1]
-  --ch       MIDI channel (0-15)            [default: 0]
-  --vel      Velocity (1-127)               [default: 96]
+motif [--seed <N>] --notes <N> --complexity <1-10> --base <NOTE> --bpm <BPM> --repeat <N>
+  --seed       Random seed (auto if omitted)  [prints to stderr]
+  --notes      Number of notes to generate    [default: 8]
+  --complexity Melodic complexity (1-10)      [default: 5]
+  --base       MIDI note (60=middle C)        [default: 60]
+  --bpm        Tempo                          [default: 120]
+  --repeat     Repetitions                    [default: 1]
+  --ch         MIDI channel (0-15)            [default: 0]
+  --vel        Velocity (1-127)               [default: 96]
 
 euclid --steps <N> --pulses <N> --note <NOTE> --repeat <N> --ch <CH> --bpm <BPM>
   --steps    Steps in pattern               [default: 16]
