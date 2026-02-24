@@ -5,8 +5,7 @@
 
 use anyhow::Result;
 use clap::Parser;
-use music_ir::{write_events_to_stdout, Event};
-use std::time::{SystemTime, UNIX_EPOCH};
+use music_ir::{extract_seed, read_events_from_stdin, write_events_to_stdout, Event};
 
 /// Generate musical motifs
 #[derive(Parser, Debug)]
@@ -41,12 +40,6 @@ struct Args {
     /// Number of repetitions
     #[arg(long, default_value_t = 1)]
     repeat: u32,
-
-    /// Random seed for deterministic generation.
-    /// Same seed = same output. Different seed = different melody.
-    /// If not specified, a random seed is auto-generated and printed to stderr.
-    #[arg(long)]
-    seed: Option<u64>,
 
     /// Melodic complexity (1-10). Higher = more variation.
     #[arg(long, default_value_t = 5)]
@@ -90,17 +83,21 @@ impl Rng {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    // Use provided seed or generate from system entropy
-    let seed = args.seed.unwrap_or_else(|| {
-        let entropy_seed = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_nanos() as u64)
-            .unwrap_or(42);
-        eprintln!("motif: using auto-generated seed: {}", entropy_seed);
-        entropy_seed
-    });
+    // Read any existing events from stdin (to get seed)
+    let input_events = read_events_from_stdin().unwrap_or_default();
+
+    // Extract seed from input, default to 42 if not provided
+    let seed = extract_seed(&input_events).unwrap_or(42);
 
     let mut events = Vec::new();
+
+    // Pass through Seed event if present
+    for event in &input_events {
+        if matches!(event, Event::Seed { .. }) {
+            events.push(event.clone());
+        }
+    }
+
     let mut rng = Rng::new(seed);
 
     // Emit tempo event at start

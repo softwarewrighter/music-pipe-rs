@@ -7,85 +7,130 @@ A Unix-style pipeline engine for generative MIDI composition.
 music-pipe-rs provides small, composable command-line tools that transform MIDI events through Unix pipes. Each stage reads JSONL events from stdin, transforms them, and writes JSONL to stdout. The final stage converts to standard MIDI files.
 
 ```bash
-motif --base 60 --bpm 120 \
-  | transpose --semitones 7 \
-  | humanize --seed 42 \
-  | to-midi --out output.mid
+seed 12345 | motif --notes 16 --bpm 120 \
+  | scale --root C --mode major \
+  | humanize \
+  | to-midi --out melody.mid
 ```
 
 ## Features
 
 - **Composable**: Chain stages with Unix pipes
-- **Deterministic**: Seeded randomness for reproducible output
+- **Deterministic**: Single seed controls entire pipeline for reproducible output
 - **Debuggable**: JSONL format works with jq, grep, head
+- **Visual**: Built-in sparkline/piano roll visualization
 - **DAW-Compatible**: Outputs standard MIDI files
 - **Copyright-Safe**: Algorithmic composition, no sample licensing
 
-## Installation
+## Quick Start
 
 ```bash
-# Clone the repository
+# Clone and build
 git clone https://github.com/softwarewrighter/music-pipe-rs.git
 cd music-pipe-rs
-
-# Build all stages
 cargo build --release
 
-# Binaries are in target/release/
+# Source aliases for convenience
+source music-pipe.env
+
+# Generate a melody
+seed 12345 | motif --notes 16 | viz | humanize | to-midi --out melody.mid
+
+# Generate drums
+seed 12345 | euclid --steps 16 --pulses 5 | humanize | to-midi --out drums.mid
+
+# See help
+seed --help
+motif --help
 ```
 
-## Usage
+## Usage Examples
 
-### Generate a Simple Melody
+### Generate a Melody with Visualization
 
 ```bash
-./target/release/motif --base 60 --bpm 120 \
-  | ./target/release/transpose --semitones 7 \
-  | ./target/release/humanize --seed 123 \
-  | ./target/release/to-midi --out melody.mid
+seed 12345 | motif --notes 20 --complexity 6 --bpm 120 \
+  | viz \
+  | scale --root G --mode major \
+  | humanize \
+  | to-midi --out melody.mid
+```
+
+Output:
+```
+C5 ▁▄▄█▇█▁▁▁▂▂▃▄▁▂▁ G6
+```
+
+### Euclidean Drum Pattern
+
+```bash
+seed | {
+  euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 120 --repeat 4;
+  euclid --steps 16 --pulses 2 --note 38 --ch 9 --bpm 0 --repeat 4 --rotation 4;
+  euclid --steps 16 --pulses 8 --note 42 --ch 9 --vel 60 --bpm 0 --repeat 4;
+} | humanize | to-midi --out drums.mid
+```
+
+### Full Arrangement
+
+```bash
+SEED=42
+
+# Melody
+seed $SEED | motif --base 72 --notes 16 --complexity 6 --bpm 110 --ch 0 > /tmp/mel.jsonl
+
+# Bass
+seed $SEED | motif --base 48 --notes 16 --complexity 2 --bpm 0 --ch 1 --vel 90 > /tmp/bass.jsonl
+
+# Drums
+seed $SEED | euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 0 --repeat 4 > /tmp/drums.jsonl
+
+# Combine
+cat /tmp/mel.jsonl /tmp/bass.jsonl /tmp/drums.jsonl \
+  | scale --root C --mode minor \
+  | humanize \
+  | to-midi --out arrangement.mid
 ```
 
 ### Inspect the Event Stream
 
 ```bash
 # See raw JSONL events
-./target/release/motif --base 60 | head
+seed 12345 | motif --notes 8 | head
 
 # Filter specific events
-./target/release/motif --base 60 | grep NoteOn
+seed 12345 | motif | grep NoteOn
 
 # Pretty-print with jq
-./target/release/motif --base 60 | jq .
+seed 12345 | motif | jq .
 ```
 
-### Available Stages
+## Available Stages
 
 | Stage | Description |
 |-------|-------------|
-| `motif` | Generate simple musical motifs |
+| `seed` | Set random seed for pipeline (auto if omitted) |
+| `motif` | Generate melodic patterns |
+| `euclid` | Generate Euclidean rhythms |
 | `transpose` | Shift notes by N semitones |
+| `scale` | Constrain to musical scale |
 | `humanize` | Add timing and velocity variation |
+| `viz` | Show sparkline/piano roll visualization |
 | `to-midi` | Convert JSONL stream to .mid file |
 
 ## Documentation
 
+- [Usage Guide](docs/usage.md) - Comprehensive usage for humans and AI agents
 - [Product Requirements](docs/prd.md) - Vision and requirements
 - [Architecture](docs/architecture.md) - System design and data flow
 - [Design Decisions](docs/design.md) - Technical choices and rationale
-- [Implementation Plan](docs/plan.md) - Task breakdown and milestones
-- [Status](docs/status.md) - Current progress
-
-### Development
-
-- [AI Agent Instructions](docs/ai_agent_instructions.md) - Guidelines for AI coding agents
-- [Development Process](docs/process.md) - Workflow and quality standards
-- [Tools](docs/tools.md) - Recommended development tools
 
 ## Event Format
 
 Stages communicate via JSONL (JSON Lines). Each event is a single JSON object:
 
 ```json
+{"type":"Seed","seed":12345}
 {"type":"Tempo","t":0,"bpm":120}
 {"type":"NoteOn","t":0,"ch":0,"key":60,"vel":96}
 {"type":"NoteOff","t":240,"ch":0,"key":60}
@@ -97,13 +142,28 @@ Stages communicate via JSONL (JSON Lines). Each event is a single JSON object:
 ```
 music-pipe-rs/
 |-- Cargo.toml              # Workspace root
+|-- music-pipe.env          # Shell aliases
 |-- crates/
 |   |-- music-ir/           # Shared event types
+|   |-- stage-seed/         # Pipeline seed
 |   |-- stage-motif/        # Motif generator
+|   |-- stage-euclid/       # Euclidean rhythms
 |   |-- stage-transpose/    # Pitch transposition
+|   |-- stage-scale/        # Scale constraint
 |   |-- stage-humanize/     # Timing/velocity jitter
+|   |-- stage-viz/          # Visualization
 |   +-- stage-to-midi/      # MIDI file output
 +-- docs/                   # Documentation
+```
+
+## Playback
+
+```bash
+# Convert to WAV with FluidSynth
+fluidsynth -ni -F output.wav /path/to/soundfont.sf2 input.mid
+
+# Play on macOS
+afplay output.wav
 ```
 
 ## Requirements
@@ -114,7 +174,3 @@ music-pipe-rs/
 ## License
 
 MIT
-
-## Contributing
-
-Contributions welcome. Please follow the [development process](docs/process.md).

@@ -14,6 +14,12 @@ use std::io::{self, BufRead, Write};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type")]
 pub enum Event {
+    /// Random seed for the pipeline.
+    /// Emitted once at the start; all stages use this seed for determinism.
+    Seed {
+        /// The seed value
+        seed: u64,
+    },
     /// A note begins playing
     NoteOn {
         /// Absolute time in ticks
@@ -49,9 +55,10 @@ pub enum Event {
 }
 
 impl Event {
-    /// Get the timestamp of this event
+    /// Get the timestamp of this event (Seed has no time, returns 0)
     pub fn time(&self) -> u32 {
         match self {
+            Event::Seed { .. } => 0,
             Event::NoteOn { t, .. } => *t,
             Event::NoteOff { t, .. } => *t,
             Event::Tempo { t, .. } => *t,
@@ -59,15 +66,24 @@ impl Event {
         }
     }
 
-    /// Set the timestamp of this event
+    /// Set the timestamp of this event (no-op for Seed)
     pub fn set_time(&mut self, new_t: u32) {
         match self {
+            Event::Seed { .. } => {}
             Event::NoteOn { t, .. } => *t = new_t,
             Event::NoteOff { t, .. } => *t = new_t,
             Event::Tempo { t, .. } => *t = new_t,
             Event::End { t } => *t = new_t,
         }
     }
+}
+
+/// Extract the seed value from events, if present.
+pub fn extract_seed(events: &[Event]) -> Option<u64> {
+    events.iter().find_map(|e| match e {
+        Event::Seed { seed } => Some(*seed),
+        _ => None,
+    })
 }
 
 /// Read all events from stdin as JSONL (one JSON object per line).

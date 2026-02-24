@@ -5,7 +5,7 @@
 
 use anyhow::Result;
 use clap::Parser;
-use music_ir::{read_events_from_stdin, sort_events_by_time, write_events_to_stdout, Event};
+use music_ir::{extract_seed, read_events_from_stdin, sort_events_by_time, write_events_to_stdout, Event};
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
@@ -15,10 +15,6 @@ use rand_chacha::ChaCha8Rng;
 #[command(about = "Add timing and velocity variation")]
 #[command(version)]
 struct Args {
-    /// Random seed for reproducible results
-    #[arg(long, default_value_t = 42)]
-    seed: u64,
-
     /// Maximum timing jitter in ticks (+/-)
     #[arg(long, default_value_t = 8)]
     jitter_ticks: i32,
@@ -30,11 +26,17 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let mut rng = ChaCha8Rng::seed_from_u64(args.seed);
     let mut events = read_events_from_stdin()?;
+
+    // Use pipeline seed if present, otherwise default to 42
+    let seed = extract_seed(&events).unwrap_or(42);
+    let mut rng = ChaCha8Rng::seed_from_u64(seed);
 
     for event in &mut events {
         match event {
+            Event::Seed { .. } => {
+                // Pass through seed event unchanged
+            }
             Event::NoteOn { t, vel, .. } => {
                 // Apply timing jitter
                 let dt = rng.gen_range(-args.jitter_ticks..=args.jitter_ticks);

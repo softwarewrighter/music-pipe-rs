@@ -5,20 +5,17 @@ This guide covers human and AI agent usage of music-pipe-rs for generating MIDI 
 ## Quick Reference
 
 ```bash
-# Generate a 10-second intro melody (auto-random seed)
-motif --base 60 --bpm 120 --notes 16 --complexity 6 --repeat 2 \
-  | scale --root C --mode major \
-  | humanize \
-  | to-midi --out intro.mid
+# Generate a melody (auto-random seed)
+seed | motif --notes 16 --bpm 120 | humanize | to-midi --out melody.mid
 
 # Reproducible melody (explicit seed)
-motif --seed 12345 --base 60 --bpm 120 --notes 16 \
-  | to-midi --out melody.mid
+seed 12345 | motif --notes 16 --bpm 120 | humanize | to-midi --out melody.mid
+
+# With visualization
+seed 12345 | motif --notes 16 | viz | humanize | to-midi --out melody.mid
 
 # Generate drum pattern
-euclid --steps 16 --pulses 4 --note 36 --repeat 4 \
-  | humanize --seed 123 \
-  | to-midi --out drums.mid
+seed | euclid --steps 16 --pulses 4 --note 36 --repeat 4 | humanize | to-midi --out drums.mid
 ```
 
 ---
@@ -33,31 +30,32 @@ music-pipe-rs is a Unix-style pipeline for generating MIDI music. Each stage rea
 
 ```bash
 # Get help for any stage
+seed --help
 motif --help
 euclid --help
-transpose --help
-scale --help
+viz --help
 humanize --help
 to-midi --help
-
-# Quick help (shorter)
-motif -h
 ```
 
 ### Pipeline Pattern
 
 ```
-[generator] | [transform...] | to-midi --out file.mid
+seed [N] | [generator] | [transform...] | to-midi --out file.mid
 ```
 
+**Seed** (always first):
+- `seed` - Set random seed for entire pipeline (auto if omitted)
+
 **Generators** (create events):
-- `motif` - Melodic patterns (arpeggio, scale, chord)
+- `motif` - Melodic patterns (uses pipeline seed)
 - `euclid` - Euclidean rhythms (drums, percussion)
 
 **Transforms** (modify events):
 - `transpose` - Shift pitch by semitones
 - `scale` - Constrain to musical scale
-- `humanize` - Add timing/velocity variation
+- `humanize` - Add timing/velocity variation (uses pipeline seed)
+- `viz` - Show sparkline/piano roll visualization
 
 **Output**:
 - `to-midi` - Write MIDI file
@@ -66,11 +64,13 @@ motif -h
 
 | Stage | Key Parameters |
 |-------|----------------|
-| motif | `--base` (note), `--bpm`, `--seed` (auto if omitted), `--notes`, `--complexity`, `--repeat` |
+| seed | `[N]` positional (auto if omitted) |
+| motif | `--base`, `--bpm`, `--notes`, `--complexity`, `--repeat` |
 | euclid | `--steps`, `--pulses`, `--note`, `--bpm`, `--repeat` |
 | transpose | `--semitones` |
 | scale | `--root`, `--mode` |
-| humanize | `--seed`, `--jitter-ticks`, `--jitter-vel` |
+| humanize | `--jitter-ticks`, `--jitter-vel` |
+| viz | `--roll` (piano roll mode), `--width` |
 | to-midi | `--out` (required) |
 
 ### Timing Calculations
@@ -110,7 +110,7 @@ motif -h
 
 **5-second intro melody (auto-seed for variety):**
 ```bash
-motif --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
+seed | motif --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
   | scale --root C --mode major \
   | humanize --jitter-ticks 8 \
   | to-midi --out intro.mid
@@ -118,15 +118,15 @@ motif --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
 
 **Reproducible intro (same output every time):**
 ```bash
-motif --seed 12345 --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
+seed 12345 | motif --base 60 --bpm 120 --notes 16 --complexity 5 --repeat 2 \
   | scale --root C --mode major \
-  | humanize --seed 42 --jitter-ticks 8 \
+  | humanize --jitter-ticks 8 \
   | to-midi --out intro.mid
 ```
 
 **10-second outro (slower, minor key):**
 ```bash
-motif --base 60 --bpm 80 --notes 20 --complexity 3 --repeat 2 --vel 80 \
+seed | motif --base 60 --bpm 80 --notes 20 --complexity 3 --repeat 2 --vel 80 \
   | scale --root A --mode minor \
   | humanize --jitter-ticks 12 --jitter-vel 15 \
   | to-midi --out outro.mid
@@ -134,29 +134,32 @@ motif --base 60 --bpm 80 --notes 20 --complexity 3 --repeat 2 --vel 80 \
 
 **Layered drums (kick + hihat):**
 ```bash
-{
+seed 12345 | {
   euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 120 --repeat 4;
   euclid --steps 16 --pulses 8 --note 42 --ch 9 --vel 60 --bpm 0 --repeat 4;
-} | humanize --seed 77 | to-midi --out drums.mid
+} | humanize | to-midi --out drums.mid
 ```
 
 **Full arrangement (melody + bass + drums):**
 ```bash
-# Melody (seed 100 for reproducibility)
-motif --seed 100 --base 72 --bpm 110 --notes 16 --complexity 6 --repeat 2 --ch 0 > /tmp/mel.jsonl
+# Use same seed for all parts
+SEED=12345
 
-# Bass (same seed for coherence, octave lower, channel 1)
-motif --seed 100 --base 48 --bpm 0 --notes 16 --complexity 3 --repeat 2 --ch 1 --vel 90 > /tmp/bass.jsonl
+# Melody (channel 0)
+seed $SEED | motif --base 72 --bpm 110 --notes 16 --complexity 6 --repeat 2 --ch 0 > /tmp/mel.jsonl
+
+# Bass (channel 1, octave lower)
+seed $SEED | motif --base 48 --bpm 0 --notes 16 --complexity 3 --repeat 2 --ch 1 --vel 90 > /tmp/bass.jsonl
 
 # Drums
-{
+seed $SEED | {
   euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 0 --repeat 4;
   euclid --steps 16 --pulses 6 --note 42 --ch 9 --vel 55 --bpm 0 --repeat 4;
 } > /tmp/drums.jsonl
 
 # Combine and output
 cat /tmp/mel.jsonl /tmp/bass.jsonl /tmp/drums.jsonl \
-  | humanize --seed 42 \
+  | humanize \
   | to-midi --out arrangement.mid
 ```
 
@@ -164,10 +167,30 @@ cat /tmp/mel.jsonl /tmp/bass.jsonl /tmp/drums.jsonl \
 
 ## Stage Reference
 
+### seed - Set Pipeline Seed
+
+Sets a single random seed for the entire pipeline. All downstream stages (motif, humanize) use this seed for deterministic randomness.
+
+```bash
+seed [SEED]
+```
+
+| Argument | Description |
+|----------|-------------|
+| `[SEED]` | Optional seed value. If omitted, auto-generates and prints to stderr |
+
+**Examples:**
+```bash
+# Auto-generate seed (prints to stderr for later use)
+seed | motif --notes 16 | to-midi --out melody.mid
+
+# Use specific seed for reproducibility
+seed 12345 | motif --notes 16 | to-midi --out melody.mid
+```
+
 ### motif - Generate Melodic Patterns
 
-Generates seed-driven musical motifs with deterministic randomness.
-Same seed = same output. Different seed = different melody.
+Generates seed-driven musical motifs. Uses the pipeline seed from `seed` stage.
 
 ```bash
 motif [OPTIONS]
@@ -175,7 +198,6 @@ motif [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--seed` | auto | Random seed. Omit for auto-generated (printed to stderr) |
 | `--base` | 60 | Base MIDI note (60 = middle C) |
 | `--ch` | 0 | MIDI channel (0-15) |
 | `--tpq` | 480 | Ticks per quarter note |
@@ -185,11 +207,6 @@ motif [OPTIONS]
 | `--complexity` | 5 | Melodic complexity (1-10). Higher = more variation |
 | `--repeat` | 1 | Number of repetitions |
 
-**Seed behavior:**
-- If `--seed` is omitted, a random seed is generated and printed to stderr
-- Use the printed seed to reproduce the exact same melody later
-- Different seeds produce different (but musically coherent) melodies
-
 **Complexity:**
 - 1-3: Simple, chord-focused melodies
 - 4-6: Balanced melodic lines
@@ -197,17 +214,14 @@ motif [OPTIONS]
 
 **Examples:**
 ```bash
-# Auto-seed melody (different each run)
-motif --base 60 --notes 16 --complexity 5
-
-# Reproducible melody
-motif --seed 12345 --base 60 --notes 16
+# Simple melody
+seed 12345 | motif --base 60 --notes 16
 
 # Complex, energetic pattern
-motif --seed 999 --base 72 --notes 24 --complexity 8 --bpm 140
+seed 12345 | motif --base 72 --notes 24 --complexity 8 --bpm 140
 
 # Simple, calm phrase
-motif --seed 42 --base 60 --notes 12 --complexity 2 --bpm 80
+seed 12345 | motif --base 60 --notes 12 --complexity 2 --bpm 80
 ```
 
 ### euclid - Generate Euclidean Rhythms
@@ -242,13 +256,13 @@ euclid [OPTIONS]
 **Examples:**
 ```bash
 # House kick pattern
-euclid --steps 16 --pulses 4 --note 36
+seed | euclid --steps 16 --pulses 4 --note 36
 
 # Hi-hat pattern
-euclid --steps 16 --pulses 8 --note 42 --vel 60
+seed | euclid --steps 16 --pulses 8 --note 42 --vel 60
 
 # Snare on 2 and 4
-euclid --steps 16 --pulses 2 --note 38 --rotation 4
+seed | euclid --steps 16 --pulses 2 --note 38 --rotation 4
 ```
 
 ### transpose - Shift Pitch
@@ -266,10 +280,10 @@ transpose --semitones <N>
 **Examples:**
 ```bash
 # Up a perfect fifth (+7)
-motif | transpose --semitones 7
+seed | motif | transpose --semitones 7
 
 # Down an octave (-12)
-motif | transpose --semitones -12
+seed | motif | transpose --semitones -12
 ```
 
 ### scale - Constrain to Scale
@@ -301,18 +315,15 @@ scale [OPTIONS]
 **Examples:**
 ```bash
 # Constrain to C major
-motif | scale --root C --mode major
+seed | motif | scale --root C --mode major
 
 # Constrain to A minor pentatonic
-motif | scale --root A --mode pentatonic-minor
-
-# Snap up only (never lower)
-motif | scale --root G --mode dorian --snap up
+seed | motif | scale --root A --mode pentatonic-minor
 ```
 
 ### humanize - Add Variation
 
-Adds human-like timing and velocity variation using deterministic RNG.
+Adds human-like timing and velocity variation. Uses the pipeline seed from `seed` stage.
 
 ```bash
 humanize [OPTIONS]
@@ -320,21 +331,43 @@ humanize [OPTIONS]
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--seed` | 42 | Random seed (same seed = same output) |
 | `--jitter-ticks` | 8 | Max timing variation (+/-) |
 | `--jitter-vel` | 10 | Max velocity variation (+/-) |
 
 **Examples:**
 ```bash
 # Subtle humanization
-humanize --seed 42 --jitter-ticks 5 --jitter-vel 5
+seed 12345 | motif | humanize --jitter-ticks 5 --jitter-vel 5
 
 # More loose/human feel
-humanize --seed 123 --jitter-ticks 15 --jitter-vel 20
+seed 12345 | motif | humanize --jitter-ticks 15 --jitter-vel 20
+```
 
-# Reproducible output (same seed)
-motif | humanize --seed 999 | to-midi --out test.mid
-# Running again produces identical output
+### viz - Visualize Notes
+
+Prints a sparkline or piano roll visualization to stderr, passes events through unchanged.
+
+```bash
+viz [OPTIONS]
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--width` | 60 | Sparkline width |
+| `--roll` | false | Show piano roll instead of sparkline |
+
+**Examples:**
+```bash
+# Sparkline (default)
+seed 12345 | motif --notes 16 | viz | to-midi --out out.mid
+# Output: C5 ▁▄▄█▇█▁▁▁▂▂▃▄▁▂▁ G6
+
+# Piano roll
+seed 12345 | motif --notes 16 | viz --roll | to-midi --out out.mid
+# Output:
+# G5 │·····█··········│
+# F5 │███··█··········│
+# E5 │···█···█████████│
 ```
 
 ### to-midi - Write MIDI File
@@ -352,8 +385,8 @@ to-midi --out <PATH> [OPTIONS]
 
 **Examples:**
 ```bash
-motif | to-midi --out melody.mid
-euclid | to-midi --out drums.mid
+seed | motif | to-midi --out melody.mid
+seed | euclid | to-midi --out drums.mid
 ```
 
 ---
@@ -363,38 +396,40 @@ euclid | to-midi --out drums.mid
 ### Bright, Energetic Intro (5 seconds)
 
 ```bash
-motif --base 72 --bpm 130 --pattern arpeggio --repeat 6 --vel 100 \
+seed 42 | motif --base 72 --bpm 130 --notes 16 --complexity 6 --repeat 2 --vel 100 \
   | scale --root C --mode major \
-  | humanize --seed 42 --jitter-ticks 6 \
+  | humanize --jitter-ticks 6 \
   | to-midi --out bright-intro.mid
 ```
 
 ### Calm, Professional Intro (8 seconds)
 
 ```bash
-motif --base 60 --bpm 90 --pattern arpeggio --repeat 6 --vel 80 \
+seed 55 | motif --base 60 --bpm 90 --notes 20 --complexity 4 --repeat 2 --vel 80 \
   | scale --root G --mode major \
-  | humanize --seed 55 --jitter-ticks 10 --jitter-vel 8 \
+  | humanize --jitter-ticks 10 --jitter-vel 8 \
   | to-midi --out calm-intro.mid
 ```
 
 ### Dramatic/Cinematic Intro (6 seconds)
 
 ```bash
-motif --base 48 --bpm 100 --pattern scale --repeat 4 --vel 90 \
+seed 77 | motif --base 48 --bpm 100 --notes 16 --complexity 5 --repeat 2 --vel 90 \
   | scale --root D --mode harmonic-minor \
-  | humanize --seed 77 --jitter-ticks 8 \
+  | humanize --jitter-ticks 8 \
   | to-midi --out dramatic-intro.mid
 ```
 
 ### Upbeat Outro with Drums (10 seconds)
 
 ```bash
+SEED=88
+
 # Melody
-motif --base 67 --bpm 120 --pattern arpeggio --repeat 10 --ch 0 --vel 85 > /tmp/mel.jsonl
+seed $SEED | motif --base 67 --bpm 120 --notes 20 --complexity 5 --repeat 2 --ch 0 --vel 85 > /tmp/mel.jsonl
 
 # Drums
-{
+seed $SEED | {
   euclid --steps 16 --pulses 4 --note 36 --ch 9 --bpm 0 --repeat 5;
   euclid --steps 16 --pulses 8 --note 42 --ch 9 --vel 50 --bpm 0 --repeat 5;
 } > /tmp/drm.jsonl
@@ -402,32 +437,17 @@ motif --base 67 --bpm 120 --pattern arpeggio --repeat 10 --ch 0 --vel 85 > /tmp/
 # Combine
 cat /tmp/mel.jsonl /tmp/drm.jsonl \
   | scale --root G --mode major \
-  | humanize --seed 88 \
+  | humanize \
   | to-midi --out upbeat-outro.mid
 ```
 
 ### Mellow Fade-Out Outro (12 seconds)
 
 ```bash
-motif --base 60 --bpm 70 --pattern arpeggio --repeat 8 --vel 70 \
+seed 33 | motif --base 60 --bpm 70 --notes 24 --complexity 3 --repeat 2 --vel 70 \
   | scale --root A --mode minor \
-  | humanize --seed 33 --jitter-ticks 15 --jitter-vel 12 \
+  | humanize --jitter-ticks 15 --jitter-vel 12 \
   | to-midi --out mellow-outro.mid
-```
-
-### Tech/Electronic Intro (6 seconds)
-
-```bash
-{
-  # Synth arpeggio
-  motif --base 60 --bpm 128 --pattern arpeggio --repeat 8 --ch 0 --vel 90;
-  # Bass pulse
-  euclid --steps 16 --pulses 4 --note 36 --ch 1 --bpm 0 --repeat 4 --vel 100;
-  # Hi-hat
-  euclid --steps 16 --pulses 8 --note 42 --ch 9 --bpm 0 --repeat 4 --vel 45;
-} | scale --root C --mode pentatonic-minor \
-  | humanize --seed 64 --jitter-ticks 4 \
-  | to-midi --out tech-intro.mid
 ```
 
 ---
@@ -441,23 +461,14 @@ motif --base 60 --bpm 70 --pattern arpeggio --repeat 8 --vel 70 \
 brew install fluid-synth  # macOS
 apt install fluidsynth    # Linux
 
-# Play with soundfont
-fluidsynth -a coreaudio -ni /path/to/soundfont.sf2 output.mid
+# Play directly
+fluidsynth -a coreaudio -i /path/to/soundfont.sf2 output.mid
 
-# Common soundfont locations
-# ~/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2
-# /usr/share/sounds/sf2/
-```
+# Convert MIDI to WAV
+fluidsynth -ni -F output.wav /path/to/soundfont.sf2 input.mid
 
-### Converting to Audio
-
-```bash
-# MIDI to WAV using FluidSynth
-fluidsynth -F output.wav -ni soundfont.sf2 input.mid
-
-# MIDI to MP3 (requires ffmpeg)
-fluidsynth -F output.wav -ni soundfont.sf2 input.mid
-ffmpeg -i output.wav output.mp3
+# Then play WAV
+afplay output.wav  # macOS
 ```
 
 ---
@@ -466,28 +477,12 @@ ffmpeg -i output.wav output.mp3
 
 | Issue | Solution |
 |-------|----------|
-| No output | Check pipeline with `motif \| head` to see JSONL |
+| No output | Check pipeline with `seed \| motif \| head` to see JSONL |
 | Notes out of range | Use `transpose` to shift octaves |
 | Sounds robotic | Increase `humanize --jitter-ticks` |
 | Wrong key | Use `scale --root X --mode Y` |
-| Too fast/slow | Adjust `--bpm` on first generator |
+| Too fast/slow | Adjust `--bpm` on generator |
 | Wrong length | Calculate `--repeat` based on timing |
-
-### Debugging Pipeline
-
-```bash
-# See raw events
-motif | head -10
-
-# Count events
-motif --repeat 4 | wc -l
-
-# Pretty-print JSON
-motif | jq .
-
-# Check timing
-motif | jq '.t'
-```
 
 ---
 
@@ -496,6 +491,7 @@ motif | jq '.t'
 Each event is a JSON object on its own line (JSONL):
 
 ```json
+{"type":"Seed","seed":12345}
 {"type":"Tempo","t":0,"bpm":120}
 {"type":"NoteOn","t":0,"ch":0,"key":60,"vel":96}
 {"type":"NoteOff","t":240,"ch":0,"key":60}
@@ -504,7 +500,8 @@ Each event is a JSON object on its own line (JSONL):
 
 | Field | Description |
 |-------|-------------|
-| `type` | Event type: Tempo, NoteOn, NoteOff, End |
+| `type` | Event type: Seed, Tempo, NoteOn, NoteOff, End |
+| `seed` | Pipeline seed value (Seed only) |
 | `t` | Absolute time in ticks |
 | `bpm` | Beats per minute (Tempo only) |
 | `ch` | MIDI channel 0-15 |

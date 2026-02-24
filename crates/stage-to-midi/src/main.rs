@@ -43,6 +43,10 @@ fn main() -> Result<()> {
         last_t = t;
 
         let kind = match event {
+            Event::Seed { .. } => {
+                // Skip Seed events; they're pipeline metadata, not MIDI
+                continue;
+            }
             Event::Tempo { bpm, .. } => {
                 let mpqn = bpm_to_microseconds_per_quarter(bpm);
                 TrackEventKind::Meta(MetaMessage::Tempo(mpqn.into()))

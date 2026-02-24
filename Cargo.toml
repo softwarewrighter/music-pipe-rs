@@ -2,11 +2,13 @@
 members = [
   "crates/music-ir",
   "crates/music-pipe",
+  "crates/stage-seed",
   "crates/stage-motif",
   "crates/stage-transpose",
   "crates/stage-humanize",
   "crates/stage-to-midi",
   "crates/stage-euclid",
   "crates/stage-scale",
+  "crates/stage-viz",
 ]
 resolver = "2"
