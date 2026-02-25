@@ -1,0 +1,14 @@
+[package]
+name = "stage-trim"
+version = "0.1.0"
+edition = "2021"
+description = "Trim stage - remove trailing silence from music-pipe-rs events"
+
+[[bin]]
+name = "trim"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }

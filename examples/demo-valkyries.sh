@@ -119,13 +119,14 @@ echo "Generating Cymbals..."
       --vel 90 --vel-var 20 --skip 0.2 \
   > /tmp/valk-cymbal.jsonl
 
-# Combine all voices
+# Combine all voices and trim trailing silence
 echo "Combining full orchestra..."
 cat /tmp/valk-horn.jsonl /tmp/valk-trumpet.jsonl /tmp/valk-trombone.jsonl /tmp/valk-tuba.jsonl \
     /tmp/valk-flute.jsonl /tmp/valk-clarinet.jsonl \
     /tmp/valk-violin.jsonl /tmp/valk-cello.jsonl \
     /tmp/valk-timpani.jsonl /tmp/valk-cymbal.jsonl \
   | "${BIN}/viz" \
+  | "${BIN}/trim" --auto \
   > /tmp/valk-full.jsonl
 
 # Stats

@@ -11,5 +11,6 @@ members = [
   "crates/stage-euclid",
   "crates/stage-scale",
   "crates/stage-viz",
+  "crates/stage-trim",
 ]
 resolver = "2"
