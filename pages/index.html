@@ -17,6 +17,7 @@
             .github-corner:hover .octo-arm { animation: none; }
             .github-corner .octo-arm { animation: octocat-wave 560ms ease-in-out; }
         }
+
         :root {
             --bg: #1a1a2e;
             --card-bg: #16213e;
@@ -46,7 +47,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         h1 {
@@ -61,6 +62,45 @@
         header p {
             color: var(--muted);
             font-size: 1.1rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: none;
+            color: var(--muted);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .demo-card {
@@ -139,6 +179,7 @@
             margin-top: 0.75rem;
             font-size: 0.85rem;
             color: var(--muted);
+            flex-wrap: wrap;
         }
 
         .meta span {
@@ -150,7 +191,7 @@
         .separator {
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            margin: 3rem 0;
+            margin: 2rem 0;
         }
 
         footer {
@@ -165,16 +206,6 @@
             color: var(--accent);
             text-decoration: none;
         }
-
-        .tag {
-            display: inline-block;
-            background: rgba(233, 69, 96, 0.3);
-            color: var(--text);
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-        }
     </style>
 </head>
 <body>
@@ -182,187 +213,210 @@
         <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#e94560; color:#1a1a2e; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
             <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
             <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
-            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C## 139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
         </svg>
     </a>
     <div class="container">
         <header>
             <h1>music-pipe-rs</h1>
-            <p>Demo Preview - Bach Toccata and Fugue Variations</p>
+            <p>Algorithmic Music Demo - Composer Styles</p>
         </header>
 
-        <!-- Demo 1: Full Organ -->
-        <div class="demo-card">
-            <h2>Bach Toccata - Full Organ Arrangement</h2>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('bach')">Bach</button>
+            <button class="tab-btn" onclick="showTab('wagner')">Wagner</button>
+            <button class="tab-btn" onclick="showTab('verdi')">Verdi</button>
+            <button class="tab-btn" onclick="showTab('gands')">Gilbert & Sullivan</button>
+        </div>
 
-            <div class="section-label">Abstract</div>
-            <div class="abstract">
-                The iconic opening of Bach's Toccata and Fugue in D minor (BWV 565),
-                arranged for multi-voice church organ. Features the famous dramatic
-                descending runs played in octaves across four MIDI channels, with
-                deep pedal bass providing the thunderous low D that makes this piece
-                instantly recognizable in horror films and classical concerts alike.
+        <!-- Bach Tab -->
+        <div id="bach" class="tab-content active">
+            <div class="demo-card">
+                <h2>Bach - Full Organ Arrangement</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    The iconic opening of Bach's Toccata and Fugue in D minor (BWV 565),
+                    arranged for multi-voice church organ with octave doubling and pedal bass.
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-bach.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~25s</span>
+                        <span>Church Organ</span>
+                        <span>Multi-voice</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="section-label">Script Details</div>
-            <div class="script-details">
-                <code>examples/demo-bach.sh
+            <div class="separator"></div>
 
-# Pipeline stages used:
-seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115..." --bpm 66 --ch 0 --patch 19
-seq --notes "D4/2*127 C#4/32*120 D4/32*120 A3/32*115..." --bpm 0 --ch 1 --patch 19
-seq --notes "D3/1*127 A3/1*127 D4/1*127 F4/1*127..."    --bpm 0 --ch 2 --patch 19
-seq --notes "D2/1*127 A1/1*127 D2/1*127"               --bpm 0 --ch 3 --patch 19
-
-cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi</code>
+            <div class="demo-card">
+                <h2>Bach - 8-bit Arcade Style</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Gyruss-inspired chiptune rendition with square wave synthesis
+                    and punchy 140 BPM arcade tempo.
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-bach-arcade.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~7.5s</span>
+                        <span>Square Wave</span>
+                        <span>140 BPM</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="section-label">Explanation</div>
-            <div class="explanation">
-                <ul>
-                    <li><strong>4 channels</strong> for upper octave, lower octave, chord, and pedal bass</li>
-                    <li><strong>Patch 19</strong> = Church Organ (MIDI General MIDI standard)</li>
-                    <li><strong>32nd notes</strong> (/32) for the rapid mordent and descending runs</li>
-                    <li><strong>Octave doubling</strong> creates the massive organ sound (D5+D4 simultaneously)</li>
-                    <li><strong>Velocity dynamics</strong> (*127, *120, *115) for musical expression</li>
-                    <li><strong>66 BPM</strong> tempo for dramatic, weighty phrasing</li>
-                </ul>
-            </div>
+            <div class="separator"></div>
 
-            <div class="section-label">Player</div>
-            <div class="player">
-                <audio controls>
-                    <source src="demo-bach.wav" type="audio/wav">
-                    Your browser does not support the audio element.
-                </audio>
-                <div class="meta">
-                    <span>~25 seconds</span>
-                    <span>55 notes</span>
-                    <span>Church Organ</span>
+            <div class="demo-card">
+                <h2>Bach-esque - Algorithmic Baroque</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Procedurally generated baroque-style organ music using the motif stage.
+                    Three voices generated with seed 1685 (Bach's birth year).
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-bach-esque.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~14s</span>
+                        <span>Algorithmic</span>
+                        <span>D minor</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="separator"></div>
-
-        <!-- Demo 2: 8-bit Arcade -->
-        <div class="demo-card">
-            <h2>Bach Toccata - 8-bit Arcade Style</h2>
-
-            <div class="section-label">Abstract</div>
-            <div class="abstract">
-                A chiptune-inspired rendition of the Toccata opening, reminiscent of
-                the 1983 arcade game Gyruss which famously used an electronic arrangement
-                of this Bach masterpiece. Single channel, square wave synthesis, and
-                a punchy 140 BPM tempo capture the energy of classic arcade gaming.
-            </div>
-
-            <div class="section-label">Script Details</div>
-            <div class="script-details">
-                <code>examples/demo-bach-arcade.sh
-
-# Pipeline stages used:
-seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110 F4/32*110 \
-             E4/32*105 D4/32*105 C#4/32*110 D4/8*120 R/8 A4/4*125 ..." \
-    --bpm 140 --ch 0 --patch 80 --vel 120 \
-  | viz \
-  | to-midi</code>
-            </div>
-
-            <div class="section-label">Explanation</div>
-            <div class="explanation">
-                <ul>
-                    <li><strong>Single channel</strong> monophonic melody (classic chiptune constraint)</li>
-                    <li><strong>Patch 80</strong> = Square Lead (closest to 8-bit square wave synthesis)</li>
-                    <li><strong>140 BPM</strong> fast arcade tempo for energy and excitement</li>
-                    <li><strong>Three phrases</strong>: D figure, A figure, return to D with low finish</li>
-                    <li><strong>No harmony</strong> - pure melody line as in early game audio chips</li>
-                    <li>Inspired by <strong>Gyruss (1983)</strong> by Konami</li>
-                </ul>
-            </div>
-
-            <div class="section-label">Player</div>
-            <div class="player">
-                <audio controls>
-                    <source src="demo-bach-arcade.wav" type="audio/wav">
-                    Your browser does not support the audio element.
-                </audio>
-                <div class="meta">
-                    <span>~7.5 seconds</span>
-                    <span>31 notes</span>
-                    <span>Square Wave</span>
+        <!-- Wagner Tab -->
+        <div id="wagner" class="tab-content">
+            <div class="demo-card">
+                <h2>Wagner-esque - "Kill the Wabbit!"</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Ride of the Valkyries-inspired algorithmic composition with cartoony
+                    instrumentation. French horn fanfares, pompous tuba, and playful
+                    xylophone accents inspired by "What's Opera, Doc?"
+                </div>
+                <div class="section-label">Instrumentation</div>
+                <div class="explanation">
+                    <ul>
+                        <li><strong>French Horn</strong> - Heroic Valkyrie fanfare (152 BPM)</li>
+                        <li><strong>Tuba</strong> - Pompous villain bass line</li>
+                        <li><strong>Xylophone</strong> - Cartoony comic accents</li>
+                        <li><strong>Vibraphone</strong> - Magical shimmer effects</li>
+                    </ul>
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-wagner-esque.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~8s</span>
+                        <span>B minor</span>
+                        <span>Cartoony</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="separator"></div>
-
-        <!-- Demo 3: Bach-esque Algorithmic -->
-        <div class="demo-card">
-            <h2>Bach-esque - Algorithmic Background Music</h2>
-
-            <div class="section-label">Abstract</div>
-            <div class="abstract">
-                Procedurally generated baroque-style organ music using the motif stage's
-                seed-driven algorithm. Three voices (upper flourishes, middle counterpoint,
-                pedal bass) are generated independently and combined, creating original
-                music inspired by Bach's style rather than transcribing his notes directly.
-                Suitable for ambient background listening.
-            </div>
-
-            <div class="section-label">Script Details</div>
-            <div class="script-details">
-                <code>examples/demo-bach-esque.sh
-
-SEED=1685  # Bach's birth year
-
-# Upper manual - dramatic flourishes
-seed $SEED | motif --base 62 --notes 48 --complexity 9 --bpm 132 \
-                   --ch 0 --vel 100 --patch 19 --dur 0.5 --rest-prob 0.1 \
-           | scale --root D --mode minor
-
-# Pedal bass - sustained tones
-seed $((SEED+1)) | motif --base 38 --notes 12 --complexity 2 \
-                         --ch 1 --vel 90 --patch 19 --dur 2.0 \
-                 | scale --root D --mode minor
-
-# Middle voice - counterpoint
-seed $((SEED+2)) | motif --base 50 --notes 24 --complexity 6 \
-                         --ch 2 --vel 85 --patch 19 --dur 0.75 --chord-prob 0.15 \
-                 | scale --root D --mode minor
-
-cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi</code>
-            </div>
-
-            <div class="section-label">Explanation</div>
-            <div class="explanation">
-                <ul>
-                    <li><strong>Seed 1685</strong> (Bach's birth year) for deterministic generation</li>
-                    <li><strong>motif stage</strong> generates melodic patterns algorithmically</li>
-                    <li><strong>scale stage</strong> quantizes notes to D minor scale</li>
-                    <li><strong>Complexity 9</strong> for upper voice = more melodic variation</li>
-                    <li><strong>Complexity 2</strong> for bass = simple, stable foundation</li>
-                    <li><strong>dur 2.0</strong> for bass = half notes (slow, sustained)</li>
-                    <li><strong>chord-prob 0.15</strong> = occasional chords in middle voice</li>
-                    <li>Each voice uses a <strong>different seed offset</strong> for variety</li>
-                </ul>
-            </div>
-
-            <div class="section-label">Player</div>
-            <div class="player">
-                <audio controls>
-                    <source src="demo-bach-esque.wav" type="audio/wav">
-                    Your browser does not support the audio element.
-                </audio>
-                <div class="meta">
-                    <span>~14 seconds</span>
-                    <span>93 notes</span>
-                    <span>Algorithmic</span>
+        <!-- Verdi Tab -->
+        <div id="verdi" class="tab-content">
+            <div class="demo-card">
+                <h2>Verdi-esque - Italian Opera</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Lyrical, passionate Italian opera style inspired by La Traviata and Rigoletto.
+                    Singing violin melodies over warm cello and lush string ensemble,
+                    with clarinet woodwind color.
+                </div>
+                <div class="section-label">Instrumentation</div>
+                <div class="explanation">
+                    <ul>
+                        <li><strong>Solo Violin</strong> - Aria-like lyrical melody with swing</li>
+                        <li><strong>Cello</strong> - Warm, singing bass line</li>
+                        <li><strong>String Ensemble</strong> - Lush harmonic support with chords</li>
+                        <li><strong>Clarinet</strong> - Woodwind color and ornamentation</li>
+                    </ul>
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-verdi-esque.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~36s</span>
+                        <span>G major</span>
+                        <span>Lyrical</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="separator"></div>
+        <!-- Gilbert & Sullivan Tab -->
+        <div id="gands" class="tab-content">
+            <div class="demo-card">
+                <h2>The Mikado - "Three Little Maids"</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    The actual melody from Gilbert & Sullivan's The Mikado (1885).
+                    "Three little maids from school are we, pert as a schoolgirl well can be..."
+                    Transcribed note-for-note with flute melody, oboe harmony, and pizzicato bass.
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-mikado.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~13s</span>
+                        <span>G major</span>
+                        <span>Actual melody</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="demo-card">
+                <h2>Gilbert & Sullivan-esque - Algorithmic Operetta</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Procedurally generated operetta style. Bouncy rhythms, cheerful major keys,
+                    and playful woodwind interplay inspired by the G&S style.
+                </div>
+                <div class="section-label">Instrumentation</div>
+                <div class="explanation">
+                    <ul>
+                        <li><strong>Flute</strong> - Bright, playful melody (132 BPM)</li>
+                        <li><strong>Oboe</strong> - Comic counterpoint lines</li>
+                        <li><strong>Pizzicato Strings</strong> - Bouncy accompaniment</li>
+                        <li><strong>Bassoon</strong> - Pompous comic bass</li>
+                    </ul>
+                </div>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls>
+                        <source src="demo-gands-esque.wav" type="audio/wav">
+                    </audio>
+                    <div class="meta">
+                        <span>~9s</span>
+                        <span>C major</span>
+                        <span>Algorithmic</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer>
             <p>
@@ -371,5 +425,22 @@ cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi</code>
             </p>
         </footer>
     </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            // Activate button
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>
