@@ -49,14 +49,14 @@ echo "Generating Trombones..."
 "${BIN}/seq" --notes "${TROMBONE}" --bpm 0 --ch 2 --patch 57 --vel 100 \
   > /tmp/valk-trombone.jsonl
 
-# Tuba - deep foundation (patch 58)
+# Tuba - deep foundation (patch 58) - BOOSTED VELOCITY
 TUBA="B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 B2/4 B2/8"
 TUBA="${TUBA} D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8"
 TUBA="${TUBA} F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8"
 TUBA="${TUBA} B2/4 B2/8 B2/4 B2/8 B2/2"
 
 echo "Generating Tuba..."
-"${BIN}/seq" --notes "${TUBA}" --bpm 0 --ch 3 --patch 58 --vel 100 \
+"${BIN}/seq" --notes "${TUBA}" --bpm 0 --ch 3 --patch 58 --vel 120 \
   > /tmp/valk-tuba.jsonl
 
 # === WOODWINDS ===
@@ -93,14 +93,14 @@ echo "Generating Violins..."
 "${BIN}/seq" --notes "${VIOLIN}" --bpm 0 --ch 6 --patch 48 --vel 85 \
   > /tmp/valk-violin.jsonl
 
-# Cellos - powerful bass line (patch 42)
+# Cellos - powerful bass line (patch 42) - BOOSTED VELOCITY
 CELLO="B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 B2/4 B2/8"
 CELLO="${CELLO} D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8"
 CELLO="${CELLO} F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8"
 CELLO="${CELLO} B2/4 B2/8 B2/4 B2/8 B2/2"
 
 echo "Generating Cellos..."
-"${BIN}/seq" --notes "${CELLO}" --bpm 0 --ch 7 --patch 42 --vel 95 \
+"${BIN}/seq" --notes "${CELLO}" --bpm 0 --ch 7 --patch 42 --vel 115 \
   > /tmp/valk-cello.jsonl
 
 # === PERCUSSION ===
