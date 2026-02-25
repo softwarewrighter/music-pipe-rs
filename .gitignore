@@ -28,7 +28,11 @@ Cargo.lock
 # Generated files
 *.mid
 *.midi
+*.wav
 output/
+
+# Exception: pages directory WAV files are checked in for GitHub Pages
+!pages/*.wav
 
 # Local configuration
 .env

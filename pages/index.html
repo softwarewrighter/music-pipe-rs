@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>music-pipe-rs Demo Preview</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --accent: #e94560;
+            --text: #eaeaea;
+            --muted: #a0a0a0;
+            --code-bg: #0f0f1a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .demo-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .demo-card h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .abstract {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .script-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .script-details code {
+            display: block;
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .explanation {
+            margin-bottom: 1.5rem;
+        }
+
+        .explanation ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .explanation li {
+            margin-bottom: 0.3rem;
+        }
+
+        .player {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        audio {
+            width: 100%;
+            height: 50px;
+        }
+
+        .meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .meta span {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .separator {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin: 3rem 0;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(233, 69, 96, 0.3);
+            color: var(--text);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>music-pipe-rs</h1>
+            <p>Demo Preview - Bach Toccata and Fugue Variations</p>
+        </header>
+
+        <!-- Demo 1: Full Organ -->
+        <div class="demo-card">
+            <h2>Bach Toccata - Full Organ Arrangement</h2>
+
+            <div class="section-label">Abstract</div>
+            <div class="abstract">
+                The iconic opening of Bach's Toccata and Fugue in D minor (BWV 565),
+                arranged for multi-voice church organ. Features the famous dramatic
+                descending runs played in octaves across four MIDI channels, with
+                deep pedal bass providing the thunderous low D that makes this piece
+                instantly recognizable in horror films and classical concerts alike.
+            </div>
+
+            <div class="section-label">Script Details</div>
+            <div class="script-details">
+                <code>examples/demo-bach.sh
+
+# Pipeline stages used:
+seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115..." --bpm 66 --ch 0 --patch 19
+seq --notes "D4/2*127 C#4/32*120 D4/32*120 A3/32*115..." --bpm 0 --ch 1 --patch 19
+seq --notes "D3/1*127 A3/1*127 D4/1*127 F4/1*127..."    --bpm 0 --ch 2 --patch 19
+seq --notes "D2/1*127 A1/1*127 D2/1*127"               --bpm 0 --ch 3 --patch 19
+
+cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi</code>
+            </div>
+
+            <div class="section-label">Explanation</div>
+            <div class="explanation">
+                <ul>
+                    <li><strong>4 channels</strong> for upper octave, lower octave, chord, and pedal bass</li>
+                    <li><strong>Patch 19</strong> = Church Organ (MIDI General MIDI standard)</li>
+                    <li><strong>32nd notes</strong> (/32) for the rapid mordent and descending runs</li>
+                    <li><strong>Octave doubling</strong> creates the massive organ sound (D5+D4 simultaneously)</li>
+                    <li><strong>Velocity dynamics</strong> (*127, *120, *115) for musical expression</li>
+                    <li><strong>66 BPM</strong> tempo for dramatic, weighty phrasing</li>
+                </ul>
+            </div>
+
+            <div class="section-label">Player</div>
+            <div class="player">
+                <audio controls>
+                    <source src="demo-bach.wav" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="meta">
+                    <span>~25 seconds</span>
+                    <span>55 notes</span>
+                    <span>Church Organ</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Demo 2: 8-bit Arcade -->
+        <div class="demo-card">
+            <h2>Bach Toccata - 8-bit Arcade Style</h2>
+
+            <div class="section-label">Abstract</div>
+            <div class="abstract">
+                A chiptune-inspired rendition of the Toccata opening, reminiscent of
+                the 1983 arcade game Gyruss which famously used an electronic arrangement
+                of this Bach masterpiece. Single channel, square wave synthesis, and
+                a punchy 140 BPM tempo capture the energy of classic arcade gaming.
+            </div>
+
+            <div class="section-label">Script Details</div>
+            <div class="script-details">
+                <code>examples/demo-bach-arcade.sh
+
+# Pipeline stages used:
+seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110 F4/32*110 \
+             E4/32*105 D4/32*105 C#4/32*110 D4/8*120 R/8 A4/4*125 ..." \
+    --bpm 140 --ch 0 --patch 80 --vel 120 \
+  | viz \
+  | to-midi</code>
+            </div>
+
+            <div class="section-label">Explanation</div>
+            <div class="explanation">
+                <ul>
+                    <li><strong>Single channel</strong> monophonic melody (classic chiptune constraint)</li>
+                    <li><strong>Patch 80</strong> = Square Lead (closest to 8-bit square wave synthesis)</li>
+                    <li><strong>140 BPM</strong> fast arcade tempo for energy and excitement</li>
+                    <li><strong>Three phrases</strong>: D figure, A figure, return to D with low finish</li>
+                    <li><strong>No harmony</strong> - pure melody line as in early game audio chips</li>
+                    <li>Inspired by <strong>Gyruss (1983)</strong> by Konami</li>
+                </ul>
+            </div>
+
+            <div class="section-label">Player</div>
+            <div class="player">
+                <audio controls>
+                    <source src="demo-bach-arcade.wav" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="meta">
+                    <span>~7.5 seconds</span>
+                    <span>31 notes</span>
+                    <span>Square Wave</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Demo 3: Bach-esque Algorithmic -->
+        <div class="demo-card">
+            <h2>Bach-esque - Algorithmic Background Music</h2>
+
+            <div class="section-label">Abstract</div>
+            <div class="abstract">
+                Procedurally generated baroque-style organ music using the motif stage's
+                seed-driven algorithm. Three voices (upper flourishes, middle counterpoint,
+                pedal bass) are generated independently and combined, creating original
+                music inspired by Bach's style rather than transcribing his notes directly.
+                Suitable for ambient background listening.
+            </div>
+
+            <div class="section-label">Script Details</div>
+            <div class="script-details">
+                <code>examples/demo-bach-esque.sh
+
+SEED=1685  # Bach's birth year
+
+# Upper manual - dramatic flourishes
+seed $SEED | motif --base 62 --notes 48 --complexity 9 --bpm 132 \
+                   --ch 0 --vel 100 --patch 19 --dur 0.5 --rest-prob 0.1 \
+           | scale --root D --mode minor
+
+# Pedal bass - sustained tones
+seed $((SEED+1)) | motif --base 38 --notes 12 --complexity 2 \
+                         --ch 1 --vel 90 --patch 19 --dur 2.0 \
+                 | scale --root D --mode minor
+
+# Middle voice - counterpoint
+seed $((SEED+2)) | motif --base 50 --notes 24 --complexity 6 \
+                         --ch 2 --vel 85 --patch 19 --dur 0.75 --chord-prob 0.15 \
+                 | scale --root D --mode minor
+
+cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi</code>
+            </div>
+
+            <div class="section-label">Explanation</div>
+            <div class="explanation">
+                <ul>
+                    <li><strong>Seed 1685</strong> (Bach's birth year) for deterministic generation</li>
+                    <li><strong>motif stage</strong> generates melodic patterns algorithmically</li>
+                    <li><strong>scale stage</strong> quantizes notes to D minor scale</li>
+                    <li><strong>Complexity 9</strong> for upper voice = more melodic variation</li>
+                    <li><strong>Complexity 2</strong> for bass = simple, stable foundation</li>
+                    <li><strong>dur 2.0</strong> for bass = half notes (slow, sustained)</li>
+                    <li><strong>chord-prob 0.15</strong> = occasional chords in middle voice</li>
+                    <li>Each voice uses a <strong>different seed offset</strong> for variety</li>
+                </ul>
+            </div>
+
+            <div class="section-label">Player</div>
+            <div class="player">
+                <audio controls>
+                    <source src="demo-bach-esque.wav" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="meta">
+                    <span>~14 seconds</span>
+                    <span>93 notes</span>
+                    <span>Algorithmic</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <footer>
+            <p>
+                Generated by <a href="https://github.com/softwarewrighter/music-pipe-rs">music-pipe-rs</a><br>
+                Audio rendered with FluidSynth using GeneralUser GS soundfont
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
