@@ -376,7 +376,7 @@ euclid --steps 24 --pulses 2 --note 49 --vel 90                         # Cymbal
 
 cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl \
     flute.jsonl clarinet.jsonl violin.jsonl cello.jsonl \
-    timpani.jsonl cymbal.jsonl | viz | to-midi</code>
+    timpani.jsonl cymbal.jsonl | viz | trim --auto | to-midi</code>
                         <h4>Full Orchestration (10 channels)</h4>
                         <ul>
                             <li><strong>Brass Section:</strong> French Horns (patch 60), Trumpets (patch 56), Trombones (patch 57), Tuba (patch 58)</li>
@@ -392,6 +392,7 @@ cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl \
                             <li>Strings provide galloping tremolo accompaniment</li>
                             <li>Timpani on downbeats, cymbals for climactic crashes</li>
                             <li>Tuba (vel 120) and cellos (vel 115) boosted for bass punch</li>
+                            <li><code>trim --auto</code> removes trailing silence (500ms padding after last note)</li>
                         </ul>
                     </div>
                 </details>
