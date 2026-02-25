@@ -29,7 +29,9 @@ cat a.jsonl b.jsonl | viz --end-mode min
 - `trim --duration`: Convert seconds to ticks using BPM from Tempo event (or assume 120 BPM)
 - `--end-mode min` in viz: Alternative approach - use smallest End time when merging
 
-**Priority**: Medium - workaround exists (manually adjust euclid `--repeat` counts)
+**Status**: IMPLEMENTED in `crates/stage-trim/`
+
+**Note**: The trim stage correctly adjusts the End event time in JSONL/MIDI, but FluidSynth adds reverb/decay padding (~40s) after the last note regardless of track duration. The musical content is correctly trimmed - only the rendered WAV has silent padding.
 
 ---
 
