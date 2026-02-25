@@ -1,0 +1,14 @@
+[package]
+name = "stage-seq"
+version = "0.1.0"
+edition = "2021"
+description = "Sequence stage - explicit note input for music-pipe-rs"
+
+[[bin]]
+name = "seq"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+music-ir = { path = "../music-ir" }

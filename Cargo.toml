@@ -4,6 +4,7 @@ members = [
   "crates/music-pipe",
   "crates/stage-seed",
   "crates/stage-motif",
+  "crates/stage-seq",
   "crates/stage-transpose",
   "crates/stage-humanize",
   "crates/stage-to-midi",
