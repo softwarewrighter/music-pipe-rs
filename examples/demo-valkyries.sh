@@ -145,7 +145,11 @@ cat /tmp/valk-full.jsonl | "${BIN}/to-midi" --out /tmp/demo-valkyries.mid
 # Render to WAV
 echo "Rendering to WAV..."
 if [[ -f "$SF2" ]]; then
-    fluidsynth -ni -F "$OUTPUT" "$SF2" /tmp/demo-valkyries.mid 2>/dev/null
+    fluidsynth -ni -F /tmp/demo-valkyries-raw.wav "$SF2" /tmp/demo-valkyries.mid 2>/dev/null
+
+    # Trim silence from end (keep only first 14 seconds of actual content)
+    echo "Trimming silence..."
+    ffmpeg -y -i /tmp/demo-valkyries-raw.wav -t 14 -af "afade=t=out:st=12:d=2" "$OUTPUT" 2>/dev/null
 
     DURATION=$(afinfo "$OUTPUT" 2>/dev/null | grep "estimated duration" | awk '{print $3}')
     echo "Created: $OUTPUT (${DURATION}s)"
