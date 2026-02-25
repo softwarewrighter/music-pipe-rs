@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>music-pipe-rs Demo Preview</title>
     <style>
-        .github-corner:hover .octo-arm {
-            animation: octocat-wave 560ms ease-in-out;
-        }
+        .github-corner:hover .octo-arm { animation: octocat-wave 560ms ease-in-out; }
         @keyframes octocat-wave {
             0%, 100% { transform: rotate(0); }
             20%, 60% { transform: rotate(-25deg); }
@@ -27,12 +25,10 @@
             --code-bg: #0f0f1a;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
@@ -40,15 +36,9 @@
             line-height: 1.6;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .container { max-width: 900px; margin: 0 auto; }
 
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        header { text-align: center; margin-bottom: 2rem; }
 
         h1 {
             font-size: 2.5rem;
@@ -59,12 +49,8 @@
             background-clip: text;
         }
 
-        header p {
-            color: var(--muted);
-            font-size: 1.1rem;
-        }
+        header p { color: var(--muted); font-size: 1.1rem; }
 
-        /* Tabs */
         .tabs {
             display: flex;
             flex-wrap: wrap;
@@ -85,23 +71,10 @@
             transition: all 0.2s;
         }
 
-        .tab-btn:hover {
-            color: var(--text);
-            background: rgba(233, 69, 96, 0.2);
-        }
-
-        .tab-btn.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        .tab-btn:hover { color: var(--text); background: rgba(233, 69, 96, 0.2); }
+        .tab-btn.active { background: var(--accent); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .demo-card {
             background: var(--card-bg);
@@ -111,11 +84,7 @@
             border-left: 4px solid var(--accent);
         }
 
-        .demo-card h2 {
-            margin-top: 0;
-            color: var(--accent);
-            font-size: 1.5rem;
-        }
+        .demo-card h2 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
 
         .section-label {
             font-size: 0.75rem;
@@ -133,34 +102,49 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .script-details {
+        details {
+            background: var(--code-bg);
+            border-radius: 8px;
             margin-bottom: 1.5rem;
         }
 
-        .script-details code {
-            display: block;
-            background: var(--code-bg);
+        summary {
             padding: 1rem;
-            border-radius: 8px;
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        summary:hover { color: #ff6b6b; }
+
+        .details-content {
+            padding: 0 1rem 1rem 1rem;
+        }
+
+        .details-content code {
+            display: block;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
             overflow-x: auto;
             white-space: pre-wrap;
-            word-break: break-all;
+            margin-bottom: 1rem;
         }
 
-        .explanation {
-            margin-bottom: 1.5rem;
+        .details-content h4 {
+            color: var(--accent);
+            margin: 1rem 0 0.5rem 0;
+            font-size: 0.9rem;
         }
 
-        .explanation ul {
+        .details-content ul {
             margin: 0.5rem 0;
             padding-left: 1.5rem;
         }
 
-        .explanation li {
-            margin-bottom: 0.3rem;
-        }
+        .details-content li { margin-bottom: 0.25rem; font-size: 0.9rem; }
 
         .player {
             background: var(--code-bg);
@@ -168,23 +152,20 @@
             border-radius: 8px;
         }
 
-        audio {
-            width: 100%;
-            height: 50px;
-        }
+        audio { width: 100%; height: 50px; }
 
         .meta {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             margin-top: 0.75rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--muted);
             flex-wrap: wrap;
         }
 
         .meta span {
             background: rgba(233, 69, 96, 0.2);
-            padding: 0.25rem 0.75rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 4px;
         }
 
@@ -202,14 +183,11 @@
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
+        footer a { color: var(--accent); text-decoration: none; }
     </style>
 </head>
 <body>
-    <a href="https://github.com/softwarewrighter/music-pipe-rs" class="github-corner" aria-label="View source on GitHub" title="View on GitHub">
+    <a href="https://github.com/softwarewrighter/music-pipe-rs" class="github-corner" aria-label="View source on GitHub">
         <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#e94560; color:#1a1a2e; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
             <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
             <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
@@ -222,7 +200,6 @@
             <p>Algorithmic Music Demo - Composer Styles</p>
         </header>
 
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('bach')">Bach</button>
             <button class="tab-btn" onclick="showTab('wagner')">Wagner</button>
@@ -230,7 +207,7 @@
             <button class="tab-btn" onclick="showTab('gands')">Gilbert & Sullivan</button>
         </div>
 
-        <!-- Bach Tab -->
+        <!-- ==================== BACH TAB ==================== -->
         <div id="bach" class="tab-content active">
             <div class="demo-card">
                 <h2>Bach - Full Organ Arrangement</h2>
@@ -239,15 +216,36 @@
                     The iconic opening of Bach's Toccata and Fugue in D minor (BWV 565),
                     arranged for multi-voice church organ with octave doubling and pedal bass.
                 </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115..." --bpm 66 --ch 0 --patch 19
+seq --notes "D4/2*127 C#4/32*120..." --ch 1 --patch 19  # octave lower
+seq --notes "D3/1*127 A3/1*127..." --ch 2 --patch 19    # final chord
+seq --notes "D2/1*127 A1/1*127..." --ch 3 --patch 19    # pedal bass
+
+cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Uses <code>seq</code> stage for explicit note input (actual Bach notes)</li>
+                            <li>4 MIDI channels for upper octave, lower octave, chord, and pedal</li>
+                            <li>Patch 19 = Church Organ (General MIDI)</li>
+                            <li>32nd notes (/32) for rapid mordent and descending runs</li>
+                            <li>Octave doubling (D5+D4) creates massive organ sound</li>
+                            <li>Velocity dynamics (*127, *120) for musical expression</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-bach.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-bach.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~25s</span>
+                        <span>D minor</span>
                         <span>Church Organ</span>
-                        <span>Multi-voice</span>
+                        <span>4 channels</span>
                     </div>
                 </div>
             </div>
@@ -259,17 +257,33 @@
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     Gyruss-inspired chiptune rendition with square wave synthesis
-                    and punchy 140 BPM arcade tempo.
+                    and punchy 140 BPM arcade tempo. Single channel, pure melody.
                 </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110..." \
+    --bpm 140 --ch 0 --patch 80 --vel 120 \
+  | viz | to-midi</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Single channel monophonic melody (classic chiptune constraint)</li>
+                            <li>Patch 80 = Square Lead (closest to 8-bit square wave)</li>
+                            <li>140 BPM fast arcade tempo for energy</li>
+                            <li>Inspired by Gyruss (1983) arcade game by Konami</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-bach-arcade.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-bach-arcade.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~7.5s</span>
                         <span>Square Wave</span>
                         <span>140 BPM</span>
+                        <span>1 channel</span>
                     </div>
                 </div>
             </div>
@@ -280,50 +294,115 @@
                 <h2>Bach-esque - Algorithmic Baroque</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
-                    Procedurally generated baroque-style organ music using the motif stage.
-                    Three voices generated with seed 1685 (Bach's birth year).
+                    Procedurally generated baroque-style organ music. Three voices
+                    generated algorithmically with seed 1685 (Bach's birth year).
                 </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>SEED=1685  # Bach's birth year
+
+seed $SEED | motif --base 62 --notes 48 --complexity 9 --bpm 132 \
+                   --ch 0 --patch 19 --dur 0.5 --rest-prob 0.1 \
+           | scale --root D --mode minor > upper.jsonl
+
+seed $((SEED+1)) | motif --base 38 --notes 12 --complexity 2 \
+                         --ch 1 --patch 19 --dur 2.0 \
+                 | scale --root D --mode minor > bass.jsonl
+
+seed $((SEED+2)) | motif --base 50 --notes 24 --complexity 6 \
+                         --ch 2 --patch 19 --dur 0.75 --chord-prob 0.15 \
+                 | scale --root D --mode minor > mid.jsonl
+
+cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li><code>seed</code> stage provides deterministic randomness</li>
+                            <li><code>motif</code> stage generates melodic patterns algorithmically</li>
+                            <li><code>scale</code> stage quantizes to D minor scale</li>
+                            <li>Complexity 9 = high melodic variation for upper voice</li>
+                            <li>Complexity 2 = simple, stable bass foundation</li>
+                            <li>Each voice uses different seed offset for variety</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-bach-esque.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-bach-esque.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~14s</span>
                         <span>Algorithmic</span>
                         <span>D minor</span>
+                        <span>3 voices</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Wagner Tab -->
+        <!-- ==================== WAGNER TAB ==================== -->
         <div id="wagner" class="tab-content">
             <div class="demo-card">
-                <h2>Ride of the Valkyries - "Kill the Wabbit!"</h2>
+                <h2>Ride of the Valkyries - Full Orchestra</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     The actual Ride of the Valkyries theme (WWV 86B) - the iconic
-                    galloping "da-da-da-DUM-da" motif made famous by "What's Opera, Doc?"
-                    and countless films. Transcribed note-for-note with traditional orchestration.
+                    "da-da-da-DUM-da" galloping motif from "What's Opera, Doc?"
+                    Transcribed note-for-note with full late-Romantic orchestration
+                    across 10 MIDI channels.
                 </div>
-                <div class="section-label">Instrumentation</div>
-                <div class="explanation">
-                    <ul>
-                        <li><strong>French Horns</strong> - The iconic theme in octaves (152 BPM)</li>
-                        <li><strong>String Ensemble</strong> - Galloping accompaniment</li>
-                        <li><strong>Cello</strong> - Deep bass foundation</li>
-                    </ul>
-                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># BRASS (4 channels)
+seq --notes "B4/8 B4/8 B4/8 D5/4 B4/8..." --bpm 152 --ch 0 --patch 60  # French Horns
+seq --notes "D5/8 D5/8 D5/8 F#5/4..." --ch 1 --patch 56                 # Trumpets
+seq --notes "B3/8 B3/8 B3/8 D4/4..." --ch 2 --patch 57                  # Trombones
+seq --notes "B2/4 B2/8 B2/4..." --ch 3 --patch 58                       # Tuba
+
+# WOODWINDS (2 channels)
+seq --notes "B5/8 B5/8 B5/8 D6/4..." --ch 4 --patch 72                  # Flutes/Piccolo
+seq --notes "F#5/8 D5/8 F#5/8..." --ch 5 --patch 71                     # Clarinets
+
+# STRINGS (2 channels)
+seq --notes "B4/8 F#4/8 D4/8..." --ch 6 --patch 48                      # Violins
+seq --notes "B2/4 B2/8..." --ch 7 --patch 42                            # Cellos
+
+# PERCUSSION (ch 9)
+euclid --steps 12 --pulses 2 --note 41 --vel 110 --accent 0.4           # Timpani
+euclid --steps 24 --pulses 2 --note 49 --vel 90                         # Cymbals
+
+cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl \
+    flute.jsonl clarinet.jsonl violin.jsonl cello.jsonl \
+    timpani.jsonl cymbal.jsonl | viz | to-midi</code>
+                        <h4>Full Orchestration (10 channels)</h4>
+                        <ul>
+                            <li><strong>Brass Section:</strong> French Horns (patch 60), Trumpets (patch 56), Trombones (patch 57), Tuba (patch 58)</li>
+                            <li><strong>Woodwinds:</strong> Flutes/Piccolo (patch 72), Clarinets (patch 71)</li>
+                            <li><strong>Strings:</strong> Violins (patch 48), Cellos (patch 42)</li>
+                            <li><strong>Percussion:</strong> Timpani + Cymbals (channel 9)</li>
+                        </ul>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>152 BPM galloping tempo in 9/8 feel</li>
+                            <li>Theme rises through B-D, D-F#, F#-A progression</li>
+                            <li>Horns carry iconic melody, trumpets double for power</li>
+                            <li>Strings provide galloping tremolo accompaniment</li>
+                            <li>Timpani on downbeats, cymbals for climactic crashes</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-valkyries.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-valkyries.wav" type="audio/wav"></audio>
                     <div class="meta">
-                        <span>~13s</span>
+                        <span>~53s</span>
                         <span>B minor</span>
-                        <span>Actual melody</span>
+                        <span>10 channels</span>
+                        <span>Full orchestra</span>
                     </div>
                 </div>
             </div>
@@ -335,23 +414,43 @@
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     Procedurally generated Wagner-style music with cartoony instrumentation.
-                    French horn fanfares, pompous tuba, xylophone accents, and vibraphone shimmer.
+                    French horn fanfares, pompous tuba, xylophone accents, vibraphone shimmer.
                 </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>SEED=1813  # Wagner's birth year
+
+seed $SEED   | motif --base 53 --complexity 5 --bpm 152 --patch 60  # Horn
+seed $SEED+1 | motif --base 36 --complexity 2 --patch 58            # Tuba
+seed $SEED+2 | motif --base 72 --complexity 7 --patch 13            # Xylophone
+seed $SEED+3 | motif --base 65 --complexity 4 --patch 11            # Vibraphone
+
+cat horn.jsonl tuba.jsonl xylo.jsonl vibe.jsonl | scale --root B --mode minor | to-midi</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Algorithmic generation using <code>motif</code> stage</li>
+                            <li>Cartoony instruments for "What's Opera, Doc?" feel</li>
+                            <li>B minor scale for dramatic Germanic sound</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-wagner-esque.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-wagner-esque.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~8s</span>
                         <span>Algorithmic</span>
                         <span>Cartoony</span>
+                        <span>4 channels</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Verdi Tab -->
+        <!-- ==================== VERDI TAB ==================== -->
         <div id="verdi" class="tab-content">
             <div class="demo-card">
                 <h2>Verdi-esque - Italian Opera</h2>
@@ -361,30 +460,64 @@
                     Singing violin melodies over warm cello and lush string ensemble,
                     with clarinet woodwind color.
                 </div>
-                <div class="section-label">Instrumentation</div>
-                <div class="explanation">
-                    <ul>
-                        <li><strong>Solo Violin</strong> - Aria-like lyrical melody with swing</li>
-                        <li><strong>Cello</strong> - Warm, singing bass line</li>
-                        <li><strong>String Ensemble</strong> - Lush harmonic support with chords</li>
-                        <li><strong>Clarinet</strong> - Woodwind color and ornamentation</li>
-                    </ul>
-                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>SEED=1813  # Verdi's birth year
+
+# Solo Violin - aria melody
+seed $SEED | motif --base 67 --notes 24 --complexity 6 --bpm 72 \
+                   --ch 0 --patch 40 --dur 1.0 --rest-prob 0.2 --swing 0.1 \
+           | scale --root G --mode major > violin.jsonl
+
+# Cello - singing bass
+seed $((SEED+1)) | motif --base 48 --notes 16 --complexity 3 \
+                         --ch 1 --patch 42 --dur 1.5 \
+                 | scale --root G --mode major > cello.jsonl
+
+# String Ensemble - harmonic bed
+seed $((SEED+2)) | motif --base 55 --notes 20 --complexity 4 \
+                         --ch 2 --patch 48 --dur 2.0 --chord-prob 0.4 \
+                 | scale --root G --mode major > strings.jsonl
+
+# Clarinet - woodwind color
+seed $((SEED+3)) | motif --base 60 --notes 12 --complexity 5 \
+                         --ch 3 --patch 71 --dur 0.75 --rest-prob 0.3 \
+                 | scale --root G --mode major > clarinet.jsonl
+
+cat violin.jsonl cello.jsonl strings.jsonl clarinet.jsonl | viz | to-midi</code>
+                        <h4>Instrumentation (4 channels)</h4>
+                        <ul>
+                            <li><strong>Solo Violin</strong> (patch 40) - Aria-like lyrical melody with swing</li>
+                            <li><strong>Cello</strong> (patch 42) - Warm, singing bass line</li>
+                            <li><strong>String Ensemble</strong> (patch 48) - Lush harmonic support with chords</li>
+                            <li><strong>Clarinet</strong> (patch 71) - Woodwind color and ornamentation</li>
+                        </ul>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>G major for bright, operatic sound</li>
+                            <li>72 BPM moderate tempo for lyrical phrasing</li>
+                            <li>Swing parameter adds expressive rubato feel</li>
+                            <li>High chord-prob on strings for lush harmonies</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-verdi-esque.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-verdi-esque.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~36s</span>
                         <span>G major</span>
                         <span>Lyrical</span>
+                        <span>4 channels</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gilbert & Sullivan Tab -->
+        <!-- ==================== GILBERT & SULLIVAN TAB ==================== -->
         <div id="gands" class="tab-content">
             <div class="demo-card">
                 <h2>The Mikado - "Three Little Maids"</h2>
@@ -392,17 +525,48 @@
                 <div class="abstract">
                     The actual melody from Gilbert & Sullivan's The Mikado (1885).
                     "Three little maids from school are we, pert as a schoolgirl well can be..."
-                    Transcribed note-for-note with flute melody, oboe harmony, and pizzicato bass.
+                    Transcribed note-for-note with light operetta orchestration.
                 </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Main melody - Flute
+MELODY="G5/8 G5/8 G5/8 F#5/8 E5/8 D5/8 G5/4 B5/8 A5/4 G5/8..."
+seq --notes "${MELODY}" --bpm 144 --ch 0 --patch 73 --vel 90  # Flute
+
+# Harmony - Oboe
+HARMONY="R/4 D5/8 R/4 D5/8 R/4 B4/8..."
+seq --notes "${HARMONY}" --ch 1 --patch 68 --vel 70           # Oboe
+
+# Bass - Pizzicato strings
+BASS="G3/8 D4/8 B3/8 G3/8 D4/8 B3/8..."
+seq --notes "${BASS}" --ch 2 --patch 45 --vel 80              # Pizzicato
+
+cat melody.jsonl harmony.jsonl bass.jsonl | viz | to-midi</code>
+                        <h4>Instrumentation (3 channels)</h4>
+                        <ul>
+                            <li><strong>Flute</strong> (patch 73) - Bright, playful melody</li>
+                            <li><strong>Oboe</strong> (patch 68) - Harmonic counterpoint</li>
+                            <li><strong>Pizzicato Strings</strong> (patch 45) - Bouncy oom-pah bass</li>
+                        </ul>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Actual transcribed melody from The Mikado</li>
+                            <li>144 BPM bouncy 6/8 feel</li>
+                            <li>G major for cheerful operetta sound</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-mikado.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-mikado.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~13s</span>
                         <span>G major</span>
                         <span>Actual melody</span>
+                        <span>3 channels</span>
                     </div>
                 </div>
             </div>
@@ -416,24 +580,54 @@
                     Procedurally generated operetta style. Bouncy rhythms, cheerful major keys,
                     and playful woodwind interplay inspired by the G&S style.
                 </div>
-                <div class="section-label">Instrumentation</div>
-                <div class="explanation">
-                    <ul>
-                        <li><strong>Flute</strong> - Bright, playful melody (132 BPM)</li>
-                        <li><strong>Oboe</strong> - Comic counterpoint lines</li>
-                        <li><strong>Pizzicato Strings</strong> - Bouncy accompaniment</li>
-                        <li><strong>Bassoon</strong> - Pompous comic bass</li>
-                    </ul>
-                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code>SEED=1842  # Sullivan's birth year
+
+seed $SEED   | motif --base 72 --notes 32 --complexity 7 --bpm 132 \
+                     --ch 0 --patch 73 --dur 0.5 --rest-prob 0.15 \
+             | scale --root C --mode major > flute.jsonl
+
+seed $SEED+1 | motif --base 67 --notes 20 --complexity 5 \
+                     --ch 1 --patch 68 --dur 0.5 --rest-prob 0.25 \
+             | scale --root C --mode major > oboe.jsonl
+
+seed $SEED+2 | motif --base 48 --notes 24 --complexity 3 \
+                     --ch 2 --patch 45 --dur 0.25 \
+             | scale --root C --mode major > pizz.jsonl
+
+seed $SEED+3 | motif --base 41 --notes 16 --complexity 2 \
+                     --ch 3 --patch 70 --dur 0.75 \
+             | scale --root C --mode major > bassoon.jsonl
+
+cat flute.jsonl oboe.jsonl pizz.jsonl bassoon.jsonl | viz | to-midi</code>
+                        <h4>Instrumentation (4 channels)</h4>
+                        <ul>
+                            <li><strong>Flute</strong> (patch 73) - Bright, playful melody</li>
+                            <li><strong>Oboe</strong> (patch 68) - Comic counterpoint lines</li>
+                            <li><strong>Pizzicato Strings</strong> (patch 45) - Bouncy accompaniment</li>
+                            <li><strong>Bassoon</strong> (patch 70) - Pompous comic bass</li>
+                        </ul>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>C major for bright, cheerful sound</li>
+                            <li>132 BPM fast, energetic tempo</li>
+                            <li>Short note durations (0.25-0.5) for bouncy feel</li>
+                            <li>High complexity on melody for playful variation</li>
+                        </ul>
+                    </div>
+                </details>
+
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls>
-                        <source src="demo-gands-esque.wav" type="audio/wav">
-                    </audio>
+                    <audio controls><source src="demo-gands-esque.wav" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~9s</span>
-                        <span>C major</span>
                         <span>Algorithmic</span>
+                        <span>C major</span>
+                        <span>4 channels</span>
                     </div>
                 </div>
             </div>
@@ -449,17 +643,9 @@
 
     <script>
         function showTab(tabId) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Remove active from all buttons
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Show selected tab
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            // Activate button
             event.target.classList.add('active');
         }
     </script>
