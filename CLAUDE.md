@@ -53,7 +53,11 @@ cat events.jsonl | trim --duration 15       # Force 15 seconds
 cat events.jsonl | trim --ticks 7200        # Force specific tick count
 ```
 
-Note: `trim` adjusts the MIDI End event, but FluidSynth may add reverb/decay padding when rendering to WAV.
+**Important**: `trim` adjusts the MIDI End event, but FluidSynth ignores it and adds ~40s padding. Use ffmpeg to trim the rendered WAV:
+```bash
+# In demo scripts, after fluidsynth:
+ffmpeg -y -i raw.wav -t 14 -af "afade=t=out:st=12:d=2" output.wav
+```
 
 ### seq
 Explicit note sequences:
