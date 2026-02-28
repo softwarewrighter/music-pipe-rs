@@ -223,6 +223,18 @@ afplay output.wav
 - Rust 1.70+ (2021 edition)
 - No external runtime dependencies
 
+## Disclaimer
+
+**You are responsible for how you use generated audio.** Ensure you have the appropriate rights and permissions for any commercial or public use. This tool generates MIDI data algorithmically - how you render and distribute the final audio is your responsibility. Protect yourself legally.
+
+**Copyright considerations:** While this tool generates original algorithmic compositions, you must be careful not to infringe copyright when:
+- Creating works that are derived from or similar to existing copyrighted music
+- Using soundfonts or samples that have licensing restrictions
+- Transcribing or adapting copyrighted melodies (even partially)
+- Distributing generated audio commercially
+
+The "Copyright-Safe" feature refers to the algorithmic generation process itself - it does not guarantee that all outputs are free from potential copyright concerns, especially if you configure the tool to produce music similar to existing works.
+
 ## License
 
 MIT
