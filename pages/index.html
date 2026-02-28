@@ -229,7 +229,10 @@ seq --notes "D4/2*127 C#4/32*120..." --ch 1 --patch 19  # octave lower
 seq --notes "D3/1*127 A3/1*127..." --ch 2 --patch 19    # final chord
 seq --notes "D2/1*127 A1/1*127..." --ch 3 --patch 19    # pedal bass
 
-cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi</code>
+cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi --out bach.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F bach.wav soundfont.sf2 bach.mid</code>
                         <h4>Approach</h4>
                         <ul>
                             <li>Uses <code>seq</code> stage for explicit note input (actual Bach notes)</li>
@@ -269,7 +272,10 @@ cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi</code>
                     <div class="details-content">
                         <code>seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110..." \
     --bpm 140 --ch 0 --patch 80 --vel 120 \
-  | viz | to-midi</code>
+  | viz | to-midi --out arcade.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F arcade.wav soundfont.sf2 arcade.mid</code>
                         <h4>Approach</h4>
                         <ul>
                             <li>Single channel monophonic melody (classic chiptune constraint)</li>
@@ -319,7 +325,10 @@ seed $((SEED+2)) | motif --base 50 --notes 24 --complexity 6 \
                          --ch 2 --patch 19 --dur 0.75 --chord-prob 0.15 \
                  | scale --root D --mode minor > mid.jsonl
 
-cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi</code>
+cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi --out bach-esque.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
                         <h4>Approach</h4>
                         <ul>
                             <li><code>seed</code> stage provides deterministic randomness</li>
@@ -380,7 +389,11 @@ euclid --steps 24 --pulses 2 --note 49 --vel 90                         # Cymbal
 
 cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl \
     flute.jsonl clarinet.jsonl violin.jsonl cello.jsonl \
-    timpani.jsonl cymbal.jsonl | viz | trim --auto | to-midi</code>
+    timpani.jsonl cymbal.jsonl | viz | trim --auto | to-midi --out valkyries.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F raw.wav soundfont.sf2 valkyries.mid
+ffmpeg -i raw.wav -t 14 -af "afade=t=out:st=12:d=2" valkyries.wav</code>
                         <h4>Full Orchestration (10 channels)</h4>
                         <ul>
                             <li><strong>Brass Section:</strong> French Horns (patch 60), Trumpets (patch 56), Trombones (patch 57), Tuba (patch 58)</li>
@@ -433,7 +446,10 @@ seed $SEED+1 | motif --base 36 --complexity 2 --patch 58            # Tuba
 seed $SEED+2 | motif --base 72 --complexity 7 --patch 13            # Xylophone
 seed $SEED+3 | motif --base 65 --complexity 4 --patch 11            # Vibraphone
 
-cat horn.jsonl tuba.jsonl xylo.jsonl vibe.jsonl | scale --root B --mode minor | to-midi</code>
+cat horn.jsonl tuba.jsonl xylo.jsonl vibe.jsonl | scale --root B --mode minor | to-midi --out wagner.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F wagner.wav soundfont.sf2 wagner.mid</code>
                         <h4>Approach</h4>
                         <ul>
                             <li>Algorithmic generation using <code>motif</code> stage</li>
@@ -492,7 +508,10 @@ seed $((SEED+3)) | motif --base 60 --notes 12 --complexity 5 \
                          --ch 3 --patch 71 --dur 0.75 --rest-prob 0.3 \
                  | scale --root G --mode major > clarinet.jsonl
 
-cat violin.jsonl cello.jsonl strings.jsonl clarinet.jsonl | viz | to-midi</code>
+cat violin.jsonl cello.jsonl strings.jsonl clarinet.jsonl | viz | to-midi --out verdi.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F verdi.wav soundfont.sf2 verdi.mid</code>
                         <h4>Instrumentation (4 channels)</h4>
                         <ul>
                             <li><strong>Solo Violin</strong> (patch 40) - Aria-like lyrical melody with swing</li>
@@ -549,7 +568,10 @@ seq --notes "${HARMONY}" --ch 1 --patch 68 --vel 70           # Oboe
 BASS="G3/8 D4/8 B3/8 G3/8 D4/8 B3/8..."
 seq --notes "${BASS}" --ch 2 --patch 45 --vel 80              # Pizzicato
 
-cat melody.jsonl harmony.jsonl bass.jsonl | viz | to-midi</code>
+cat melody.jsonl harmony.jsonl bass.jsonl | viz | to-midi --out mikado.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F mikado.wav soundfont.sf2 mikado.mid</code>
                         <h4>Instrumentation (3 channels)</h4>
                         <ul>
                             <li><strong>Flute</strong> (patch 73) - Bright, playful melody</li>
@@ -608,7 +630,10 @@ seed $SEED+3 | motif --base 41 --notes 16 --complexity 2 \
                      --ch 3 --patch 70 --dur 0.75 \
              | scale --root C --mode major > bassoon.jsonl
 
-cat flute.jsonl oboe.jsonl pizz.jsonl bassoon.jsonl | viz | to-midi</code>
+cat flute.jsonl oboe.jsonl pizz.jsonl bassoon.jsonl | viz | to-midi --out gands.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F gands.wav soundfont.sf2 gands.mid</code>
                         <h4>Instrumentation (4 channels)</h4>
                         <ul>
                             <li><strong>Flute</strong> (patch 73) - Bright, playful melody</li>
@@ -666,7 +691,11 @@ seq --notes "D4/16 F#4/16 A4/16..." --ch 4 --patch 6                # Harpsichor
 seq --notes "A5/8 B5/16 A5/16..." --ch 5 --patch 74                 # Recorder
 
 cat violin1.jsonl violin2.jsonl viola.jsonl cello.jsonl \
-    harpsi.jsonl recorder.jsonl | viz | trim --auto | to-midi</code>
+    harpsi.jsonl recorder.jsonl | viz | trim --auto | to-midi --out baroque.mid
+
+# RENDER TO AUDIO
+fluidsynth -ni -F raw.wav soundfont.sf2 baroque.mid
+ffmpeg -i raw.wav -t 15 -af "afade=t=out:st=13:d=2" baroque.wav</code>
                         <h4>Period Instruments (6 channels)</h4>
                         <ul>
                             <li><strong>Strings:</strong> Violin I & II (patch 40), Viola (patch 41), Cello (patch 42)</li>
