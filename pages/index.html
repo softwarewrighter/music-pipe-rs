@@ -224,18 +224,20 @@
                     arranged for multi-voice church organ with octave doubling and pedal bass.
                 </div>
 
+                <!-- IMPORTANT: All code examples must be COMPLETE and COPY-PASTEABLE.
+                     NEVER use "..." or ellipses to abbreviate. Users copy-paste these commands directly. -->
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Extract notes from a MIDI file (first 4 bars)
-mid2seq "Toccata and Fugue in D minor, BWV 565.mid" --bars 4
-# Output: NOTES='[A4,A5,A6]/t28*89 [G4,G5,G6]/t28*107 ...'
+                        <code># Full notes extracted via: mid2seq "Toccata and Fugue in D minor, BWV 565.mid" --bars 4
+NOTES='[A4,A5,A6]/t28*89 [G4,G5,G6]/t28*107 [A4,A5,A6]/t163*93 R/t77 [G4,G5,G6]/t28*85 [F4,F6]/t28*88 [E4,E6]/t28*90 [D4,D6]/t28*90 [C#4,C#5,C#6]/t54*110 [D4,D5,D6]/t109*106 R/t371 [A3,A4,A5]/t28*89 [G3,G4,G5]/t28*106 [A3,A4,A5]/t163*92 R/t77 [E3,E4,E5]/t54*86 [F3,F4,F5]/t54*99 [C#3,C#4,C#5]/t54*102 [D3,D4,D5]/t109*104 R/t371 [A2,A3,A4]/t28*90 [G2,G3,G4]/t28*107 [A2,A3,A4]/t163*93 R/t77 [G2,G3,G4]/t28*86 [F2,F4]/t28*87 [E2,E4]/t28*91 [D2,D4]/t28*88 [C#2,C#3,C#4]/t54*111 [D2,D3,D4]/t109*106 R/t371 D1/t1826*116 [D2,E2,A#2,E3,G3,C#4]/t433*64 R/t47 [D2,E2,A#2,C#3,G3,A#3,E4]/t433*81 R/t47 [D2,E2,A#2,D3,G3,A#3,C#4,G4]/t386*92 R/t94 [D2,G2,A#2,D3,E3,G3,C#4,E4,A#4]/t433*102 R/t47 [D2,G2,A#2,D3,E3,A#3,E4,G4,C#5]/t433*107 R/t47 [D2,G2,A#2,C#3,D3,E3,D4,G4,A#4,C#5,E5]/t913*115 R/t47 [D2,G2,A2,D3,D4,G4,A4,D5]/t109*90 R/t11 [E2,E3,E4]/t109*112 R/t11 [F#2,F#3,F#4]/t458*115'
 
 # Generate MIDI with church organ (patch 19)
 seq --notes "$NOTES" --bpm 72 --patch 19 | to-midi --out bach.mid
 
 # Render to audio
-fluidsynth -ni -F bach.wav GeneralUser_GS.sf2 bach.mid</code>
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F bach.wav "$SF2" bach.mid</code>
                         <h4>Approach</h4>
                         <ul>
                             <li>Uses <code>mid2seq</code> to extract notes from existing MIDI files</li>
@@ -249,7 +251,7 @@ fluidsynth -ni -F bach.wav GeneralUser_GS.sf2 bach.mid</code>
 
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls><source src="demo-bach.wav?ts=1772391676000" type="audio/wav"></audio>
+                    <audio controls><source src="demo-bach.wav?ts=1772393507000" type="audio/wav"></audio>
                     <div class="meta">
                         <span>~19s</span>
                         <span>D minor</span>

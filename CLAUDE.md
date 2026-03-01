@@ -32,6 +32,15 @@ This is non-negotiable. Global Python pollution breaks system tools and causes h
 
 The demo site is at https://softwarewrighter.github.io/music-pipe-rs/
 
+### CRITICAL: Copy-Paste Requirement
+
+**ALL code examples in demo pages MUST be complete and copy-pasteable.**
+
+- NEVER use `...` or ellipses to abbreviate commands
+- NEVER omit details for brevity
+- The ENTIRE PURPOSE of showing commands is to support copy-paste from web UI to command line
+- If a NOTES string is long, include the FULL string - users need working commands, not examples
+
 ### File Structure
 - `pages/index.html` - The ONLY HTML file for the demo site (deployed to GitHub Pages)
 - `pages/*.wav` - Audio files for demos

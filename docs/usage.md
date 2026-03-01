@@ -2,6 +2,15 @@
 
 This guide covers human and AI agent usage of music-pipe-rs for generating MIDI music.
 
+## Documentation Standards
+
+**All code examples must be COMPLETE and COPY-PASTEABLE.**
+
+- Never use `...` or ellipses to abbreviate commands
+- Never omit details for brevity
+- Include full variable values, even if long
+- The purpose of documentation is to support direct copy-paste to command line
+
 ## Quick Reference
 
 ```bash
