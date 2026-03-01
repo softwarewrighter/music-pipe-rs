@@ -177,12 +177,43 @@
                         <span class="instrument-tag">Bass (32)</span>
                     </div>
                     <audio controls><source src="demo-turkey.wav?ts=1772344403000" type="audio/wav"></audio>
-                    <details>
-                        <summary>View seq commands</summary>
-                        <div class="code-block"><pre><span class="code-comment"># ABC: |:BA|GFGA G2 B,C|DEDB, D2 GA|...</span>
-<span class="code-cmd">seq</span> --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16..." \
-    --bpm 120 --ch 0 --patch 40 --vel 100</pre></div>
-                    </details>
+                    <div class="code-block"><pre><span class="code-comment"># Turkey in the Straw - 4 voices: lead fiddle, harmony fiddle, banjo, bass</span>
+<span class="code-comment"># A Part + B Part from The Session ABC notation</span>
+
+<span class="code-comment"># Lead fiddle (patch 40)</span>
+<span class="code-cmd">seq</span> --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16 \
+D4/16 E4/16 D4/16 B3/16 D4/8 G4/16 A4/16 B4/8 B4/8 B4/16 A4/16 G4/16 A4/16 \
+B4/8 A4/8 A4/8 B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16 \
+D4/16 E4/16 D4/16 B3/16 D4/8 G4/16 A4/16 B4/16 D5/8 E5/16 D5/16 B4/16 G4/16 A4/16 \
+B4/8 A4/8 G4/4 D5/8 B4/16 D5/8 B4/16 D5/8 D5/8 B4/16 D5/8 B4/16 D5/8 D5/8 \
+C5/16 E5/8 C5/16 E5/8 E5/8 C5/16 E5/8 C5/16 E5/8 E5/8 G5/8 G5/8 D5/8 D5/8 \
+B4/8 B4/8 A4/8 G4/16 A4/16 B4/16 D5/8 E5/16 D5/16 B4/16 G4/16 A4/16 B4/8 A4/8 G4/4" \
+    --bpm 120 --ch 0 --patch 40 --vel 100 > fiddle.jsonl
+
+<span class="code-comment"># Second fiddle harmony (thirds below)</span>
+<span class="code-cmd">seq</span> --notes "G4/16 F#4/16 E4/16 D4/16 E4/16 F#4/16 E4/8 G3/16 A3/16 \
+B3/16 C4/16 B3/16 G3/16 B3/8 E4/16 F#4/16 G4/8 G4/8 G4/16 F#4/16 E4/16 F#4/16 \
+G4/8 F#4/8 F#4/8 G4/16 F#4/16 E4/16 D4/16 E4/16 F#4/16 E4/8 G3/16 A3/16 \
+B3/16 C4/16 B3/16 G3/16 B3/8 E4/16 F#4/16 G4/16 B4/8 C5/16 B4/16 G4/16 E4/16 F#4/16 \
+G4/8 F#4/8 E4/4 B4/8 G4/16 B4/8 G4/16 B4/8 B4/8 G4/16 B4/8 G4/16 B4/8 B4/8 \
+A4/16 C5/8 A4/16 C5/8 C5/8 A4/16 C5/8 A4/16 C5/8 C5/8 E5/8 E5/8 B4/8 B4/8 \
+G4/8 G4/8 F#4/8 E4/16 F#4/16 G4/16 B4/8 C5/16 B4/16 G4/16 E4/16 F#4/16 G4/8 F#4/8 E4/4" \
+    --bpm 0 --ch 1 --patch 40 --vel 75 > fiddle2.jsonl
+
+<span class="code-comment"># Banjo chord strums</span>
+<span class="code-cmd">seq</span> --notes "R/16 R/16 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 \
+G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 \
+G3/8 B3/8 G3/8 B3/8 G3/8 D3/8 G3/4 R/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 \
+C3/8 E3/8 C3/8 E3/8 C3/8 E3/8 C3/8 E3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 D3/8 A3/8 \
+G3/8 B3/8 G3/8 B3/8 G3/8 D3/8 G3/4" --bpm 0 --ch 2 --patch 105 --vel 70 > banjo.jsonl
+
+<span class="code-comment"># Bass root notes</span>
+<span class="code-cmd">seq</span> --notes "R/16 R/16 G2/4 G2/4 G2/4 D2/4 G2/4 G2/4 G2/4 D2/4 \
+G2/4 G2/4 G2/4 D2/4 G2/4 D2/4 G2/2 R/8 G2/4 G2/4 G2/4 G2/4 \
+C3/4 C3/4 C3/4 C3/4 G2/4 G2/4 D2/4 D2/4 G2/4 D2/4 G2/2" \
+    --bpm 0 --ch 3 --patch 32 --vel 90 > bass.jsonl
+
+cat fiddle.jsonl fiddle2.jsonl banjo.jsonl bass.jsonl | viz | trim --auto | to-midi</pre></div>
                 </div>
             </div>
             <div id="fiddle-motif" class="sub-content">
@@ -227,20 +258,29 @@
                         <span class="instrument-tag">Acoustic Piano (0)</span>
                     </div>
                     <audio controls><source src="demo-entertainer.wav?ts=1772344403000" type="audio/wav"></audio>
-                    <div class="code-block"><pre><span class="code-comment"># Melody: chromatic intro D4-D#4-E4, then main theme</span>
-<span class="code-cmd">seq</span> --notes "D4/8 D#4/8 E4/8 C5/4 E4/8 C5/4 E4/8 C5/8 \
-C5/2 C5/8 C5/8 D5/8 D#5/8 E5/8 C5/8 D5/8 E5/8 E5/8 B4/8 D5/4 \
-C5/2 C5/4 D4/8 D#4/8 E4/8 C5/4 E4/8 C5/4 E4/8 C5/8 \
-C5/2 C5/4 A4/8 G4/8 F#4/8 A4/8 C5/8 E5/8 E5/8 D5/8 C5/8 A4/8 \
-D5/2 D5/4" --bpm 120 --ch 0 --patch 3 --vel 95 > melody.jsonl
+                    <div class="code-block"><pre><span class="code-comment"># Tick-based timing from reference MIDI (109 notes, ~12 seconds)</span>
+<span class="code-comment"># R/t1925 = rest for 1925 ticks, [A4,A5] = chord, *86 = velocity</span>
 
-<span class="code-comment"># Stride bass: root on 1,3 - chord on 2,4</span>
-<span class="code-cmd">seq</span> --notes "R/4 C2/8 E3/8 G3/8 E3/8 C2/8 E3/8 G3/8 E3/8 \
-F2/8 A3/8 C3/8 A3/8 E2/8 G3/8 C3/8 G3/8 \
-C2/8 E3/8 G3/8 E3/8 G2/8 B3/8 D3/8 B3/8 \
-C2/8 E3/8 G3/8 E3/8 C2/4" --bpm 0 --ch 1 --patch 0 --vel 70 > bass.jsonl
-
-cat melody.jsonl bass.jsonl | viz | trim --auto | to-midi</pre></div>
+<span class="code-cmd">seq</span> --notes "R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 \
+C5/t248*82 C6/t236*96 [A4,A5]/t506*91 B5/t236*96 B4/t224*70 G5/t208*96 \
+G4/t201*86 R/t277 [D4,D5]/t241*93 E5/t233*85 E4/t234*70 C5/t241*96 \
+C4/t246*78 A4/t471*96 A3/t476*86 R/t2 B4/t241*96 B3/t229*78 R/t9 \
+G3/t193*82 G4/t181*92 R/t299 [D3,D4]/t231*96 E4/t233*88 E3/t226*82 R/t9 \
+C4/t219*92 C3/t236*82 R/t1 A3/t481*100 A2/t491*86 B3/t246*96 B2/t226*86 \
+R/t11 [A2,A3]/t224*93 R/t9 G#3/t221*84 G#2/t228*82 R/t2 G3/t281*100 \
+G2/t309*94 R/t641 [G4,B4,D5]/t274*98 G5/t236*96 [G1,G2]/t166*88 R/t312 \
+[D4,G4,B4]/t236*84 D#4/t218*78 R/t32 [C3,E4]/t226*91 C5/t458*104 \
+[E3,G3,C4]/t209*74 R/t24 E4/t256*81 [G2,G3]/t203*86 C5/t436*100 R/t32 \
+E4/t258*84 [G3,C4]/t203*82 A#3/t184*67 R/t39 C5/t1171*104 [F2,F3]/t213*84 \
+R/t267 [A3,C4]/t178*86 R/t304 [E2,E3]/t191*84 R/t41 C5/t126*88 \
+[E5,C6]/t126*100 R/t91 [G3,C4,D5,F5,D6]/t211*88 R/t22 F#5/t115*88 \
+[D#5,D#6]/t115*83 R/t87 [E5,G5,E6]/t115*104 G2/t154*94 R/t86 \
+[C5,E5,C6]/t115*87 R/t123 [E3,G3,C4,D5,F5,D6]/t238*90 [E5,G5,E6]/t319*97 \
+G2/t181*94 R/t52 B5/t115*100 [B4,D5]/t115*100 R/t125 [D5,F5,D6]/t299*96 \
+[F3,G3,B3]/t206*78 R/t271 C3/t241*90" --bpm 200 --ch 0 --patch 0 \
+  | humanize --jitter-ticks 4 --jitter-vel 5 \
+  | trim --auto \
+  | to-midi --out entertainer.mid</pre></div>
                 </div>
                 <div class="demo-card">
                     <div class="demo-header">
@@ -252,16 +292,31 @@ cat melody.jsonl bass.jsonl | viz | trim --auto | to-midi</pre></div>
                         <span class="instrument-tag">Acoustic Piano (0)</span>
                     </div>
                     <audio controls><source src="demo-maple-leaf.wav?ts=1772344403000" type="audio/wav"></audio>
-                    <div class="code-block"><pre><span class="code-comment"># Tick-based timing: R/t712 = rest for 712 ticks</span>
-<span class="code-comment"># Chord syntax: [D#2,D#3] = simultaneous notes</span>
-<span class="code-comment"># Per-note velocity: *96 = velocity 96</span>
+                    <div class="code-block"><pre><span class="code-comment"># Tick-based timing from reference MIDI (127 notes, ~12 seconds)</span>
+<span class="code-comment"># R/t712 = rest for 712 ticks, [D#2,D#3] = chord, *96 = velocity</span>
 
-<span class="code-cmd">seq</span> --notes "R/t712 [D#2,D#3]/t60*96 R/t184 G#3/t60*86 G#2/t60*86 \
-R/t88 G#4/t60*73 R/t24 [G#3,C4]/t60*83 D#3/t60*69 D#4/t60*86 D#5/t60*81 \
-R/t76 G#4/t60*66 R/t28 [G#3,C4]/t60*68 D#3/t60*52 C5/t60*77 \
-R/t76 D#5/t60*77 D#4/t60*91 R/t24 [A2,A3]/t60*86 R/t96 G4/t60*81 \
-R/t28 [A#2,A#3]/t60*86 [D#4,D#5]/t60*81 R/t68 G4/t60*73 ..." \
-    --bpm 116 --ch 0 --patch 0 \
+<span class="code-cmd">seq</span> --notes "R/t712 [D#2,D#3]/t40*96 R/t204 G#3/t156*86 G#2/t164*86 \
+G#4/t88*73 [G#3,C4]/t56*83 D#3/t32*69 D#4/t152*86 D#5/t120*81 R/t16 \
+G#4/t236*66 [G#3,C4]/t72*68 D#3/t40*52 C5/t96*77 R/t40 D#5/t236*77 \
+D#4/t240*91 [A2,A3]/t72*86 R/t84 G4/t88*81 [A#2,A#3]/t192*86 \
+[D#4,D#5]/t184*81 G4/t200*73 [G3,C#4]/t72*68 A#4/t104*77 R/t28 \
+D#4/t580*91 D#5/t480*81 C#4/t76*52 D#3/t140*57 G3/t44*54 R/t200 \
+D#3/t40*86 D#2/t32*91 R/t200 G#3/t156*81 G#2/t156*81 G#4/t84*66 \
+[D#3,G#3,C4]/t40*69 D#5/t156*86 D#4/t184*86 G#4/t248*59 [G#3,C4]/t72*59 \
+[D#3,C5]/t36*54 R/t44 D#5/t240*77 D#4/t232*91 [A2,A3]/t104*94 R/t56 \
+G4/t104*86 [A#2,A#3]/t136*83 D#4/t196*86 D#5/t108*86 R/t24 G4/t208*77 \
+[D#3,G3]/t64*60 C#4/t36*41 A#4/t92*59 R/t40 D#5/t360*77 D#4/t344*81 \
+C#4/t44*37 D#3/t112*66 R/t132 D#3/t48*77 D#2/t48*86 R/t104 D#4/t272*86 \
+D#5/t208*86 E3/t280*108 E2/t288*102 G#4/t284*73 B4/t120*69 R/t20 \
+[E4,E5]/t72*86 R/t16 D#2/t72*81 D#3/t56*73 R/t88 D#5/t56*91 D#4/t48*81 \
+R/t28 [D#2,D#3]/t56*91 R/t96 D#5/t192*91 D#4/t240*91 E3/t200*108 \
+E2/t196*108 G#4/t260*77 B4/t148*77 E5/t76*86 E4/t60*77 R/t36 \
+[D#2,D#3]/t304*83 [D#4,D#5]/t36*105 R/t196 G#1/t208*91 G#2/t176*69 \
+B2/t160*54 G#3/t76*73 R/t28 G#2/t164*108 G#3/t244*66 B3/t152*59 \
+G#4/t120*69 G#3/t164*120 G#4/t252*59 B4/t148*66 G#5/t100*77 G#4/t164*120 \
+G#5/t200*81 B5/t164*65 G#6/t120*81 G#5/t48*86 [D4,G#4]/t60*83 B4/t40*81 \
+F4/t36*77 R/t196 [D4,B4,G#5]/t44*87 [F4,G#4]/t40*75 G#6/t44*91 R/t196 \
+[G#4,B4,G#5]/t48*86 [D4,F4,G#6]/t32*87" --bpm 130 --ch 0 --patch 0 \
   | humanize --jitter-ticks 4 --jitter-vel 5 \
   | trim --auto \
   | to-midi --out maple-leaf.mid</pre></div>
@@ -378,12 +433,21 @@ R/t28 [A#2,A#3]/t60*86 [D#4,D#5]/t60*81 R/t68 G4/t60*73 ..." \
                         <span class="instrument-tag">Drums (ch9)</span>
                     </div>
                     <audio controls><source src="demo-saints.wav?ts=1772344403000" type="audio/wav"></audio>
-                    <details>
-                        <summary>View seq commands</summary>
-                        <div class="code-block"><pre><span class="code-comment"># "Oh when the saints go marching in"</span>
-<span class="code-cmd">seq</span> --notes "R/8 C5/8 E5/8 F5/8 G5/2 R/4..." \
-    --bpm 120 --ch 0 --patch 56 --vel 100</pre></div>
-                    </details>
+                    <div class="code-block"><pre><span class="code-comment"># Trumpet lead from ABC notation - 5 voices total</span>
+<span class="code-cmd">seq</span> --notes "C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 \
+G5/2 E5/2 C5/2 E5/2 D5/1 R/4 E5/4 E5/4 D5/4 C5/1 E5/2 G5/2 G5/4 F5/2 R/4 \
+R/2 E5/4 F5/4 G5/2 E5/2 C5/2 D5/2 C5/1" --bpm 130 --ch 0 --patch 56 --vel 100 > trumpet.jsonl
+
+<span class="code-comment"># Trombone harmony (thirds below)</span>
+<span class="code-cmd">seq</span> --notes "G4/4 C5/4 D5/4 E5/1 R/4 G4/4 C5/4 D5/4 E5/1 R/4 G4/4 C5/4 D5/4 \
+E5/2 C5/2 G4/2 C5/2 B4/1 R/4 C5/4 C5/4 B4/4 G4/1 C5/2 E5/2 E5/4 D5/2 R/4 \
+R/2 C5/4 D5/4 E5/2 C5/2 G4/2 B4/2 G4/1" --bpm 0 --ch 1 --patch 57 --vel 85 > trombone.jsonl
+
+<span class="code-comment"># Tuba march bass + Euclid drums</span>
+<span class="code-cmd">seq</span> --notes "C2/4 G2/4 C2/4 C2/4 G2/4 C2/4 G2/4 ..." --bpm 0 --ch 3 --patch 58 > tuba.jsonl
+<span class="code-cmd">seed</span> 1865 | <span class="code-cmd">euclid</span> --steps 8 --pulses 4 --note 38 --ch 9 --repeat 18 > snare.jsonl
+
+cat trumpet.jsonl trombone.jsonl tuba.jsonl snare.jsonl | viz | trim --auto | to-midi</pre></div>
                 </div>
             </div>
             <div id="brass-motif" class="sub-content">
@@ -428,16 +492,41 @@ R/t28 [A#2,A#3]/t60*86 [D#4,D#5]/t60*81 R/t68 G4/t60*73 ..." \
                         <span class="instrument-tag">Tuba (58)</span>
                         <span class="instrument-tag">Trombone (57)</span>
                     </div>
-                    <audio controls><source src="demo-beerhall-seq.wav?ts=1772344403000" type="audio/wav"></audio>
-                    <details>
-                        <summary>View seq commands</summary>
-                        <div class="code-block"><pre><span class="code-comment"># "Roll out the barrel" chorus in F major</span>
-<span class="code-cmd">seq</span> --notes "C5/8 C5/8 C5/4 D5/8 C5/8 A4/4..." --bpm 120 --ch 0 --patch 21
-<span class="code-comment"># Tuba on beat 1 (oom)</span>
-<span class="code-cmd">seq</span> --notes "F2/4 R/4 C2/4 R/4..." --bpm 0 --ch 1 --patch 58
-<span class="code-comment"># Trombone chords on beat 2 (pah)</span>
-<span class="code-cmd">seq</span> --notes "R/4 A3/8 C4/8..." --bpm 0 --ch 2 --patch 57</pre></div>
-                    </details>
+                    <audio controls><source src="demo-beerhall-seq.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="code-block"><pre><span class="code-comment"># Tick-based timing from reference MIDI bar 68 (chorus)</span>
+<span class="code-comment"># 245 notes at 220 BPM, ~32 seconds - accordion with full chords</span>
+
+<span class="code-cmd">seq</span> --notes "A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 \
+C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t480*23 \
+[E4,A#4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t360*23 R/t120 \
+[E4,A#4,C#5]/t480*23 [G2,E4,A#4,D5]/t480*23 [G4,A#4,E5]/t480*23 C2/t480*23 \
+[G4,A#4]/t480*23 G2/t480*23 [G4,A#4]/t480*23 C2/t480*23 [G4,A#4]/t480*23 \
+[G2,G4,A#4,D5]/t480*23 [G4,A#4,E5]/t960*23 C2/t480*23 [G4,A#4,D5]/t480*23 \
+[G2,G4,A#4,E5]/t480*23 [G4,A#4,D5]/t960*23 C2/t480*23 [G4,A#4,C#5]/t480*23 \
+[F2,F4,A4,C5]/t480*23 C2/t480*23 R/t480 F2/t480*23 R/t480 C2/t480*23 R/t480 \
+[F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 \
+[F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 \
+[F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 \
+C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 \
+C2/t480*23 [F4,A4,C5]/t480*23 [F2,D#4,A4,D5]/t480*23 [D#4,A4,C5]/t960*23 \
+F2/t480*23 [D#4,F4]/t480*23 [A#2,F4,A#4,D5]/t960*23 [A2,F#4,C5]/t960*23 \
+[G2,G4,A#4]/t960*23 D3/t960*23 [A#2,D4,G4]/t480*23 [D4,A4]/t480*23 \
+[A#2,D4,A#4]/t480*23 [D4,C5]/t480*23 [B2,F4,G#4,E5]/t480*23 B2/t480*23 \
+[F4,G#4,D5]/t480*23 [C3,F4,A4,D5]/t600*23 [F4,A4,C5]/t1440*23 F3/t480*23 \
+D#3/t480*23 [D3,F#4]/t480*23 [D2,F#4,B4]/t480*23 [F#4,C5]/t480*23 \
+[G2,F4,B4,D5]/t480*23 A2/t480*23 B2/t480*23 G2/t480*23 [C3,G4,A#4,E5]/t480*23 \
+C2/t480*23 D2/t480*23 E2/t480*23 [F2,F4,A4,F5]/t480*23 C5/t240*24 D5/t240*24 \
+[F#2,D#4,A4,C5]/t480*24 C5/t240*24 D5/t240*24 [G2,E4,A#4,C5]/t480*24 \
+[C4,E4]/t240*25 [D4,F4]/t240*25 [C2,C3,E4,G4]/t960*25 [F4,A4]/t240*25 \
+[G4,A#4]/t240*25 [G#4,B4]/t240*25 [F2,C5]/t480*23 [F4,A4]/t480*23 \
+C3/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 \
+[F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 \
+[F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 \
+[F2,F4,A4,C5]/t480*23" \
+    --bpm 220 --ch 0 --patch 21 \
+  | humanize --jitter-ticks 4 --jitter-vel 5 \
+  | trim --auto \
+  | to-midi --out beerhall.mid</pre></div>
                 </div>
             </div>
             <div id="polka-motif" class="sub-content">

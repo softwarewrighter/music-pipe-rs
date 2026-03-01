@@ -41,7 +41,7 @@ MELODY="${MELODY} E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/16 G4/16"
 MELODY="${MELODY} A4/16 G4/16 A4/16 R/16 B4/16 A4/16 G4/4"
 
 echo "Generating fiddle melody..."
-"${BIN}/seq" --notes "${MELODY}" --bpm 120 --ch 0 --patch 40 --vel 100 \
+"${BIN}/seq" --notes "${MELODY}" --bpm 80 --ch 0 --patch 40 --vel 100 \
   > /tmp/camp-melody.jsonl
 
 # Banjo rhythm (patch 105) - G major chord patterns

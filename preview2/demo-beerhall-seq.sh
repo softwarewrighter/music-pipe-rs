@@ -2,6 +2,8 @@
 # Beer Barrel Polka (Rosamunde) - Traditional
 # "Roll Out the Barrel" - Czech/German polka classic
 # Public domain melody (1927 Czech, 1939 English lyrics)
+#
+# Notes extracted from reference MIDI bar 68 (chorus)
 
 set -euo pipefail
 
@@ -11,53 +13,34 @@ SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
 OUTPUT="${SCRIPT_DIR}/preview2/demo-beerhall-seq.wav"
 
 echo "=== Beer Barrel Polka (seq) ==="
-echo "Roll Out the Barrel - traditional oom-pah"
+echo "Roll Out the Barrel - chorus from reference MIDI"
 
-# Key: F major, 2/4 polka time, ~120 BPM
-# The famous "Roll out the barrel" chorus
+# Notes extracted from reference MIDI bar 68 onwards (chorus)
+# 245 notes, ~32 seconds at 220 BPM
 
-# Accordion melody (patch 21)
-# "Roll out the barrel, we'll have a barrel of fun"
-MELODY="C5/8 C5/8 C5/4 D5/8 C5/8 A4/4"
-MELODY="${MELODY} G4/8 G4/8 G4/4 A4/8 G4/8 F4/4"
-MELODY="${MELODY} F4/8 G4/8 A4/8 A#4/8 C5/4 A4/4"
-MELODY="${MELODY} G4/2 R/2"
-# "Roll out the barrel, we've got the blues on the run"
-MELODY="${MELODY} C5/8 C5/8 C5/4 D5/8 C5/8 A4/4"
-MELODY="${MELODY} G4/8 G4/8 G4/4 A4/8 G4/8 F4/4"
-MELODY="${MELODY} A4/8 G4/8 F4/8 E4/8 D4/4 C4/4"
-MELODY="${MELODY} F4/2 R/2"
+NOTES='A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t480*23 [E4,A#4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t360*23 R/t120 [E4,A#4,C#5]/t480*23 [G2,E4,A#4,D5]/t480*23 [G4,A#4,E5]/t480*23 C2/t480*23 [G4,A#4]/t480*23 G2/t480*23 [G4,A#4]/t480*23 C2/t480*23 [G4,A#4]/t480*23 [G2,G4,A#4,D5]/t480*23 [G4,A#4,E5]/t960*23 C2/t480*23 [G4,A#4,D5]/t480*23 [G2,G4,A#4,E5]/t480*23 [G4,A#4,D5]/t960*23 C2/t480*23 [G4,A#4,C#5]/t480*23 [F2,F4,A4,C5]/t480*23 C2/t480*23 R/t480 F2/t480*23 R/t480 C2/t480*23 R/t480 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4,C5]/t480*23 [F2,D#4,A4,D5]/t480*23 [D#4,A4,C5]/t960*23 F2/t480*23 [D#4,F4]/t480*23 [A#2,F4,A#4,D5]/t960*23 [A2,F#4,C5]/t960*23 [G2,G4,A#4]/t960*23 D3/t960*23 [A#2,D4,G4]/t480*23 [D4,A4]/t480*23 [A#2,D4,A#4]/t480*23 [D4,C5]/t480*23 [B2,F4,G#4,E5]/t480*23 B2/t480*23 [F4,G#4,D5]/t480*23 [C3,F4,A4,D5]/t600*23 [F4,A4,C5]/t1440*23 F3/t480*23 D#3/t480*23 [D3,F#4]/t480*23 [D2,F#4,B4]/t480*23 [F#4,C5]/t480*23 [G2,F4,B4,D5]/t480*23 A2/t480*23 B2/t480*23 G2/t480*23 [C3,G4,A#4,E5]/t480*23 C2/t480*23 D2/t480*23 E2/t480*23 [F2,F4,A4,F5]/t480*23 C5/t240*24 D5/t240*24 [F#2,D#4,A4,C5]/t480*24 C5/t240*24 D5/t240*24 [G2,E4,A#4,C5]/t480*24 [C4,E4]/t240*25 [D4,F4]/t240*25 [C2,C3,E4,G4]/t960*25 [F4,A4]/t240*25 [G4,A#4]/t240*25 [G#4,B4]/t240*25 [F2,C5]/t480*23 [F4,A4]/t480*23 C3/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23'
 
-echo "Generating accordion..."
-"${BIN}/seq" --notes "${MELODY}" --bpm 120 --ch 0 --patch 21 --vel 95 \
-  > /tmp/beer-melody.jsonl
+echo "Generating with tick-based timing..."
+echo "" | "${BIN}/seq" --notes "${NOTES}" --bpm 220 --ch 0 --patch 21 \
+  > /tmp/beer-tick.jsonl
 
-# Tuba - oom (bass notes on beat 1)
-TUBA="F2/4 R/4 C2/4 R/4 C2/4 R/4 F2/4 R/4"
-TUBA="${TUBA} F2/4 R/4 C2/4 R/4 C2/4 R/4 F2/4 R/4"
-TUBA="${TUBA} F2/4 R/4 C2/4 R/4 C2/4 R/4 F2/4 R/4"
-TUBA="${TUBA} C2/4 R/4 C2/4 R/4 F2/2"
+NOTE_COUNT=$(grep -c NoteOn /tmp/beer-tick.jsonl)
+echo "Generated ${NOTE_COUNT} notes"
 
-echo "Generating tuba..."
-"${BIN}/seq" --notes "${TUBA}" --bpm 0 --ch 1 --patch 58 --vel 100 \
-  > /tmp/beer-tuba.jsonl
+# Light humanize
+echo "Adding subtle humanize..."
+cat /tmp/beer-tick.jsonl \
+  | "${BIN}/humanize" --jitter-ticks 4 --jitter-vel 5 \
+  | "${BIN}/trim" --auto \
+  > /tmp/beer-full.jsonl
 
-# Trombone - pah (chords on beat 2)
-PAH="R/4 A3/8 C4/8 R/4 G3/8 C4/8 R/4 G3/8 C4/8 R/4 A3/8 C4/8"
-PAH="${PAH} R/4 A3/8 C4/8 R/4 G3/8 C4/8 R/4 G3/8 C4/8 R/4 A3/8 C4/8"
-PAH="${PAH} R/4 A3/8 C4/8 R/4 G3/8 C4/8 R/4 G3/8 C4/8 R/4 A3/8 C4/8"
-PAH="${PAH} R/4 G3/8 C4/8 R/4 G3/8 C4/8 A3/2"
+# Convert to MIDI
+echo "Converting to MIDI..."
+cat /tmp/beer-full.jsonl | "${BIN}/to-midi" --out /tmp/demo-beerhall.mid
 
-echo "Generating trombone..."
-"${BIN}/seq" --notes "${PAH}" --bpm 0 --ch 2 --patch 57 --vel 75 \
-  > /tmp/beer-trombone.jsonl
-
-# Combine
-cat /tmp/beer-melody.jsonl /tmp/beer-tuba.jsonl /tmp/beer-trombone.jsonl \
-  | "${BIN}/viz" 2>/dev/null | "${BIN}/trim" --auto \
-  | "${BIN}/to-midi" --out /tmp/demo-beerhall.mid
-
+# Render to WAV
+echo "Rendering to WAV..."
 fluidsynth -ni -F /tmp/beer-raw.wav "$SF2" /tmp/demo-beerhall.mid 2>/dev/null
-ffmpeg -y -i /tmp/beer-raw.wav -t 12 -af "afade=t=out:st=10:d=2" "$OUTPUT" 2>/dev/null
+ffmpeg -y -i /tmp/beer-raw.wav -t 32 -af "afade=t=out:st=30:d=2" "$OUTPUT" 2>/dev/null
 echo "Created: $OUTPUT"
 afplay "$OUTPUT"

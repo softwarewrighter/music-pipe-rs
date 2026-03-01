@@ -210,6 +210,8 @@
             <button class="tab-btn" onclick="showTab('verdi')">Verdi</button>
             <button class="tab-btn" onclick="showTab('gands')">Gilbert & Sullivan</button>
             <button class="tab-btn" onclick="showTab('baroque')">Baroque</button>
+            <button class="tab-btn" onclick="showTab('folk')">American Folk</button>
+            <button class="tab-btn" onclick="showTab('polka')">Polka</button>
         </div>
 
         <!-- ==================== BACH TAB ==================== -->
@@ -362,21 +364,46 @@ fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     Scott Joplin's most famous ragtime composition, the "king of ragtime."
-                    Uses new seq features: chord syntax for simultaneous notes,
-                    beat-based timing for precise syncopation, and per-note velocity.
+                    Extracted from reference MIDI using tick-based notation with chord syntax
+                    for simultaneous notes and per-note velocity.
                 </div>
 
-                <div class="section-label">Listen</div>
-                <audio controls preload="metadata">
-                    <source src="demo-maple-leaf.wav?ts=1772344403000" type="audio/wav">
-                </audio>
-
-                <div class="section-label">Pipeline</div>
-                <pre><code>seq --notes "[D#2,D#3]/8*95 R/b0.52 [G#2,G#3]/8*86 R/b0.31 G#4/16*73 ..." \
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Tick-based extraction from reference MIDI (127 notes at 130 BPM)
+seq --notes "R/t712 [D#2,D#3]/t40*96 R/t204 G#3/t156*86 G#2/t164*86 G#4/t88*73 \
+[D#3,D#4]/t124*82 G#4/t140*80 [D#3,D#4]/t168*80 G#4/t152*75..." \
+    --bpm 130 --ch 0 --patch 0 \
   | humanize --jitter-ticks 8 --jitter-vel 8 \
   | trim --auto \
-  | to-midi --out maple-leaf.mid</code></pre>
+  | to-midi --out maple-leaf.mid
+
+# Render with FluidSynth
+fluidsynth -ni -F raw.wav soundfont.sf2 maple-leaf.mid
+ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" maple-leaf.wav</code>
+                        <h4>Notation Features</h4>
+                        <ul>
+                            <li><code>/t480</code> - tick-based duration (480 ticks = 1 beat)</li>
+                            <li><code>[D#2,D#3]</code> - chord notation (octave doubling)</li>
+                            <li><code>*96</code> - per-note velocity for dynamics</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-maple-leaf.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>Ab major</span>
+                        <span>Piano</span>
+                        <span>130 BPM</span>
+                    </div>
+                </div>
             </div>
+
+            <div class="separator"></div>
 
             <div class="demo-card">
                 <h2>The Entertainer (1902)</h2>
@@ -384,23 +411,36 @@ fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
                 <div class="abstract">
                     "A Rag Time Two Step" - the classic ragtime piece featured in "The Sting."
                     Joplin's tempo marking: "Do not play this piece fast."
-                    Arranged for honky-tonk piano (melody) and acoustic piano (stride bass).
+                    Extracted from reference MIDI with tick-based notation.
                 </div>
 
-                <div class="section-label">Listen</div>
-                <audio controls preload="metadata">
-                    <source src="demo-entertainer.wav?ts=1772343941000" type="audio/wav">
-                </audio>
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Tick-based extraction from reference MIDI (109 notes at 200 BPM)
+seq --notes "R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 \
+C5/t248*82 C6/t236*96 [A4,A5]/t506*91..." \
+    --bpm 200 --ch 0 --patch 0 \
+  | humanize --jitter-ticks 4 --jitter-vel 5 \
+  | trim --auto \
+  | to-midi --out entertainer.mid
 
-                <div class="section-label">Pipeline</div>
-                <pre><code># Melody (Honky-tonk Piano, patch 3)
-seq --notes "D4/8 D#4/8 E4/8 C5/4 E4/8 C5/4 E4/8 C5/8 ..." \
-    --bpm 120 --patch 3 --vel 95 > melody.jsonl
+# Render with FluidSynth
+fluidsynth -ni -F raw.wav soundfont.sf2 entertainer.mid
+ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" entertainer.wav</code>
+                    </div>
+                </details>
 
-# Stride bass (Acoustic Piano, patch 0)
-seq --notes "C2/8 E3/8 G3/8 E3/8 ..." --patch 0 --vel 70 > bass.jsonl
-
-cat melody.jsonl bass.jsonl | viz | trim --auto | to-midi</code></pre>
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-entertainer.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>C major</span>
+                        <span>Piano</span>
+                        <span>200 BPM</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -771,6 +811,190 @@ ffmpeg -i raw.wav -t 15 -af "afade=t=out:st=13:d=2" baroque.wav</code>
                         <span>D major</span>
                         <span>6 channels</span>
                         <span>Period instruments</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== FOLK TAB ==================== -->
+        <div id="folk" class="tab-content">
+            <div class="demo-card">
+                <h2>Turkey in the Straw (c. 1820s)</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Traditional American fiddle reel transcribed from The Session ABC notation.
+                    4-voice arrangement: lead fiddle, harmony fiddle, banjo, and bass.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Lead fiddle (patch 40)
+seq --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16..." \
+    --bpm 120 --ch 0 --patch 40 --vel 100 > fiddle.jsonl
+
+# Second fiddle harmony (thirds below)
+seq --notes "G4/16 F#4/16 E4/16..." --ch 1 --patch 40 --vel 85 > fiddle2.jsonl
+
+# Banjo rhythm (patch 105)
+seq --notes "G3/8 B3/8 D4/8..." --ch 2 --patch 105 --vel 75 > banjo.jsonl
+
+# Acoustic bass (patch 32)
+seq --notes "G2/4 D3/4..." --ch 3 --patch 32 --vel 90 > bass.jsonl
+
+cat fiddle.jsonl fiddle2.jsonl banjo.jsonl bass.jsonl | viz | trim --auto | to-midi</code>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-turkey.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>G major</span>
+                        <span>Fiddle + Banjo</span>
+                        <span>4 channels</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="demo-card">
+                <h2>Camptown Races (1850)</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Stephen Foster's "Doo-dah! Doo-dah!" - playful American folk classic.
+                    Fiddle melody with banjo, bass, and whistle fills.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Fiddle melody (patch 40)
+seq --notes "E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/8..." \
+    --bpm 80 --ch 0 --patch 40 --vel 100 > melody.jsonl
+
+# Banjo (patch 105), Bass (patch 45), Whistle (patch 72)
+cat melody.jsonl banjo.jsonl bass.jsonl whistle.jsonl | viz | trim --auto | to-midi</code>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-camptown.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>G major</span>
+                        <span>Fiddle + Banjo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="demo-card">
+                <h2>Oh! Susanna (1848)</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Stephen Foster's beloved minstrel song transcribed from ABC notation.
+                    Banjo lead with harmonica, bass, and percussion.
+                </div>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-oh-susanna.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>G major</span>
+                        <span>Banjo lead</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="demo-card">
+                <h2>When the Saints Go Marching In</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Traditional New Orleans brass band arrangement.
+                    Trumpet lead with trombone harmony, clarinet fills, tuba bass, and march drums.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Trumpet lead (patch 56)
+seq --notes "C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 G5/1..." \
+    --bpm 130 --ch 0 --patch 56 --vel 100 > trumpet.jsonl
+
+# Trombone (patch 57), Clarinet (patch 71), Tuba (patch 58)
+# Drums: snare march + bass drum (ch 9)
+euclid --steps 8 --pulses 4 --note 38 --ch 9 --repeat 18 > snare.jsonl
+euclid --steps 4 --pulses 2 --note 36 --ch 9 --repeat 18 > kick.jsonl
+
+cat trumpet.jsonl trombone.jsonl clarinet.jsonl tuba.jsonl snare.jsonl kick.jsonl \
+  | viz | trim --auto | to-midi</code>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-saints.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>C major</span>
+                        <span>Brass band</span>
+                        <span>6 channels</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== POLKA TAB ==================== -->
+        <div id="polka" class="tab-content">
+            <div class="demo-card">
+                <h2>Beer Barrel Polka (1927)</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    "Roll Out the Barrel" - Czech/German beer hall classic with authentic oom-pah.
+                    32-second chorus extracted from reference MIDI using tick-based notation.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Tick-based timing from reference MIDI bar 68 (chorus)
+# 245 notes at 220 BPM - accordion with full chords
+
+seq --notes "A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 \
+C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23..." \
+    --bpm 220 --ch 0 --patch 21 \
+  | humanize --jitter-ticks 4 --jitter-vel 5 \
+  | trim --auto \
+  | to-midi --out beerhall.mid
+
+# Render with FluidSynth, trim to 32 seconds with fade
+fluidsynth -ni -F raw.wav soundfont.sf2 beerhall.mid
+ffmpeg -y -i raw.wav -t 32 -af "afade=t=out:st=30:d=2" beerhall.wav</code>
+                        <h4>Notation Features</h4>
+                        <ul>
+                            <li><code>/t480</code> - tick-based duration (480 ticks = 1 beat)</li>
+                            <li><code>[E4,G4]</code> - chord notation (simultaneous notes)</li>
+                            <li><code>*23</code> - per-note velocity</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-beerhall-seq.wav?ts=1772347115000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~32s</span>
+                        <span>F major</span>
+                        <span>Accordion</span>
+                        <span>220 BPM</span>
                     </div>
                 </div>
             </div>

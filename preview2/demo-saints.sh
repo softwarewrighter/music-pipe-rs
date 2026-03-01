@@ -53,7 +53,7 @@ TRUMPET="${TRUMPET} C5/2 D5/2"
 TRUMPET="${TRUMPET} C5/1"
 
 echo "Generating trumpet lead..."
-"${BIN}/seq" --notes "${TRUMPET}" --bpm 100 --ch 0 --patch 56 --vel 100 \
+"${BIN}/seq" --notes "${TRUMPET}" --bpm 130 --ch 0 --patch 56 --vel 100 \
   > /tmp/saints-trumpet.jsonl
 
 # Trombone harmony (patch 57) - thirds below trumpet, matching ABC structure

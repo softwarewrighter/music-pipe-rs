@@ -2,7 +2,8 @@
 # Scott Joplin - The Entertainer (1902)
 # Classic ragtime piano - "A Rag Time Two Step"
 # Public domain - composed over 120 years ago
-# Note: Joplin wrote "Do not play this piece fast"
+#
+# Notes extracted from reference MIDI with tick-based timing
 
 set -euo pipefail
 
@@ -12,107 +13,32 @@ SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
 OUTPUT="${SCRIPT_DIR}/preview2/demo-entertainer.wav"
 
 echo "=== Scott Joplin: The Entertainer (1902) ==="
-echo "A Rag Time Two Step"
+echo "Using tick-based timing from reference MIDI"
 echo ""
 
-# Key: C major (from abcnotation.com - Colin Hume arrangement)
-# ABC: |: D^D | Ec-cE c2Ec- | c4- ccd^d | ecde- eBd2 | c6 D^D |
-# Tempo: 76 half-notes/min = moderate ragtime (Joplin: "Do not play fast")
+# Notes extracted from reference MIDI with exact tick positions
+# Format: R/t<ticks> for rests, [chord]/t<dur>*<vel> for simultaneous notes
+# 109 notes covering first ~12 seconds
 
-# Right hand - Honky-tonk Piano (patch 3)
-# Pickup: D^D = D4 D#4 (uppercase = octave 4)
-# Main notes: c = C5, e = E5, E = E4 (lowercase = octave 5)
+NOTES='R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 C5/t248*82 C6/t236*96 [A4,A5]/t506*91 B5/t236*96 B4/t224*70 G5/t208*96 G4/t201*86 R/t277 [D4,D5]/t241*93 E5/t233*85 E4/t234*70 C5/t241*96 C4/t246*78 A4/t471*96 A3/t476*86 R/t2 B4/t241*96 B3/t229*78 R/t9 G3/t193*82 G4/t181*92 R/t299 [D3,D4]/t231*96 E4/t233*88 E3/t226*82 R/t9 C4/t219*92 C3/t236*82 R/t1 A3/t481*100 A2/t491*86 B3/t246*96 B2/t226*86 R/t11 [A2,A3]/t224*93 R/t9 G#3/t221*84 G#2/t228*82 R/t2 G3/t281*100 G2/t309*94 R/t641 [G4,B4,D5]/t274*98 G5/t236*96 [G1,G2]/t166*88 R/t312 [D4,G4,B4]/t236*84 D#4/t218*78 R/t32 [C3,E4]/t226*91 C5/t458*104 [E3,G3,C4]/t209*74 R/t24 E4/t256*81 [G2,G3]/t203*86 C5/t436*100 R/t32 E4/t258*84 [G3,C4]/t203*82 A#3/t184*67 R/t39 C5/t1171*104 [F2,F3]/t213*84 R/t267 [A3,C4]/t178*86 R/t304 [E2,E3]/t191*84 R/t41 C5/t126*88 [E5,C6]/t126*100 R/t91 [G3,C4,D5,F5,D6]/t211*88 R/t22 F#5/t115*88 [D#5,D#6]/t115*83 R/t87 [E5,G5,E6]/t115*104 G2/t154*94 R/t86 [C5,E5,C6]/t115*87 R/t123 [E3,G3,C4,D5,F5,D6]/t238*90 [E5,G5,E6]/t319*97 G2/t181*94 R/t52 B5/t115*100 [B4,D5]/t115*100 R/t125 [D5,F5,D6]/t299*96 [F3,G3,B3]/t206*78 R/t271 C3/t241*90'
 
-# M1 pickup + measure: D^D | Ec-cE c2Ec-
-MELODY="D4/8 D#4/8"
-MELODY="${MELODY} E4/8 C5/4 E4/8 C5/4 E4/8 C5/8"
-# M2: c4- ccd^d (C5 held, then C5 C5 D5 D#5)
-MELODY="${MELODY} C5/2 C5/8 C5/8 D5/8 D#5/8"
-# M3: ecde- eBd2 (E5 C5 D5 E5, E5 B4 D5-quarter)
-MELODY="${MELODY} E5/8 C5/8 D5/8 E5/8 E5/8 B4/8 D5/4"
-# M4: c6 D^D (C5 dotted-half, pickup D4 D#4)
-MELODY="${MELODY} C5/2 C5/4 D4/8 D#4/8"
+echo "Generating with tick-based timing..."
+echo "" | "${BIN}/seq" --notes "${NOTES}" --bpm 200 --ch 0 --patch 0 \
+  > /tmp/entertainer-tick.jsonl
 
-# M5-8 (repeat with variation ending)
-MELODY="${MELODY} E4/8 C5/4 E4/8 C5/4 E4/8 C5/8"
-MELODY="${MELODY} C5/2 C5/4 A4/8 G4/8"
-# M7: ^FAce- edcA (F#4 A4 C5 E5, E5 D5 C5 A4)
-MELODY="${MELODY} F#4/8 A4/8 C5/8 E5/8 E5/8 D5/8 C5/8 A4/8"
-# M8: d6 D^D
-MELODY="${MELODY} D5/2 D5/4 D4/8 D#4/8"
+NOTE_COUNT=$(grep -c NoteOn /tmp/entertainer-tick.jsonl)
+echo "Generated ${NOTE_COUNT} notes"
 
-# M9-12 (same as M1-4)
-MELODY="${MELODY} E4/8 C5/4 E4/8 C5/4 E4/8 C5/8"
-MELODY="${MELODY} C5/2 C5/8 C5/8 D5/8 D#5/8"
-MELODY="${MELODY} E5/8 C5/8 D5/8 E5/8 E5/8 B4/8 D5/4"
-MELODY="${MELODY} C5/2 C5/4 C5/8 D5/8"
-
-# M13-16 (ending): ecde- ecdc | ecde- ecdc | ecde- eBd2 | c6
-MELODY="${MELODY} E5/8 C5/8 D5/8 E5/8 E5/8 C5/8 D5/8 C5/8"
-MELODY="${MELODY} E5/8 C5/8 D5/8 E5/8 E5/8 C5/8 D5/8 C5/8"
-MELODY="${MELODY} E5/8 C5/8 D5/8 E5/8 E5/8 B4/8 D5/4"
-MELODY="${MELODY} C5/1"
-
-echo "Generating melody (Honky-tonk Piano)..."
-"${BIN}/seq" --notes "${MELODY}" --bpm 120 --ch 0 --patch 3 --vel 95 \
-  > /tmp/ent-melody.jsonl
-
-# Left hand stride bass - Acoustic Piano (patch 0)
-# Classic ragtime stride: bass on 1 and 3, chord on 2 and 4
-# Following ABC chord changes: C | C C7 | F C/E | C G7 | C ...
-
-# Pickup (2 8ths) + M1: C chord
-BASS="R/4"
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/8 E3/8 G3/8 E3/8"
-# M2: F chord to C/E
-BASS="${BASS} F2/8 A3/8 C3/8 A3/8 E2/8 G3/8 C3/8 G3/8"
-# M3: C to G7
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 G2/8 B3/8 D3/8 B3/8"
-# M4: C chord
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/4"
-
-# M5: C chord
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/8 E3/8 G3/8 E3/8"
-# M6: F chord to C
-BASS="${BASS} F2/8 A3/8 C3/8 A3/8 C2/8 E3/8 G3/8 E3/8"
-# M7: D7 chord
-BASS="${BASS} D2/8 F#3/8 A3/8 F#3/8 D2/8 F#3/8 A3/8 F#3/8"
-# M8: G chord
-BASS="${BASS} G2/8 B3/8 D3/8 B3/8 G2/4"
-
-# M9-12: same as M1-4
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/8 E3/8 G3/8 E3/8"
-BASS="${BASS} F2/8 A3/8 C3/8 A3/8 E2/8 G3/8 C3/8 G3/8"
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 G2/8 B3/8 D3/8 B3/8"
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/4"
-
-# M13-16: ending - C C7 | F Fm | C/G G7 | C
-BASS="${BASS} C2/8 E3/8 G3/8 E3/8 C2/8 E3/8 Bb3/8 E3/8"
-BASS="${BASS} F2/8 A3/8 C3/8 A3/8 F2/8 Ab3/8 C3/8 Ab3/8"
-BASS="${BASS} G2/8 C3/8 E3/8 C3/8 G2/8 B3/8 D3/8 B3/8"
-BASS="${BASS} C2/1"
-
-echo "Generating stride bass..."
-"${BIN}/seq" --notes "${BASS}" --bpm 0 --ch 1 --patch 0 --vel 70 \
-  > /tmp/ent-bass.jsonl
-
-# Combine
-echo "Combining voices..."
-cat /tmp/ent-melody.jsonl /tmp/ent-bass.jsonl \
-  | "${BIN}/viz" 2>/dev/null \
+# Light humanize - don't over-process since timing is already human
+echo "Adding subtle humanize..."
+cat /tmp/entertainer-tick.jsonl \
+  | "${BIN}/humanize" --jitter-ticks 4 --jitter-vel 5 \
   | "${BIN}/trim" --auto \
-  > /tmp/ent-full.jsonl
-
-# Stats
-echo ""
-echo "Events:"
-echo "  Melody: $(grep -c NoteOn /tmp/ent-melody.jsonl)"
-echo "  Bass:   $(grep -c NoteOn /tmp/ent-bass.jsonl)"
+  > /tmp/entertainer-full.jsonl
 
 # Convert to MIDI
-echo ""
 echo "Converting to MIDI..."
-cat /tmp/ent-full.jsonl | "${BIN}/to-midi" --out /tmp/demo-entertainer.mid
+cat /tmp/entertainer-full.jsonl | "${BIN}/to-midi" --out /tmp/demo-entertainer.mid
 
 # Render to WAV
 echo "Rendering to WAV..."
