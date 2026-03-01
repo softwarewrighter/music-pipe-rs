@@ -4,14 +4,24 @@
 //!
 //! Notation format:
 //!   NOTE[ACCIDENTAL]OCTAVE[/DURATION][*VELOCITY]
+//!   [NOTE,NOTE,...][/DURATION][*VELOCITY]  - chord (simultaneous notes)
+//!
+//! Duration formats:
+//!   /N     - traditional: 1=whole, 2=half, 4=quarter, 8=eighth, 16, 32, 64, 128
+//!   /tN    - tick-based: exact number of ticks (at 480 tpq, 480t = 1 beat)
+//!   /bN.N  - beat-based: decimal beats (e.g., /b0.31 = 0.31 beats)
 //!
 //! Examples:
-//!   D5       - D5 quarter note (default duration)
-//!   C#5/8    - C# eighth note
-//!   Bb3/2    - Bb half note
-//!   D5/1*127 - D5 whole note, velocity 127
-//!   R/4      - Quarter rest
-//!   R/2      - Half rest
+//!   D5         - D5 quarter note (default duration)
+//!   C#5/8      - C# eighth note
+//!   Bb3/2      - Bb half note
+//!   D5/1*127   - D5 whole note, velocity 127
+//!   R/4        - Quarter rest
+//!   R/t120     - Rest for 120 ticks (= /16 at 480 tpq)
+//!   R/b0.31    - Rest for 0.31 beats
+//!   G#4/t149*73  - G#4 for 149 ticks, velocity 73
+//!   [C4,E4,G4]/4     - C major chord, quarter note
+//!   [G#3,C4,D#4]/8*80 - Ab major chord, eighth note, velocity 80
 
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -62,6 +72,17 @@ struct ParsedNote {
     velocity: u8,
 }
 
+/// Parsed chord (multiple simultaneous notes)
+#[derive(Debug)]
+struct ParsedChord {
+    /// MIDI note numbers
+    midi_notes: Vec<u8>,
+    /// Duration in ticks (same for all notes)
+    duration_ticks: u32,
+    /// Velocity (same for all notes)
+    velocity: u8,
+}
+
 /// Parse note name to semitone offset (C=0, D=2, E=4, F=5, G=7, A=9, B=11)
 fn note_to_semitone(note: char) -> Result<i32> {
     match note.to_ascii_uppercase() {
@@ -82,6 +103,34 @@ fn duration_to_ticks(denom: u32, tpq: u32) -> u32 {
     (4 * tpq) / denom
 }
 
+/// Parse duration string to ticks, supporting multiple formats:
+/// - "4" -> traditional denominator (quarter note)
+/// - "t120" -> 120 ticks directly
+/// - "b0.31" -> 0.31 beats
+fn parse_duration_str(dur_str: &str, tpq: u32) -> Result<u32> {
+    let dur_str = dur_str.trim();
+
+    if dur_str.starts_with('t') || dur_str.starts_with('T') {
+        // Tick-based: /t120
+        let ticks: u32 = dur_str[1..]
+            .parse()
+            .map_err(|_| anyhow!("Invalid tick duration: {}", dur_str))?;
+        Ok(ticks)
+    } else if dur_str.starts_with('b') || dur_str.starts_with('B') {
+        // Beat-based: /b0.31
+        let beats: f64 = dur_str[1..]
+            .parse()
+            .map_err(|_| anyhow!("Invalid beat duration: {}", dur_str))?;
+        Ok((beats * tpq as f64).round() as u32)
+    } else {
+        // Traditional denominator: /4, /8, /16
+        let denom: u32 = dur_str
+            .parse()
+            .map_err(|_| anyhow!("Invalid duration: {}", dur_str))?;
+        Ok(duration_to_ticks(denom, tpq))
+    }
+}
+
 /// Parse a single note token
 fn parse_note(token: &str, tpq: u32, default_vel: u8) -> Result<ParsedNote> {
     let token = token.trim();
@@ -92,13 +141,11 @@ fn parse_note(token: &str, tpq: u32, default_vel: u8) -> Result<ParsedNote> {
     // Check for rest
     if token.starts_with('R') || token.starts_with('r') {
         let duration = if let Some(slash_pos) = token.find('/') {
-            let denom: u32 = token[slash_pos + 1..]
+            let dur_str = token[slash_pos + 1..]
                 .split('*')
                 .next()
-                .unwrap()
-                .parse()
-                .map_err(|_| anyhow!("Invalid duration in: {}", token))?;
-            duration_to_ticks(denom, tpq)
+                .unwrap();
+            parse_duration_str(dur_str, tpq)?
         } else {
             tpq // default quarter note
         };
@@ -146,10 +193,7 @@ fn parse_note(token: &str, tpq: u32, default_vel: u8) -> Result<ParsedNote> {
     let duration_ticks = if let Some(slash_pos) = remaining.find('/') {
         let dur_str = &remaining[slash_pos + 1..];
         let denom_str = dur_str.split('*').next().unwrap();
-        let denom: u32 = denom_str
-            .parse()
-            .map_err(|_| anyhow!("Invalid duration in: {}", token))?;
-        duration_to_ticks(denom, tpq)
+        parse_duration_str(denom_str, tpq)?
     } else {
         tpq // default quarter note
     };
@@ -165,6 +209,81 @@ fn parse_note(token: &str, tpq: u32, default_vel: u8) -> Result<ParsedNote> {
 
     Ok(ParsedNote {
         midi_note: Some(midi_note),
+        duration_ticks,
+        velocity,
+    })
+}
+
+/// Parse a single note name (without duration/velocity) to MIDI number
+fn parse_note_name(s: &str) -> Result<u8> {
+    let s = s.trim();
+    if s.is_empty() {
+        return Err(anyhow!("Empty note name"));
+    }
+
+    let mut chars = s.chars().peekable();
+
+    // Note letter
+    let note_char = chars.next().ok_or_else(|| anyhow!("Missing note"))?;
+    let semitone = note_to_semitone(note_char)?;
+
+    // Optional accidental
+    let accidental = match chars.peek() {
+        Some('#') => { chars.next(); 1 }
+        Some('b') => { chars.next(); -1 }
+        _ => 0,
+    };
+
+    // Octave
+    let octave_char = chars.next().ok_or_else(|| anyhow!("Missing octave in: {}", s))?;
+    let octave: i32 = octave_char
+        .to_digit(10)
+        .ok_or_else(|| anyhow!("Invalid octave in: {}", s))? as i32;
+
+    Ok(((octave + 1) * 12 + semitone + accidental) as u8)
+}
+
+/// Parse a chord token: [C4,E4,G4]/4*80
+fn parse_chord(token: &str, tpq: u32, default_vel: u8) -> Result<ParsedChord> {
+    let token = token.trim();
+
+    // Find the closing bracket
+    let close_bracket = token.find(']')
+        .ok_or_else(|| anyhow!("Missing ] in chord: {}", token))?;
+
+    // Extract note names (between [ and ])
+    let notes_str = &token[1..close_bracket];
+    let mut midi_notes = Vec::new();
+
+    for note_name in notes_str.split(',') {
+        midi_notes.push(parse_note_name(note_name)?);
+    }
+
+    if midi_notes.is_empty() {
+        return Err(anyhow!("Empty chord: {}", token));
+    }
+
+    // Parse duration and velocity from remainder
+    let remainder = &token[close_bracket + 1..];
+
+    let duration_ticks = if let Some(slash_pos) = remainder.find('/') {
+        let dur_str = &remainder[slash_pos + 1..];
+        let denom_str = dur_str.split('*').next().unwrap();
+        parse_duration_str(denom_str, tpq)?
+    } else {
+        tpq // default quarter note
+    };
+
+    let velocity = if let Some(star_pos) = remainder.find('*') {
+        remainder[star_pos + 1..]
+            .parse()
+            .map_err(|_| anyhow!("Invalid velocity in chord: {}", token))?
+    } else {
+        default_vel
+    };
+
+    Ok(ParsedChord {
+        midi_notes,
         duration_ticks,
         velocity,
     })
@@ -203,24 +322,46 @@ fn main() -> Result<()> {
     // Parse and emit notes
     let mut t = 0u32;
     for token in args.notes.split_whitespace() {
-        let parsed = parse_note(token, args.tpq, args.vel)?;
+        // Check if this is a chord (starts with [)
+        if token.starts_with('[') {
+            let chord = parse_chord(token, args.tpq, args.vel)?;
 
-        if let Some(midi_note) = parsed.midi_note {
-            events.push(Event::NoteOn {
-                t,
-                ch: args.ch,
-                key: midi_note,
-                vel: parsed.velocity,
-            });
-            events.push(Event::NoteOff {
-                t: t + parsed.duration_ticks,
-                ch: args.ch,
-                key: midi_note,
-            });
+            // All notes in chord start at same time
+            for &midi_note in &chord.midi_notes {
+                events.push(Event::NoteOn {
+                    t,
+                    ch: args.ch,
+                    key: midi_note,
+                    vel: chord.velocity,
+                });
+                events.push(Event::NoteOff {
+                    t: t + chord.duration_ticks,
+                    ch: args.ch,
+                    key: midi_note,
+                });
+            }
+
+            t += chord.duration_ticks;
+        } else {
+            let parsed = parse_note(token, args.tpq, args.vel)?;
+
+            if let Some(midi_note) = parsed.midi_note {
+                events.push(Event::NoteOn {
+                    t,
+                    ch: args.ch,
+                    key: midi_note,
+                    vel: parsed.velocity,
+                });
+                events.push(Event::NoteOff {
+                    t: t + parsed.duration_ticks,
+                    ch: args.ch,
+                    key: midi_note,
+                });
+            }
+            // Rests just advance time without notes
+
+            t += parsed.duration_ticks;
         }
-        // Rests just advance time without notes
-
-        t += parsed.duration_ticks;
     }
 
     // End marker

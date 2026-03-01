@@ -1,0 +1,15 @@
+[package]
+name = "stage-rubato"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "rubato"
+path = "src/main.rs"
+
+[dependencies]
+music-ir = { path = "../music-ir" }
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+rand = "0.8"
+rand_chacha = "0.3"
