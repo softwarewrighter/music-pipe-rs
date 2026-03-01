@@ -227,14 +227,19 @@
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115..." --bpm 66 --ch 0 --patch 19
-seq --notes "D4/2*127 C#4/32*120..." --ch 1 --patch 19  # octave lower
-seq --notes "D3/1*127 A3/1*127..." --ch 2 --patch 19    # final chord
-seq --notes "D2/1*127 A1/1*127..." --ch 3 --patch 19    # pedal bass
+                        <code># Upper octave (Ch 0)
+seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110 F4/32*110 E4/32*110 D4/32*110 C#4/32*115 D4/4*120 R/4 A4/2*125 G#4/32*115 A4/32*115 E4/32*110 D4/32*105 C4/32*105 B3/32*105 A3/32*105 G#3/32*110 A3/4*115 R/4 D5/2*127 C#5/32*120 D5/32*127" --bpm 66 --ch 0 --patch 19 > upper.jsonl
+
+# Lower octave (Ch 1)
+seq --notes "D4/2*127 C#4/32*120 D4/32*120 A3/32*115 G3/32*110 F3/32*110 E3/32*110 D3/32*110 C#3/32*115 D3/4*120 R/4 A3/2*125 G#3/32*115 A3/32*115 E3/32*110 D3/32*105 C3/32*105 B2/32*105 A2/32*105 G#2/32*110 A2/4*115 R/4 D4/2*127 C#4/32*120 D4/32*127" --bpm 0 --ch 1 --patch 19 > lower.jsonl
+
+# Final chord (Ch 2)
+seq --notes "R/8 D3/1*127 A3/1*127 D4/1*127 F4/1*127 A4/1*127 D5/1*127" --bpm 0 --ch 2 --patch 19 > chord.jsonl
+
+# Pedal bass (Ch 3)
+seq --notes "R/2 D2/1*127 R/4 A1/1*127 R/4 D2/1*127" --bpm 0 --ch 3 --patch 19 > pedal.jsonl
 
 cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi --out bach.mid
-
-# RENDER TO AUDIO
 fluidsynth -ni -F bach.wav soundfont.sf2 bach.mid</code>
                         <h4>Approach</h4>
                         <ul>
@@ -273,11 +278,10 @@ fluidsynth -ni -F bach.wav soundfont.sf2 bach.mid</code>
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110..." \
+                        <code>seq --notes "D5/4*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110 F4/32*110 E4/32*105 D4/32*105 C#4/32*110 D4/8*120 R/8 A4/4*125 G#4/32*115 A4/32*115 E4/32*110 D4/32*105 C4/32*105 B3/32*100 A3/32*100 G#3/32*105 A3/8*115 R/8 D5/4*127 C#5/32*120 D5/32*127 A4/32*115 G4/32 F4/32 E4/32 D4/32 C#4/32*115 D4/4*127 R/8 D3/2*127" \
     --bpm 140 --ch 0 --patch 80 --vel 120 \
   | viz | to-midi --out arcade.mid
 
-# RENDER TO AUDIO
 fluidsynth -ni -F arcade.wav soundfont.sf2 arcade.mid</code>
                         <h4>Approach</h4>
                         <ul>
@@ -372,14 +376,12 @@ fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># Tick-based extraction from reference MIDI (127 notes at 130 BPM)
-seq --notes "R/t712 [D#2,D#3]/t40*96 R/t204 G#3/t156*86 G#2/t164*86 G#4/t88*73 \
-[D#3,D#4]/t124*82 G#4/t140*80 [D#3,D#4]/t168*80 G#4/t152*75..." \
+seq --notes "R/t712 [D#2,D#3]/t40*96 R/t204 G#3/t156*86 G#2/t164*86 G#4/t88*73 [G#3,C4]/t56*83 D#3/t32*69 D#4/t152*86 D#5/t120*81 R/t16 G#4/t236*66 [G#3,C4]/t72*68 D#3/t40*52 C5/t96*77 R/t40 D#5/t236*77 D#4/t240*91 [A2,A3]/t72*86 R/t84 G4/t88*81 [A#2,A#3]/t192*86 [D#4,D#5]/t184*81 G4/t200*73 [G3,C#4]/t72*68 A#4/t104*77 R/t28 D#4/t580*91 D#5/t480*81 C#4/t76*52 D#3/t140*57 G3/t44*54 R/t200 D#3/t40*86 D#2/t32*91 R/t200 G#3/t156*81 G#2/t156*81 G#4/t84*66 [D#3,G#3,C4]/t40*69 D#5/t156*86 D#4/t184*86 G#4/t248*59 [G#3,C4]/t72*59 [D#3,C5]/t36*54 R/t44 D#5/t240*77 D#4/t232*91 [A2,A3]/t104*94 R/t56 G4/t104*86 [A#2,A#3]/t136*83 D#4/t196*86 D#5/t108*86 R/t24 G4/t208*77 [D#3,G3]/t64*60 C#4/t36*41 A#4/t92*59 R/t40 D#5/t360*77 D#4/t344*81 C#4/t44*37 D#3/t112*66 R/t132 D#3/t48*77 D#2/t48*86 R/t104 D#4/t272*86 D#5/t208*86 E3/t280*108 E2/t288*102 G#4/t284*73 B4/t120*69 R/t20 [E4,E5]/t72*86 R/t16 D#2/t72*81 D#3/t56*73 R/t88 D#5/t56*91 D#4/t48*81 R/t28 [D#2,D#3]/t56*91 R/t96 D#5/t192*91 D#4/t240*91 E3/t200*108 E2/t196*108 G#4/t260*77 B4/t148*77 E5/t76*86 E4/t60*77 R/t36 [D#2,D#3]/t304*83 [D#4,D#5]/t36*105 R/t196 G#1/t208*91 G#2/t176*69 B2/t160*54 G#3/t76*73 R/t28 G#2/t164*108 G#3/t244*66 B3/t152*59 G#4/t120*69 G#3/t164*120 G#4/t252*59 B4/t148*66 G#5/t100*77 G#4/t164*120 G#5/t200*81 B5/t164*65 G#6/t120*81 G#5/t48*86 [D4,G#4]/t60*83 B4/t40*81 F4/t36*77 R/t196 [D4,B4,G#5]/t44*87 [F4,G#4]/t40*75 G#6/t44*91 R/t196 [G#4,B4,G#5]/t48*86 [D4,F4,G#6]/t32*87" \
     --bpm 130 --ch 0 --patch 0 \
   | humanize --jitter-ticks 8 --jitter-vel 8 \
   | trim --auto \
   | to-midi --out maple-leaf.mid
 
-# Render with FluidSynth
 fluidsynth -ni -F raw.wav soundfont.sf2 maple-leaf.mid
 ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" maple-leaf.wav</code>
                         <h4>Notation Features</h4>
@@ -418,14 +420,12 @@ ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" maple-leaf.wav</code>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># Tick-based extraction from reference MIDI (109 notes at 200 BPM)
-seq --notes "R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 \
-C5/t248*82 C6/t236*96 [A4,A5]/t506*91..." \
+seq --notes "R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 C5/t248*82 C6/t236*96 [A4,A5]/t506*91 B5/t236*96 B4/t224*70 G5/t208*96 G4/t201*86 R/t277 [D4,D5]/t241*93 E5/t233*85 E4/t234*70 C5/t241*96 C4/t246*78 A4/t471*96 A3/t476*86 R/t2 B4/t241*96 B3/t229*78 R/t9 G3/t193*82 G4/t181*92 R/t299 [D3,D4]/t231*96 E4/t233*88 E3/t226*82 R/t9 C4/t219*92 C3/t236*82 R/t1 A3/t481*100 A2/t491*86 B3/t246*96 B2/t226*86 R/t11 [A2,A3]/t224*93 R/t9 G#3/t221*84 G#2/t228*82 R/t2 G3/t281*100 G2/t309*94 R/t641 [G4,B4,D5]/t274*98 G5/t236*96 [G1,G2]/t166*88 R/t312 [D4,G4,B4]/t236*84 D#4/t218*78 R/t32 [C3,E4]/t226*91 C5/t458*104 [E3,G3,C4]/t209*74 R/t24 E4/t256*81 [G2,G3]/t203*86 C5/t436*100 R/t32 E4/t258*84 [G3,C4]/t203*82 A#3/t184*67 R/t39 C5/t1171*104 [F2,F3]/t213*84 R/t267 [A3,C4]/t178*86 R/t304 [E2,E3]/t191*84 R/t41 C5/t126*88 [E5,C6]/t126*100 R/t91 [G3,C4,D5,F5,D6]/t211*88 R/t22 F#5/t115*88 [D#5,D#6]/t115*83 R/t87 [E5,G5,E6]/t115*104 G2/t154*94 R/t86 [C5,E5,C6]/t115*87 R/t123 [E3,G3,C4,D5,F5,D6]/t238*90 [E5,G5,E6]/t319*97 G2/t181*94 R/t52 B5/t115*100 [B4,D5]/t115*100 R/t125 [D5,F5,D6]/t299*96 [F3,G3,B3]/t206*78 R/t271 C3/t241*90" \
     --bpm 200 --ch 0 --patch 0 \
   | humanize --jitter-ticks 4 --jitter-vel 5 \
   | trim --auto \
   | to-midi --out entertainer.mid
 
-# Render with FluidSynth
 fluidsynth -ni -F raw.wav soundfont.sf2 entertainer.mid
 ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" entertainer.wav</code>
                     </div>
@@ -460,28 +460,24 @@ ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" entertainer.wav</code>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># BRASS (4 channels)
-seq --notes "B4/8 B4/8 B4/8 D5/4 B4/8..." --bpm 152 --ch 0 --patch 60  # French Horns
-seq --notes "D5/8 D5/8 D5/8 F#5/4..." --ch 1 --patch 56                 # Trumpets
-seq --notes "B3/8 B3/8 B3/8 D4/4..." --ch 2 --patch 57                  # Trombones
-seq --notes "B2/4 B2/8 B2/4..." --ch 3 --patch 58                       # Tuba
+seq --notes "B4/8 B4/8 B4/8 D5/4 B4/8 B4/8 B4/8 B4/8 D5/4 B4/8 D5/8 D5/8 D5/8 F#5/4 D5/8 D5/8 D5/8 D5/8 F#5/4 D5/8 F#5/8 F#5/8 F#5/8 A5/4 F#5/8 F#5/8 F#5/8 F#5/8 A5/4 F#5/8 D5/8 D5/8 D5/8 F#5/4 D5/8 B4/8 B4/8 B4/8 D5/2" --bpm 152 --ch 0 --patch 60 --vel 115 > horn.jsonl
+seq --notes "R/2 R/4 D5/4 B4/8 B4/8 B4/8 B4/8 D5/4 B4/8 D5/8 D5/8 D5/8 F#5/4 D5/8 D5/8 D5/8 D5/8 F#5/4 D5/8 F#5/8 F#5/8 F#5/8 A5/4 F#5/8 F#5/8 F#5/8 F#5/8 A5/4 F#5/8 D5/8 D5/8 D5/8 F#5/4 D5/8 B4/8 B4/8 B4/8 D5/2" --bpm 0 --ch 1 --patch 56 --vel 105 > trumpet.jsonl
+seq --notes "B3/8 B3/8 B3/8 D4/4 B3/8 B3/8 B3/8 B3/8 D4/4 B3/8 D4/8 D4/8 D4/8 F#4/4 D4/8 D4/8 D4/8 D4/8 F#4/4 D4/8 F#4/8 F#4/8 F#4/8 A4/4 F#4/8 F#4/8 F#4/8 F#4/8 A4/4 F#4/8 D4/8 D4/8 D4/8 F#4/4 D4/8 B3/8 B3/8 B3/8 D4/2" --bpm 0 --ch 2 --patch 57 --vel 100 > trombone.jsonl
+seq --notes "B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 B2/4 B2/8 B2/4 B2/8 B2/2" --bpm 0 --ch 3 --patch 58 --vel 120 > tuba.jsonl
 
 # WOODWINDS (2 channels)
-seq --notes "B5/8 B5/8 B5/8 D6/4..." --ch 4 --patch 72                  # Flutes/Piccolo
-seq --notes "F#5/8 D5/8 F#5/8..." --ch 5 --patch 71                     # Clarinets
+seq --notes "R/2 B5/8 B5/8 B5/8 D6/4 B5/8 B5/8 B5/8 B5/8 D6/4 B5/8 D6/8 D6/8 D6/8 F#6/4 D6/8 D6/8 D6/8 D6/8 F#6/4 D6/8 F#6/8 F#6/8 F#6/8 A6/4 F#6/8 F#6/8 F#6/8 F#6/8 A6/4 F#6/8 D6/4 F#6/4 D6/4 B5/2" --bpm 0 --ch 4 --patch 72 --vel 90 > flute.jsonl
+seq --notes "R/4 F#5/8 D5/8 F#5/8 D5/8 B4/8 D5/8 F#5/8 D5/8 B4/8 D5/8 A5/8 F#5/8 A5/8 F#5/8 D5/8 F#5/8 A5/8 F#5/8 D5/8 F#5/8 B5/8 A5/8 F#5/8 A5/8 F#5/8 D5/8 F#5/8 D5/8 B4/8 D5/8 F#5/8 D5/8 B4/8 D5/4 B4/2" --bpm 0 --ch 5 --patch 71 --vel 80 > clarinet.jsonl
 
 # STRINGS (2 channels)
-seq --notes "B4/8 F#4/8 D4/8..." --ch 6 --patch 48                      # Violins
-seq --notes "B2/4 B2/8..." --ch 7 --patch 42                            # Cellos
+seq --notes "B4/8 F#4/8 D4/8 B4/8 F#4/8 D4/8 B4/8 F#4/8 D4/8 B4/8 F#4/8 D4/8 D5/8 A4/8 F#4/8 D5/8 A4/8 F#4/8 D5/8 A4/8 F#4/8 D5/8 A4/8 F#4/8 F#5/8 D5/8 A4/8 F#5/8 D5/8 A4/8 F#5/8 D5/8 A4/8 F#5/8 D5/8 A4/8 D5/8 A4/8 F#4/8 B4/8 F#4/8 D4/8 B4/2" --bpm 0 --ch 6 --patch 48 --vel 85 > violin.jsonl
+seq --notes "B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 B2/4 B2/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 D3/4 D3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 F#3/4 F#3/8 B2/4 B2/8 B2/4 B2/8 B2/2" --bpm 0 --ch 7 --patch 42 --vel 115 > cello.jsonl
 
 # PERCUSSION (ch 9)
-euclid --steps 12 --pulses 2 --note 41 --vel 110 --accent 0.4           # Timpani
-euclid --steps 24 --pulses 2 --note 49 --vel 90                         # Cymbals
+seed 1883 | euclid --steps 12 --pulses 2 --note 41 --ch 9 --bpm 0 --repeat 10 --vel 110 --accent 0.4 > timpani.jsonl
+seed 1876 | euclid --steps 24 --pulses 2 --note 49 --ch 9 --bpm 0 --repeat 5 --vel 90 > cymbal.jsonl
 
-cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl \
-    flute.jsonl clarinet.jsonl violin.jsonl cello.jsonl \
-    timpani.jsonl cymbal.jsonl | viz | trim --auto | to-midi --out valkyries.mid
-
-# RENDER TO AUDIO
+cat horn.jsonl trumpet.jsonl trombone.jsonl tuba.jsonl flute.jsonl clarinet.jsonl violin.jsonl cello.jsonl timpani.jsonl cymbal.jsonl | viz | trim --auto | to-midi --out valkyries.mid
 fluidsynth -ni -F raw.wav soundfont.sf2 valkyries.mid
 ffmpeg -i raw.wav -t 14 -af "afade=t=out:st=12:d=2" valkyries.wav</code>
                         <h4>Full Orchestration (10 channels)</h4>
@@ -647,20 +643,15 @@ fluidsynth -ni -F verdi.wav soundfont.sf2 verdi.mid</code>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># Main melody - Flute
-MELODY="G5/8 G5/8 G5/8 F#5/8 E5/8 D5/8 G5/4 B5/8 A5/4 G5/8..."
-seq --notes "${MELODY}" --bpm 144 --ch 0 --patch 73 --vel 90  # Flute
+seq --notes "G5/8 G5/8 G5/8 F#5/8 E5/8 D5/8 G5/4 B5/8 A5/4 G5/8 G5/8 G5/8 G5/8 F#5/8 E5/8 D5/8 G5/4 A5/8 B5/2 R/8 D5/8 D5/8 D5/8 E5/8 F#5/8 G5/8 A5/4 G5/8 F#5/4 E5/8 D5/8 G5/8 B5/8 A5/8 G5/8 F#5/8 G5/1" --bpm 144 --ch 0 --patch 73 --vel 90 > melody.jsonl
 
 # Harmony - Oboe
-HARMONY="R/4 D5/8 R/4 D5/8 R/4 B4/8..."
-seq --notes "${HARMONY}" --ch 1 --patch 68 --vel 70           # Oboe
+seq --notes "R/4 D5/8 R/4 D5/8 R/4 B4/8 R/4 D5/8 R/4 D5/8 R/4 D5/8 R/4 E5/8 R/4 D5/8 R/4 B4/8 R/4 C5/8 R/4 D5/8 R/4 B4/8 R/4 D5/8 R/4 D5/8 B4/1" --bpm 0 --ch 1 --patch 68 --vel 70 > harmony.jsonl
 
 # Bass - Pizzicato strings
-BASS="G3/8 D4/8 B3/8 G3/8 D4/8 B3/8..."
-seq --notes "${BASS}" --ch 2 --patch 45 --vel 80              # Pizzicato
+seq --notes "G3/8 D4/8 B3/8 G3/8 D4/8 B3/8 G3/8 D4/8 B3/8 D3/8 A3/8 F#3/8 G3/8 D4/8 B3/8 G3/8 D4/8 B3/8 G3/8 D4/8 B3/8 G3/2 D3/8 A3/8 F#3/8 G3/8 B3/8 D4/8 A3/8 E4/8 C#4/8 D4/8 A3/8 F#3/8 G3/8 B3/8 D4/8 D3/8 A3/8 F#3/8 G3/1" --bpm 0 --ch 2 --patch 45 --vel 80 > bass.jsonl
 
 cat melody.jsonl harmony.jsonl bass.jsonl | viz | to-midi --out mikado.mid
-
-# RENDER TO AUDIO
 fluidsynth -ni -F mikado.wav soundfont.sf2 mikado.mid</code>
                         <h4>Instrumentation (3 channels)</h4>
                         <ul>
@@ -769,21 +760,18 @@ fluidsynth -ni -F gands.wav soundfont.sf2 gands.mid</code>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># STRING QUARTET
-seq --notes "D5/8 F#5/8 A5/8 D6/4..." --bpm 100 --ch 0 --patch 40  # Violin I
-seq --notes "D5/8 F#5/8 A5/4..." --ch 1 --patch 40                  # Violin II
-seq --notes "A4/4 A4/8 A4/4..." --ch 2 --patch 41                   # Viola
-seq --notes "D3/4 D3/8 A2/4..." --ch 3 --patch 42                   # Cello
+seq --notes "D5/8 F#5/8 A5/8 D6/4 C#6/8 B5/8 A5/8 G5/8 F#5/8 E5/8 D5/4 E5/8 F#5/8 G5/8 A5/8 B5/8 C#6/8 D6/4 A5/8 F#5/8 D5/8 E5/8 F#5/8 G5/8 A5/4 D5/2" --bpm 100 --ch 0 --patch 40 --vel 95 > violin1.jsonl
+seq --notes "R/4 D5/8 F#5/8 A5/4 G5/8 F#5/8 E5/8 D5/8 C#5/8 B4/8 A4/4 B4/8 C#5/8 D5/8 F#5/8 G5/8 A5/8 F#5/4 D5/8 A4/8 F#4/8 G4/8 A4/8 B4/8 C#5/4 D5/2" --bpm 0 --ch 1 --patch 40 --vel 85 > violin2.jsonl
+seq --notes "A4/4 A4/8 A4/4 A4/8 G4/4 G4/8 F#4/4 F#4/8 F#4/4 F#4/8 G4/4 G4/8 A4/4 A4/8 A4/4 A4/8 F#4/4 F#4/8 E4/4 E4/8 F#4/4 F#4/2" --bpm 0 --ch 2 --patch 41 --vel 80 > viola.jsonl
+seq --notes "D3/4 D3/8 A2/4 A2/8 B2/4 B2/8 G2/4 G2/8 D3/4 D3/8 G2/4 G2/8 F#2/4 F#2/8 D3/4 D3/8 F#2/4 F#2/8 A2/4 A2/8 D3/4 D3/2" --bpm 0 --ch 3 --patch 42 --vel 90 > cello.jsonl
 
 # CONTINUO
-seq --notes "D4/16 F#4/16 A4/16..." --ch 4 --patch 6                # Harpsichord
+seq --notes "D4/16 F#4/16 A4/16 D5/16 F#4/16 A4/16 D5/16 F#5/16 A3/16 C#4/16 E4/16 A4/16 C#4/16 E4/16 A4/16 C#5/16 B3/16 D4/16 G4/16 B4/16 D4/16 G4/16 B4/16 D5/16 G3/16 B3/16 D4/16 G4/16 B3/16 D4/16 G4/16 B4/16 D4/16 F#4/16 A4/16 D5/16 F#4/16 A4/16 D5/16 F#5/16 D4/16 F#4/16 A4/16 D5/16 F#4/16 A4/16 D5/16 F#5/16 A3/16 D4/16 F#4/16 A4/16 D4/16 F#4/16 A4/16 D5/16 D4/8 F#4/8 A4/8 D5/2" --bpm 0 --ch 4 --patch 6 --vel 70 > harpsi.jsonl
 
 # WIND
-seq --notes "A5/8 B5/16 A5/16..." --ch 5 --patch 74                 # Recorder
+seq --notes "R/2 A5/8 B5/16 A5/16 G5/8 F#5/8 E5/8 F#5/16 E5/16 D5/8 C#5/8 D5/4 E5/8 F#5/8 G5/16 F#5/16 E5/8 D5/8 C#5/8 D5/16 E5/16 F#5/4 E5/8 D5/2" --bpm 0 --ch 5 --patch 74 --vel 75 > recorder.jsonl
 
-cat violin1.jsonl violin2.jsonl viola.jsonl cello.jsonl \
-    harpsi.jsonl recorder.jsonl | viz | trim --auto | to-midi --out baroque.mid
-
-# RENDER TO AUDIO
+cat violin1.jsonl violin2.jsonl viola.jsonl cello.jsonl harpsi.jsonl recorder.jsonl | viz | trim --auto | to-midi --out baroque.mid
 fluidsynth -ni -F raw.wav soundfont.sf2 baroque.mid
 ffmpeg -i raw.wav -t 15 -af "afade=t=out:st=13:d=2" baroque.wav</code>
                         <h4>Period Instruments (6 channels)</h4>
@@ -829,18 +817,17 @@ ffmpeg -i raw.wav -t 15 -af "afade=t=out:st=13:d=2" baroque.wav</code>
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Lead fiddle (patch 40)
-seq --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16..." \
-    --bpm 120 --ch 0 --patch 40 --vel 100 > fiddle.jsonl
+                        <code># Lead fiddle (patch 40) - A part + B part
+seq --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16 D4/16 E4/16 D4/16 B3/16 D4/8 G4/16 A4/16 B4/8 B4/8 B4/16 A4/16 G4/16 A4/16 B4/8 A4/8 A4/8 B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16 D4/16 E4/16 D4/16 B3/16 D4/8 G4/16 A4/16 B4/16 D5/8 E5/16 D5/16 B4/16 G4/16 A4/16 B4/8 A4/8 G4/4 D5/8 B4/16 D5/8 B4/16 D5/8 D5/8 B4/16 D5/8 B4/16 D5/8 D5/8 C5/16 E5/8 C5/16 E5/8 E5/8 C5/16 E5/8 C5/16 E5/8 E5/8 G5/8 G5/8 D5/8 D5/8 B4/8 B4/8 A4/8 G4/16 A4/16 B4/16 D5/8 E5/16 D5/16 B4/16 G4/16 A4/16 B4/8 A4/8 G4/4" --bpm 120 --ch 0 --patch 40 --vel 100 > fiddle.jsonl
 
 # Second fiddle harmony (thirds below)
-seq --notes "G4/16 F#4/16 E4/16..." --ch 1 --patch 40 --vel 85 > fiddle2.jsonl
+seq --notes "G4/16 F#4/16 E4/16 D4/16 E4/16 F#4/16 E4/8 G3/16 A3/16 B3/16 C4/16 B3/16 G3/16 B3/8 E4/16 F#4/16 G4/8 G4/8 G4/16 F#4/16 E4/16 F#4/16 G4/8 F#4/8 F#4/8 G4/16 F#4/16 E4/16 D4/16 E4/16 F#4/16 E4/8 G3/16 A3/16 B3/16 C4/16 B3/16 G3/16 B3/8 E4/16 F#4/16 G4/16 B4/8 C5/16 B4/16 G4/16 E4/16 F#4/16 G4/8 F#4/8 E4/4 B4/8 G4/16 B4/8 G4/16 B4/8 B4/8 G4/16 B4/8 G4/16 B4/8 B4/8 A4/16 C5/8 A4/16 C5/8 C5/8 A4/16 C5/8 A4/16 C5/8 C5/8 E5/8 E5/8 B4/8 B4/8 G4/8 G4/8 F#4/8 E4/16 F#4/16 G4/16 B4/8 C5/16 B4/16 G4/16 E4/16 F#4/16 G4/8 F#4/8 E4/4" --bpm 0 --ch 1 --patch 40 --vel 75 > fiddle2.jsonl
 
 # Banjo rhythm (patch 105)
-seq --notes "G3/8 B3/8 D4/8..." --ch 2 --patch 105 --vel 75 > banjo.jsonl
+seq --notes "R/16 R/16 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 R/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 G3/8 B3/8 C3/8 E3/8 C3/8 E3/8 C3/8 E3/8 C3/8 E3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 D3/8 A3/8 G3/8 B3/8 G3/8 B3/8 G3/8 D3/8 G3/4" --bpm 0 --ch 2 --patch 105 --vel 70 > banjo.jsonl
 
 # Acoustic bass (patch 32)
-seq --notes "G2/4 D3/4..." --ch 3 --patch 32 --vel 90 > bass.jsonl
+seq --notes "R/16 R/16 G2/4 G2/4 G2/4 D2/4 G2/4 G2/4 G2/4 D2/4 G2/4 G2/4 G2/4 D2/4 G2/4 D2/4 G2/2 R/8 G2/4 G2/4 G2/4 G2/4 C3/4 C3/4 C3/4 C3/4 G2/4 G2/4 D2/4 D2/4 G2/4 D2/4 G2/2" --bpm 0 --ch 3 --patch 32 --vel 90 > bass.jsonl
 
 cat fiddle.jsonl fiddle2.jsonl banjo.jsonl bass.jsonl | viz | trim --auto | to-midi</code>
                     </div>
@@ -871,11 +858,18 @@ cat fiddle.jsonl fiddle2.jsonl banjo.jsonl bass.jsonl | viz | trim --auto | to-m
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Fiddle melody (patch 40)
-seq --notes "E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/8..." \
-    --bpm 80 --ch 0 --patch 40 --vel 100 > melody.jsonl
+                        <code># Fiddle melody (patch 40) - Verse + Chorus
+seq --notes "E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/8 B4/16 A4/16 A4/16 G4/16 A4/16 R/16 B4/16 A4/16 A4/16 B4/16 D5/16 R/16 E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/16 G4/16 A4/16 G4/16 A4/16 R/16 B4/16 A4/16 G4/8 E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/8 B4/16 A4/16 A4/16 G4/16 A4/16 R/16 B4/16 A4/16 A4/16 B4/16 D5/16 R/16 E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/16 G4/16 A4/16 G4/16 A4/16 R/16 B4/16 A4/16 G4/8 B4/16 D5/16 E5/16 F#5/16 G5/8 G5/8 F#5/16 E5/16 F#5/16 E5/16 D5/8 D5/16 B4/16 D5/16 R/16 E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/16 G4/16 A4/16 G4/16 A4/16 R/16 B4/16 A4/16 G4/4" --bpm 80 --ch 0 --patch 40 --vel 100 > melody.jsonl
 
-# Banjo (patch 105), Bass (patch 45), Whistle (patch 72)
+# Banjo (patch 105)
+seq --notes "G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 D3/16 F#3/16 A3/16 F#3/16 G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 D3/16 F#3/16 A3/16 F#3/16 G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 C4/16 E4/16 G4/16 E4/16 D3/16 F#3/16 A3/16 F#3/16 D3/16 F#3/16 A3/16 F#3/16 G3/16 B3/16 D4/16 B3/16 G3/16 B3/16 D4/16 B3/16 D3/16 F#3/16 A3/16 F#3/16 G3/8 B3/8" --bpm 0 --ch 1 --patch 105 --vel 75 > banjo.jsonl
+
+# Bass (patch 45)
+seq --notes "G2/8 D3/8 G2/8 D3/8 G2/8 D3/8 D2/8 A2/8 G2/8 D3/8 G2/8 D3/8 D2/8 A2/8 G2/8 D3/8 G2/8 D3/8 G2/8 D3/8 G2/8 D3/8 D2/8 A2/8 G2/8 D3/8 G2/8 D3/8 D2/8 A2/8 G2/8 D3/8 G2/8 D3/8 C3/8 G3/8 D2/8 A2/8 D2/8 A2/8 G2/8 D3/8 G2/8 D3/8 D2/8 A2/8 G2/4" --bpm 0 --ch 2 --patch 45 --vel 85 > bass.jsonl
+
+# Whistle (patch 72) - fills during chorus
+seq --notes "R/2 R/2 R/2 R/2 B5/8 D6/8 E6/8 F#6/8 G6/4 G6/4 F#6/8 E6/8 F#6/8 E6/8 D6/4 D6/8 B5/8 D6/8 R/8 E6/8 D6/8 B5/8 D6/8 E6/8 D6/8 B5/8 G5/8 A5/8 G5/8 A5/8 R/8 B5/8 A5/8 G5/4" --bpm 0 --ch 3 --patch 72 --vel 80 > whistle.jsonl
+
 cat melody.jsonl banjo.jsonl bass.jsonl whistle.jsonl | viz | trim --auto | to-midi</code>
                     </div>
                 </details>
@@ -926,16 +920,19 @@ cat melody.jsonl banjo.jsonl bass.jsonl whistle.jsonl | viz | trim --auto | to-m
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
                         <code># Trumpet lead (patch 56)
-seq --notes "C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 G5/1..." \
-    --bpm 130 --ch 0 --patch 56 --vel 100 > trumpet.jsonl
+seq --notes "C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 G5/1 R/4 C5/4 E5/4 F5/4 G5/2 E5/2 C5/2 E5/2 D5/1 R/4 E5/4 E5/4 D5/4 C5/1 E5/2 G5/2 G5/4 F5/2 R/4 R/2 E5/4 F5/4 G5/2 E5/2 C5/2 D5/2 C5/1" --bpm 130 --ch 0 --patch 56 --vel 100 > trumpet.jsonl
 
-# Trombone (patch 57), Clarinet (patch 71), Tuba (patch 58)
+# Trombone harmony (patch 57)
+seq --notes "G4/4 C5/4 D5/4 E5/1 R/4 G4/4 C5/4 D5/4 E5/1 R/4 G4/4 C5/4 D5/4 E5/2 C5/2 G4/2 C5/2 B4/1 R/4 C5/4 C5/4 B4/4 G4/1 C5/2 E5/2 E5/4 D5/2 R/4 R/2 C5/4 D5/4 E5/2 C5/2 G4/2 B4/2 G4/1" --bpm 0 --ch 1 --patch 57 --vel 85 > trombone.jsonl
+
+# Tuba bass (patch 58)
+seq --notes "C2/4 G2/4 C2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 G2/4 D3/4 G2/4 D3/4 G2/4 D3/4 G2/4 D3/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 F2/4 C3/4 F2/4 C3/4 F2/4 C3/4 F2/4 C3/4 C2/4 G2/4 C2/4 G2/4 C2/4 G2/4 G2/4 D3/4 C2/1" --bpm 0 --ch 3 --patch 58 --vel 100 > tuba.jsonl
+
 # Drums: snare march + bass drum (ch 9)
-euclid --steps 8 --pulses 4 --note 38 --ch 9 --repeat 18 > snare.jsonl
-euclid --steps 4 --pulses 2 --note 36 --ch 9 --repeat 18 > kick.jsonl
+seed 1865 | euclid --steps 8 --pulses 4 --note 38 --ch 9 --bpm 0 --repeat 18 --vel 85 --vel-var 15 --accent 0.3 > snare.jsonl
+seed 1901 | euclid --steps 4 --pulses 2 --note 36 --ch 9 --bpm 0 --repeat 18 --vel 100 --vel-var 10 > kick.jsonl
 
-cat trumpet.jsonl trombone.jsonl clarinet.jsonl tuba.jsonl snare.jsonl kick.jsonl \
-  | viz | trim --auto | to-midi</code>
+cat trumpet.jsonl trombone.jsonl tuba.jsonl snare.jsonl kick.jsonl | viz | trim --auto | to-midi</code>
                     </div>
                 </details>
 
@@ -968,14 +965,12 @@ cat trumpet.jsonl trombone.jsonl clarinet.jsonl tuba.jsonl snare.jsonl kick.json
                         <code># Tick-based timing from reference MIDI bar 68 (chorus)
 # 245 notes at 220 BPM - accordion with full chords
 
-seq --notes "A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 \
-C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23..." \
+seq --notes "A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t480*23 [E4,A#4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t360*23 R/t120 [E4,A#4,C#5]/t480*23 [G2,E4,A#4,D5]/t480*23 [G4,A#4,E5]/t480*23 C2/t480*23 [G4,A#4]/t480*23 G2/t480*23 [G4,A#4]/t480*23 C2/t480*23 [G4,A#4]/t480*23 [G2,G4,A#4,D5]/t480*23 [G4,A#4,E5]/t960*23 C2/t480*23 [G4,A#4,D5]/t480*23 [G2,G4,A#4,E5]/t480*23 [G4,A#4,D5]/t960*23 C2/t480*23 [G4,A#4,C#5]/t480*23 [F2,F4,A4,C5]/t480*23 C2/t480*23 R/t480 F2/t480*23 R/t480 C2/t480*23 R/t480 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4,C5]/t480*23 [F2,D#4,A4,D5]/t480*23 [D#4,A4,C5]/t960*23 F2/t480*23 [D#4,F4]/t480*23 [A#2,F4,A#4,D5]/t960*23 [A2,F#4,C5]/t960*23 [G2,G4,A#4]/t960*23 D3/t960*23 [A#2,D4,G4]/t480*23 [D4,A4]/t480*23 [A#2,D4,A#4]/t480*23 [D4,C5]/t480*23 [B2,F4,G#4,E5]/t480*23 B2/t480*23 [F4,G#4,D5]/t480*23 [C3,F4,A4,D5]/t600*23 [F4,A4,C5]/t1440*23 F3/t480*23 D#3/t480*23 [D3,F#4]/t480*23 [D2,F#4,B4]/t480*23 [F#4,C5]/t480*23 [G2,F4,B4,D5]/t480*23 A2/t480*23 B2/t480*23 G2/t480*23 [C3,G4,A#4,E5]/t480*23 C2/t480*23 D2/t480*23 E2/t480*23 [F2,F4,A4,F5]/t480*23 C5/t240*24 D5/t240*24 [F#2,D#4,A4,C5]/t480*24 C5/t240*24 D5/t240*24 [G2,E4,A#4,C5]/t480*24 [C4,E4]/t240*25 [D4,F4]/t240*25 [C2,C3,E4,G4]/t960*25 [F4,A4]/t240*25 [G4,A#4]/t240*25 [G#4,B4]/t240*25 [F2,C5]/t480*23 [F4,A4]/t480*23 C3/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23" \
     --bpm 220 --ch 0 --patch 21 \
   | humanize --jitter-ticks 4 --jitter-vel 5 \
   | trim --auto \
   | to-midi --out beerhall.mid
 
-# Render with FluidSynth, trim to 32 seconds with fade
 fluidsynth -ni -F raw.wav soundfont.sf2 beerhall.mid
 ffmpeg -y -i raw.wav -t 32 -af "afade=t=out:st=30:d=2" beerhall.wav</code>
                         <h4>Notation Features</h4>
