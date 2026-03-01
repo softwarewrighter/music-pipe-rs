@@ -1,5 +1,23 @@
 # Claude Code Instructions
 
+## CRITICAL: Python Environment Rules
+
+**NEVER use `pip3 install` directly. NEVER pollute the global Python environment.**
+
+Always use `uv` for Python package management:
+```bash
+# Create a virtual environment
+uv venv .venv
+
+# Activate it
+source .venv/bin/activate
+
+# Install packages
+uv pip install mido  # or whatever package needed
+```
+
+This is non-negotiable. Global Python pollution breaks system tools and causes hard-to-debug issues.
+
 ## Demo Pages Workflow
 
 The demo site is at https://softwarewrighter.github.io/music-pipe-rs/
