@@ -227,28 +227,22 @@
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Upper octave (Ch 0)
-seq --notes "D5/2*127 C#5/32*120 D5/32*120 A4/32*115 G4/32*110 F4/32*110 E4/32*110 D4/32*110 C#4/32*115 D4/4*120 R/4 A4/2*125 G#4/32*115 A4/32*115 E4/32*110 D4/32*105 C4/32*105 B3/32*105 A3/32*105 G#3/32*110 A3/4*115 R/4 D5/2*127 C#5/32*120 D5/32*127" --bpm 66 --ch 0 --patch 19 > upper.jsonl
+                        <code># Extract notes from a MIDI file (first 4 bars)
+mid2seq "Toccata and Fugue in D minor, BWV 565.mid" --bars 4
+# Output: NOTES='[A4,A5,A6]/t28*89 [G4,G5,G6]/t28*107 ...'
 
-# Lower octave (Ch 1)
-seq --notes "D4/2*127 C#4/32*120 D4/32*120 A3/32*115 G3/32*110 F3/32*110 E3/32*110 D3/32*110 C#3/32*115 D3/4*120 R/4 A3/2*125 G#3/32*115 A3/32*115 E3/32*110 D3/32*105 C3/32*105 B2/32*105 A2/32*105 G#2/32*110 A2/4*115 R/4 D4/2*127 C#4/32*120 D4/32*127" --bpm 0 --ch 1 --patch 19 > lower.jsonl
+# Generate MIDI with church organ (patch 19)
+seq --notes "$NOTES" --bpm 72 --patch 19 | to-midi --out bach.mid
 
-# Final chord (Ch 2)
-seq --notes "R/8 D3/1*127 A3/1*127 D4/1*127 F4/1*127 A4/1*127 D5/1*127" --bpm 0 --ch 2 --patch 19 > chord.jsonl
-
-# Pedal bass (Ch 3)
-seq --notes "R/2 D2/1*127 R/4 A1/1*127 R/4 D2/1*127" --bpm 0 --ch 3 --patch 19 > pedal.jsonl
-
-cat upper.jsonl lower.jsonl chord.jsonl pedal.jsonl | viz | to-midi --out bach.mid
-fluidsynth -ni -F bach.wav soundfont.sf2 bach.mid</code>
+# Render to audio
+fluidsynth -ni -F bach.wav GeneralUser_GS.sf2 bach.mid</code>
                         <h4>Approach</h4>
                         <ul>
-                            <li>Uses <code>seq</code> stage for explicit note input (actual Bach notes)</li>
-                            <li>4 MIDI channels for upper octave, lower octave, chord, and pedal</li>
+                            <li>Uses <code>mid2seq</code> to extract notes from existing MIDI files</li>
+                            <li>Tick-based notation preserves original timing and velocities</li>
                             <li>Patch 19 = Church Organ (General MIDI)</li>
-                            <li>32nd notes (/32) for rapid mordent and descending runs</li>
-                            <li>Octave doubling (D5+D4) creates massive organ sound</li>
-                            <li>Velocity dynamics (*127, *120) for musical expression</li>
+                            <li>Chord notation [A4,A5,A6] for simultaneous notes</li>
+                            <li>Pipeline: mid2seq → seq → to-midi → fluidsynth</li>
                         </ul>
                     </div>
                 </details>
