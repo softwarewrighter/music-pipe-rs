@@ -114,10 +114,10 @@ fn main() -> Result<()> {
         active_notes.clear();
 
         for event in track {
-            tick += event.delta.as_int() as u32;
+            tick += event.delta.as_int();
 
-            match event.kind {
-                TrackEventKind::Midi { message, .. } => match message {
+            if let TrackEventKind::Midi { message, .. } = event.kind {
+                match message {
                     MidiMessage::NoteOn { key, vel } => {
                         let key = key.as_int();
                         let vel = vel.as_int();
@@ -157,8 +157,7 @@ fn main() -> Result<()> {
                         }
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
     }
