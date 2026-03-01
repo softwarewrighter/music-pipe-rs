@@ -1,5 +1,15 @@
 # Claude Code Instructions
 
+## SoundFont for Audio Rendering
+
+**Always use this soundfont:**
+```bash
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F output.wav "$SF2" input.mid
+```
+
+Do NOT use `/usr/local/share/soundfonts/default.sf2` - it doesn't exist.
+
 ## CRITICAL: Python Environment Rules
 
 **NEVER use `pip3 install` directly. NEVER pollute the global Python environment.**
