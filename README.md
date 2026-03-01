@@ -131,8 +131,16 @@ seed 12345 | motif | jq .
 | `transpose` | Shift notes by N semitones |
 | `scale` | Constrain to musical scale |
 | `humanize` | Add timing and velocity variation |
+| `rubato` | Add tempo variation for human-like expression |
+| `trim` | Trim trailing silence from event streams |
 | `viz` | Show sparkline/piano roll visualization |
 | `to-midi` | Convert JSONL stream to .mid file |
+
+### Utilities
+
+| Tool | Description |
+|------|-------------|
+| `mid2seq` | Extract seq notation from MIDI files (for authoring demos) |
 
 ### seq Notation
 
