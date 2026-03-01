@@ -368,14 +368,13 @@ fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     Scott Joplin's most famous ragtime composition, the "king of ragtime."
-                    Extracted from reference MIDI using tick-based notation with chord syntax
-                    for simultaneous notes and per-note velocity.
+                    The "king of ragtime" - syncopated piano classic.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Tick-based extraction from reference MIDI (127 notes at 130 BPM)
+                        <code># 127 notes at 130 BPM
 seq --notes "R/t712 [D#2,D#3]/t40*96 R/t204 G#3/t156*86 G#2/t164*86 G#4/t88*73 [G#3,C4]/t56*83 D#3/t32*69 D#4/t152*86 D#5/t120*81 R/t16 G#4/t236*66 [G#3,C4]/t72*68 D#3/t40*52 C5/t96*77 R/t40 D#5/t236*77 D#4/t240*91 [A2,A3]/t72*86 R/t84 G4/t88*81 [A#2,A#3]/t192*86 [D#4,D#5]/t184*81 G4/t200*73 [G3,C#4]/t72*68 A#4/t104*77 R/t28 D#4/t580*91 D#5/t480*81 C#4/t76*52 D#3/t140*57 G3/t44*54 R/t200 D#3/t40*86 D#2/t32*91 R/t200 G#3/t156*81 G#2/t156*81 G#4/t84*66 [D#3,G#3,C4]/t40*69 D#5/t156*86 D#4/t184*86 G#4/t248*59 [G#3,C4]/t72*59 [D#3,C5]/t36*54 R/t44 D#5/t240*77 D#4/t232*91 [A2,A3]/t104*94 R/t56 G4/t104*86 [A#2,A#3]/t136*83 D#4/t196*86 D#5/t108*86 R/t24 G4/t208*77 [D#3,G3]/t64*60 C#4/t36*41 A#4/t92*59 R/t40 D#5/t360*77 D#4/t344*81 C#4/t44*37 D#3/t112*66 R/t132 D#3/t48*77 D#2/t48*86 R/t104 D#4/t272*86 D#5/t208*86 E3/t280*108 E2/t288*102 G#4/t284*73 B4/t120*69 R/t20 [E4,E5]/t72*86 R/t16 D#2/t72*81 D#3/t56*73 R/t88 D#5/t56*91 D#4/t48*81 R/t28 [D#2,D#3]/t56*91 R/t96 D#5/t192*91 D#4/t240*91 E3/t200*108 E2/t196*108 G#4/t260*77 B4/t148*77 E5/t76*86 E4/t60*77 R/t36 [D#2,D#3]/t304*83 [D#4,D#5]/t36*105 R/t196 G#1/t208*91 G#2/t176*69 B2/t160*54 G#3/t76*73 R/t28 G#2/t164*108 G#3/t244*66 B3/t152*59 G#4/t120*69 G#3/t164*120 G#4/t252*59 B4/t148*66 G#5/t100*77 G#4/t164*120 G#5/t200*81 B5/t164*65 G#6/t120*81 G#5/t48*86 [D4,G#4]/t60*83 B4/t40*81 F4/t36*77 R/t196 [D4,B4,G#5]/t44*87 [F4,G#4]/t40*75 G#6/t44*91 R/t196 [G#4,B4,G#5]/t48*86 [D4,F4,G#6]/t32*87" \
     --bpm 130 --ch 0 --patch 0 \
   | humanize --jitter-ticks 8 --jitter-vel 8 \
@@ -413,13 +412,13 @@ ffmpeg -y -i raw.wav -t 12 -af "afade=t=out:st=10:d=2" maple-leaf.wav</code>
                 <div class="abstract">
                     "A Rag Time Two Step" - the classic ragtime piece featured in "The Sting."
                     Joplin's tempo marking: "Do not play this piece fast."
-                    Extracted from reference MIDI with tick-based notation.
+                    Joplin's most famous piece, featured in "The Sting."
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Tick-based extraction from reference MIDI (109 notes at 200 BPM)
+                        <code># 109 notes at 200 BPM
 seq --notes "R/t1925 D5/t213*86 D6/t226*107 E5/t226*82 E6/t251*92 C5/t248*82 C6/t236*96 [A4,A5]/t506*91 B5/t236*96 B4/t224*70 G5/t208*96 G4/t201*86 R/t277 [D4,D5]/t241*93 E5/t233*85 E4/t234*70 C5/t241*96 C4/t246*78 A4/t471*96 A3/t476*86 R/t2 B4/t241*96 B3/t229*78 R/t9 G3/t193*82 G4/t181*92 R/t299 [D3,D4]/t231*96 E4/t233*88 E3/t226*82 R/t9 C4/t219*92 C3/t236*82 R/t1 A3/t481*100 A2/t491*86 B3/t246*96 B2/t226*86 R/t11 [A2,A3]/t224*93 R/t9 G#3/t221*84 G#2/t228*82 R/t2 G3/t281*100 G2/t309*94 R/t641 [G4,B4,D5]/t274*98 G5/t236*96 [G1,G2]/t166*88 R/t312 [D4,G4,B4]/t236*84 D#4/t218*78 R/t32 [C3,E4]/t226*91 C5/t458*104 [E3,G3,C4]/t209*74 R/t24 E4/t256*81 [G2,G3]/t203*86 C5/t436*100 R/t32 E4/t258*84 [G3,C4]/t203*82 A#3/t184*67 R/t39 C5/t1171*104 [F2,F3]/t213*84 R/t267 [A3,C4]/t178*86 R/t304 [E2,E3]/t191*84 R/t41 C5/t126*88 [E5,C6]/t126*100 R/t91 [G3,C4,D5,F5,D6]/t211*88 R/t22 F#5/t115*88 [D#5,D#6]/t115*83 R/t87 [E5,G5,E6]/t115*104 G2/t154*94 R/t86 [C5,E5,C6]/t115*87 R/t123 [E3,G3,C4,D5,F5,D6]/t238*90 [E5,G5,E6]/t319*97 G2/t181*94 R/t52 B5/t115*100 [B4,D5]/t115*100 R/t125 [D5,F5,D6]/t299*96 [F3,G3,B3]/t206*78 R/t271 C3/t241*90" \
     --bpm 200 --ch 0 --patch 0 \
   | humanize --jitter-ticks 4 --jitter-vel 5 \
@@ -956,14 +955,13 @@ cat trumpet.jsonl trombone.jsonl tuba.jsonl snare.jsonl kick.jsonl | viz | trim 
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
                     "Roll Out the Barrel" - Czech/German beer hall classic with authentic oom-pah.
-                    32-second chorus extracted from reference MIDI using tick-based notation.
+                    "Roll Out the Barrel" - 32-second chorus with authentic oom-pah.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code># Tick-based timing from reference MIDI bar 68 (chorus)
-# 245 notes at 220 BPM - accordion with full chords
+                        <code># 245 notes at 220 BPM - accordion with full chords
 
 seq --notes "A#4/t3840*23 [E4,G4]/t480*23 G2/t480*23 [E4,G4]/t480*23 C2/t480*23 [E4,G4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t480*23 [E4,A#4]/t480*23 [G2,D5]/t480*23 [E4,A#4]/t480*23 C2/t360*23 R/t120 [E4,A#4,C#5]/t480*23 [G2,E4,A#4,D5]/t480*23 [G4,A#4,E5]/t480*23 C2/t480*23 [G4,A#4]/t480*23 G2/t480*23 [G4,A#4]/t480*23 C2/t480*23 [G4,A#4]/t480*23 [G2,G4,A#4,D5]/t480*23 [G4,A#4,E5]/t960*23 C2/t480*23 [G4,A#4,D5]/t480*23 [G2,G4,A#4,E5]/t480*23 [G4,A#4,D5]/t960*23 C2/t480*23 [G4,A#4,C#5]/t480*23 [F2,F4,A4,C5]/t480*23 C2/t480*23 R/t480 F2/t480*23 R/t480 C2/t480*23 R/t480 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4,C5]/t480*23 [F2,D#4,A4,D5]/t480*23 [D#4,A4,C5]/t960*23 F2/t480*23 [D#4,F4]/t480*23 [A#2,F4,A#4,D5]/t960*23 [A2,F#4,C5]/t960*23 [G2,G4,A#4]/t960*23 D3/t960*23 [A#2,D4,G4]/t480*23 [D4,A4]/t480*23 [A#2,D4,A#4]/t480*23 [D4,C5]/t480*23 [B2,F4,G#4,E5]/t480*23 B2/t480*23 [F4,G#4,D5]/t480*23 [C3,F4,A4,D5]/t600*23 [F4,A4,C5]/t1440*23 F3/t480*23 D#3/t480*23 [D3,F#4]/t480*23 [D2,F#4,B4]/t480*23 [F#4,C5]/t480*23 [G2,F4,B4,D5]/t480*23 A2/t480*23 B2/t480*23 G2/t480*23 [C3,G4,A#4,E5]/t480*23 C2/t480*23 D2/t480*23 E2/t480*23 [F2,F4,A4,F5]/t480*23 C5/t240*24 D5/t240*24 [F#2,D#4,A4,C5]/t480*24 C5/t240*24 D5/t240*24 [G2,E4,A#4,C5]/t480*24 [C4,E4]/t240*25 [D4,F4]/t240*25 [C2,C3,E4,G4]/t960*25 [F4,A4]/t240*25 [G4,A#4]/t240*25 [G#4,B4]/t240*25 [F2,C5]/t480*23 [F4,A4]/t480*23 C3/t480*23 [F4,A4]/t480*23 [F2,C5]/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,G#4,B4]/t480*23 [F2,F4,A4,C5]/t480*23 [F4,A4,D5]/t960*23 C2/t480*23 [F4,A4]/t480*23 F2/t480*23 [F4,A4]/t480*23 C2/t480*23 [F4,A4]/t480*23 [F2,F4,A4,C5]/t480*23" \
     --bpm 220 --ch 0 --patch 21 \
