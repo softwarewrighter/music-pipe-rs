@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>music-pipe-rs - Classic Music Demos</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --tab-bg: #0f1a2e;
+            --accent: #e94560;
+            --accent2: #0f3460;
+            --text: #eee;
+            --text-muted: #aaa;
+            --code-bg: #0d1b2a;
+            --seq-color: #4ecdc4;
+            --motif-color: #ff6b6b;
+            --wip-color: #ffa500;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { color: var(--accent); text-align: center; margin-bottom: 0.3em; font-size: 1.8em; }
+        .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 1.5em; font-size: 0.95em; }
+
+        /* Main Genre Tabs */
+        .genre-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0;
+            flex-wrap: wrap;
+        }
+        .genre-tab {
+            padding: 12px 20px;
+            background: var(--tab-bg);
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+        }
+        .genre-tab:hover { background: var(--accent2); color: var(--text); }
+        .genre-tab.active {
+            background: var(--card-bg);
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* Genre Content Panels */
+        .genre-content {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 0 8px 8px 8px;
+            padding: 20px;
+        }
+        .genre-content.active { display: block; }
+
+        /* Sub-tabs (seq/motif) */
+        .sub-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .sub-tab {
+            padding: 8px 16px;
+            border: 2px solid var(--accent2);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .sub-tab:hover { border-color: var(--text-muted); color: var(--text); }
+        .sub-tab.active.seq { background: var(--seq-color); border-color: var(--seq-color); color: #000; }
+        .sub-tab.active.motif { background: var(--motif-color); border-color: var(--motif-color); color: #fff; }
+
+        /* Sub-content */
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+
+        /* Demo cards */
+        .demo-card {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+        .demo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .demo-title { font-size: 1.15em; font-weight: bold; color: var(--text); }
+        .demo-year { color: var(--text-muted); font-size: 0.85em; }
+        .demo-description { color: var(--text-muted); font-size: 0.9em; margin-bottom: 12px; }
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7em; font-weight: bold; margin-left: 8px; }
+        .badge-wip { background: var(--wip-color); color: #000; }
+
+        .instruments { margin-bottom: 10px; }
+        .instrument-tag {
+            display: inline-block;
+            background: var(--accent2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin: 2px 3px 2px 0;
+        }
+        audio { width: 100%; margin: 10px 0; border-radius: 8px; }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 6px;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+        .code-block pre { margin: 0; white-space: pre-wrap; }
+        .code-comment { color: #6a9955; }
+        .code-cmd { color: #569cd6; }
+        details summary { cursor: pointer; color: var(--accent); font-size: 0.85em; }
+
+        .note {
+            background: var(--accent2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+        .note code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Classic Music Demos</h1>
+        <p class="subtitle">Public domain styles &bull; <span style="color:var(--seq-color)">seq</span> = exact transcription &bull; <span style="color:var(--motif-color)">motif</span> = algorithmic</p>
+
+        <!-- Genre Tabs -->
+        <div class="genre-tabs">
+            <button class="genre-tab active" onclick="showGenre('fiddle')">Fiddle Tunes</button>
+            <button class="genre-tab" onclick="showGenre('ragtime')">Ragtime</button>
+            <button class="genre-tab" onclick="showGenre('folk')">American Folk</button>
+            <button class="genre-tab" onclick="showGenre('brass')">Brass Band</button>
+            <button class="genre-tab" onclick="showGenre('polka')">Polka</button>
+        </div>
+
+        <!-- FIDDLE -->
+        <div id="fiddle" class="genre-content active">
+            <div class="sub-tabs">
+                <button class="sub-tab seq active" onclick="showSub('fiddle','seq')">seq</button>
+                <button class="sub-tab motif" onclick="showSub('fiddle','motif')">motif</button>
+            </div>
+            <div id="fiddle-seq" class="sub-content active">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Turkey in the Straw</span>
+                        <span class="demo-year">c. 1820s</span>
+                    </div>
+                    <p class="demo-description">Exact transcription from <a href="https://thesession.org/tunes/2638" style="color:var(--seq-color)">The Session</a> - Traditional American fiddle reel</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Fiddle (40)</span>
+                        <span class="instrument-tag">Fiddle 2 (40)</span>
+                        <span class="instrument-tag">Banjo (105)</span>
+                        <span class="instrument-tag">Bass (32)</span>
+                    </div>
+                    <audio controls><source src="demo-turkey.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># ABC: |:BA|GFGA G2 B,C|DEDB, D2 GA|...</span>
+<span class="code-cmd">seq</span> --notes "B4/16 A4/16 G4/16 F#4/16 G4/16 A4/16 G4/8 B3/16 C4/16..." \
+    --bpm 120 --ch 0 --patch 40 --vel 100</pre></div>
+                    </details>
+                </div>
+            </div>
+            <div id="fiddle-motif" class="sub-content">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Fiddle Reel-esque</span>
+                        <span class="demo-year">Generated</span>
+                    </div>
+                    <p class="demo-description">Algorithmically generated square dance style - change seed for variations</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Fiddle (40)</span>
+                        <span class="instrument-tag">Fiddle 2 (40)</span>
+                        <span class="instrument-tag">Banjo (105)</span>
+                        <span class="instrument-tag">Bass (32)</span>
+                    </div>
+                    <audio controls><source src="demo-reel-motif.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View motif commands</summary>
+                        <div class="code-block"><pre><span class="code-cmd">seed</span> 1820 | <span class="code-cmd">motif</span> --base 74 --notes 50 --complexity 6 \
+    --bpm 130 --ch 0 --patch 40 --dur 0.25 | <span class="code-cmd">scale</span> --root G --mode major</pre></div>
+                    </details>
+                </div>
+                <div class="note">Try: <code>./demo-reel-motif.sh 42</code> for a different melody</div>
+            </div>
+        </div>
+
+        <!-- RAGTIME -->
+        <div id="ragtime" class="genre-content">
+            <div class="sub-tabs">
+                <button class="sub-tab seq active" onclick="showSub('ragtime','seq')">seq</button>
+                <button class="sub-tab motif" onclick="showSub('ragtime','motif')">motif</button>
+            </div>
+            <div id="ragtime-seq" class="sub-content active">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">The Entertainer</span>
+                        <span class="demo-year">1902</span>
+                    </div>
+                    <p class="demo-description">Scott Joplin's iconic ragtime with chromatic intro and stride bass</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Honky-tonk Piano (3)</span>
+                        <span class="instrument-tag">Acoustic Piano (0)</span>
+                    </div>
+                    <audio controls><source src="demo-entertainer.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># The famous D-D#-E chromatic intro</span>
+<span class="code-cmd">seq</span> --notes "D5/16 D#5/16 E5/16 R/16 C6/8 R/16 E5/16..." \
+    --bpm 92 --ch 0 --patch 3 --vel 95</pre></div>
+                    </details>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Maple Leaf Rag</span>
+                        <span class="demo-year">1899</span>
+                    </div>
+                    <p class="demo-description">Scott Joplin's most famous rag in Ab major with syncopated melody</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Acoustic Piano (0)</span>
+                        <span class="instrument-tag">Clarinet (71)</span>
+                    </div>
+                    <audio controls><source src="demo-maple-leaf.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># Ab major ragtime syncopation</span>
+<span class="code-cmd">seq</span> --notes "G#4/16 A#4/16 B4/16 C#5/16 D#5/16 C#5/16..." \
+    --bpm 100 --ch 0 --patch 0 --vel 95</pre></div>
+                    </details>
+                </div>
+            </div>
+            <div id="ragtime-motif" class="sub-content">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Ragtime-esque</span>
+                        <span class="demo-year">Generated</span>
+                    </div>
+                    <p class="demo-description">Joplin style - syncopated melody with stride bass, swing feel</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Honky-tonk Piano (3)</span>
+                        <span class="instrument-tag">Acoustic Piano (0)</span>
+                    </div>
+                    <audio controls><source src="demo-ragtime-motif.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View motif commands</summary>
+                        <div class="code-block"><pre><span class="code-cmd">seed</span> 1899 | <span class="code-cmd">motif</span> --base 72 --notes 40 --complexity 6 \
+    --bpm 92 --ch 0 --patch 3 --dur 0.5 --swing 0.12 | <span class="code-cmd">scale</span> --root C --mode major</pre></div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOLK -->
+        <div id="folk" class="genre-content">
+            <div class="sub-tabs">
+                <button class="sub-tab seq active" onclick="showSub('folk','seq')">seq</button>
+                <button class="sub-tab motif" onclick="showSub('folk','motif')">motif</button>
+            </div>
+            <div id="folk-seq" class="sub-content active">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Oh! Susanna</span>
+                        <span class="demo-year">1848</span>
+                    </div>
+                    <p class="demo-description">Stephen Foster - from 1851 Gumbo Chaff <a href="https://tunearch.org/wiki/Annotation:O!_Susanna" style="color:var(--seq-color)">banjo tutor ABC</a></p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Banjo (105)</span>
+                        <span class="instrument-tag">Fiddle (40)</span>
+                        <span class="instrument-tag">Harmonica (22)</span>
+                        <span class="instrument-tag">Guitar (25)</span>
+                    </div>
+                    <audio controls><source src="demo-oh-susanna.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># ABC: d/e/|fa ab|af d>e|ff ed|e3 d/e/|...</span>
+<span class="code-cmd">seq</span> --notes "D4/16 E4/16 F#4/8 A4/8 A4/8 B4/8..." \
+    --bpm 120 --ch 0 --patch 105 --vel 100</pre></div>
+                    </details>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Camptown Races</span>
+                        <span class="demo-year">1850</span>
+                    </div>
+                    <p class="demo-description">Stephen Foster - from <a href="https://thesession.org/tunes/4271" style="color:var(--seq-color)">The Session ABC</a></p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Fiddle (40)</span>
+                        <span class="instrument-tag">Banjo (105)</span>
+                        <span class="instrument-tag">Piccolo (72)</span>
+                    </div>
+                    <audio controls><source src="demo-camptown.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># ABC: |:ed Bd|ed B2|BA AG/A/|BA AB/d/|...</span>
+<span class="code-cmd">seq</span> --notes "E5/16 D5/16 B4/16 D5/16 E5/16 D5/16 B4/8..." \
+    --bpm 120 --ch 0 --patch 40 --vel 100</pre></div>
+                    </details>
+                </div>
+            </div>
+            <div id="folk-motif" class="sub-content">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">American Folk-esque</span>
+                        <span class="demo-year">Generated</span>
+                    </div>
+                    <p class="demo-description">Foster style - simple singable melodies with banjo and fiddle</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Banjo (105)</span>
+                        <span class="instrument-tag">Fiddle (40)</span>
+                        <span class="instrument-tag">Guitar (25)</span>
+                    </div>
+                    <audio controls><source src="demo-folk-motif.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View motif commands</summary>
+                        <div class="code-block"><pre><span class="code-cmd">seed</span> 1848 | <span class="code-cmd">motif</span> --base 67 --notes 35 --complexity 4 \
+    --bpm 120 --ch 0 --patch 105 --dur 0.5 | <span class="code-cmd">scale</span> --root G --mode major</pre></div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- BRASS -->
+        <div id="brass" class="genre-content">
+            <div class="sub-tabs">
+                <button class="sub-tab seq active" onclick="showSub('brass','seq')">seq</button>
+                <button class="sub-tab motif" onclick="showSub('brass','motif')">motif</button>
+            </div>
+            <div id="brass-seq" class="sub-content active">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">When the Saints Go Marching In</span>
+                        <span class="demo-year">Traditional</span>
+                    </div>
+                    <p class="demo-description">New Orleans spiritual - from <a href="https://abcnotation.com" style="color:var(--seq-color)">abcnotation.com</a></p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Trumpet (56)</span>
+                        <span class="instrument-tag">Trombone (57)</span>
+                        <span class="instrument-tag">Clarinet (71)</span>
+                        <span class="instrument-tag">Tuba (58)</span>
+                        <span class="instrument-tag">Drums (ch9)</span>
+                    </div>
+                    <audio controls><source src="demo-saints.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># "Oh when the saints go marching in"</span>
+<span class="code-cmd">seq</span> --notes "R/8 C5/8 E5/8 F5/8 G5/2 R/4..." \
+    --bpm 120 --ch 0 --patch 56 --vel 100</pre></div>
+                    </details>
+                </div>
+            </div>
+            <div id="brass-motif" class="sub-content">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Brass Band-esque</span>
+                        <span class="demo-year">Generated</span>
+                    </div>
+                    <p class="demo-description">New Orleans second line style with march drums</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Trumpet (56)</span>
+                        <span class="instrument-tag">Trombone (57)</span>
+                        <span class="instrument-tag">Tuba (58)</span>
+                        <span class="instrument-tag">Drums (ch9)</span>
+                    </div>
+                    <audio controls><source src="demo-brass-motif.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View motif commands</summary>
+                        <div class="code-block"><pre><span class="code-cmd">seed</span> 1901 | <span class="code-cmd">motif</span> --base 72 --notes 30 --complexity 5 \
+    --bpm 112 --ch 0 --patch 56 --dur 0.75 | <span class="code-cmd">scale</span> --root C --mode major
+<span class="code-cmd">seed</span> 1905 | <span class="code-cmd">euclid</span> --steps 8 --pulses 4 --note 38 --ch 9 --repeat 20</pre></div>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- POLKA -->
+        <div id="polka" class="genre-content">
+            <div class="sub-tabs">
+                <button class="sub-tab seq active" onclick="showSub('polka','seq')">seq</button>
+                <button class="sub-tab motif" onclick="showSub('polka','motif')">motif</button>
+            </div>
+            <div id="polka-seq" class="sub-content active">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Beer Barrel Polka</span>
+                        <span class="demo-year">1927</span>
+                    </div>
+                    <p class="demo-description">"Roll Out the Barrel" - Czech/German beer hall classic with oom-pah</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Accordion (21)</span>
+                        <span class="instrument-tag">Tuba (58)</span>
+                        <span class="instrument-tag">Trombone (57)</span>
+                    </div>
+                    <audio controls><source src="demo-beerhall-seq.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View seq commands</summary>
+                        <div class="code-block"><pre><span class="code-comment"># "Roll out the barrel" chorus in F major</span>
+<span class="code-cmd">seq</span> --notes "C5/8 C5/8 C5/4 D5/8 C5/8 A4/4..." --bpm 120 --ch 0 --patch 21
+<span class="code-comment"># Tuba on beat 1 (oom)</span>
+<span class="code-cmd">seq</span> --notes "F2/4 R/4 C2/4 R/4..." --bpm 0 --ch 1 --patch 58
+<span class="code-comment"># Trombone chords on beat 2 (pah)</span>
+<span class="code-cmd">seq</span> --notes "R/4 A3/8 C4/8..." --bpm 0 --ch 2 --patch 57</pre></div>
+                    </details>
+                </div>
+            </div>
+            <div id="polka-motif" class="sub-content">
+                <div class="demo-card">
+                    <div class="demo-header">
+                        <span class="demo-title">Polka-esque</span>
+                        <span class="demo-year">Generated</span>
+                    </div>
+                    <p class="demo-description">Generated oom-pah beer hall style with accordion and brass</p>
+                    <div class="instruments">
+                        <span class="instrument-tag">Accordion (21)</span>
+                        <span class="instrument-tag">Clarinet (71)</span>
+                        <span class="instrument-tag">Tuba (58)</span>
+                        <span class="instrument-tag">Trombone (57)</span>
+                    </div>
+                    <audio controls><source src="demo-polka-motif.wav?ts=1772338855000" type="audio/wav"></audio>
+                    <details>
+                        <summary>View motif commands</summary>
+                        <div class="code-block"><pre><span class="code-cmd">seed</span> 1850 | <span class="code-cmd">motif</span> --base 72 --notes 40 --complexity 5 \
+    --bpm 124 --ch 0 --patch 21 --dur 0.5 | <span class="code-cmd">scale</span> --root F --mode major</pre></div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showGenre(genre) {
+            document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.genre-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="showGenre('${genre}')"]`).classList.add('active');
+            document.getElementById(genre).classList.add('active');
+        }
+        function showSub(genre, sub) {
+            const container = document.getElementById(genre);
+            container.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            container.querySelectorAll('.sub-content').forEach(c => c.classList.remove('active'));
+            container.querySelector(`.sub-tab.${sub}`).classList.add('active');
+            document.getElementById(`${genre}-${sub}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
