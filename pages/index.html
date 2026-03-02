@@ -212,6 +212,7 @@
             <button class="tab-btn" onclick="showTab('baroque')">Baroque</button>
             <button class="tab-btn" onclick="showTab('folk')">American Folk</button>
             <button class="tab-btn" onclick="showTab('polka')">Polka</button>
+            <button class="tab-btn" onclick="showTab('rock')">Rock</button>
         </div>
 
         <!-- ==================== BACH TAB ==================== -->
@@ -984,6 +985,117 @@ ffmpeg -y -i raw.wav -t 32 -af "afade=t=out:st=30:d=2" beerhall.wav</code>
                         <span>F major</span>
                         <span>Accordion</span>
                         <span>220 BPM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ROCK TAB ==================== -->
+        <!-- IMPORTANT: All code examples must be COMPLETE and COPY-PASTEABLE.
+             NEVER use "..." or ellipses to abbreviate. Users copy-paste these commands directly. -->
+        <div id="rock" class="tab-content">
+            <div class="demo-card">
+                <h2>Soft Progressive Rock - Satie Inspired</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Inspired by Erik Satie's Gnossiennes (1890), reimagined as soft progressive rock.
+                    Satie (1866-1925) was a contemporary of Debussy, known for modal harmonies and
+                    dreamlike atmospheres. D Dorian mode, syncopated rhythms, 60 BPM.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Electric Piano - dreamy chords with Satie-like suspensions (D Dorian)
+seq --notes "R/t60 [D3,A3,E4]/t420*70 R/t240 [D3,A3,F4]/t180*65 R/t60 [E3,B3,G4]/t480*72 R/t240 [F3,C4,A4]/t420*68 R/t60 [D3,A3,E4]/t240*70 R/t120 [E3,G3,D4]/t360*65 R/t120 [D3,A3,F4]/t480*72 R/t240 [C3,G3,E4]/t420*68 R/t60 [D3,A3,D4]/t600*75" --bpm 60 --ch 0 --patch 4 > piano.jsonl
+
+# Clean Guitar - melodic fills
+seq --notes "R/t480 A4/t360*55 R/t120 G4/t120*50 F4/t120*52 E4/t480*58 R/t240 D4/t240*55 E4/t120*52 F4/t240*54 R/t120 G4/t360*56 R/t240 A4/t480*60 R/t120 G4/t180*55 E4/t180*52 D4/t600*58" --bpm 0 --ch 1 --patch 27 > guitar.jsonl
+
+# Fretless Bass
+seq --notes "D2/t420*75 R/t60 A2/t240*70 R/t240 D2/t480*78 R/t120 E2/t360*72 R/t120 F2/t480*75 R/t120 D2/t360*78 R/t120 E2/t240*72 R/t120 C2/t420*75 R/t60 D2/t720*80" --bpm 0 --ch 2 --patch 35 > bass.jsonl
+
+# Soft Drums - C2=kick, D2=snare, F#2=hihat, A#2=open-hat, D#3=ride
+seq --notes "C2/t240*60 F#2/t120*40 F#2/t120*35 D2/t240*50 F#2/t120*40 A#2/t120*45 C2/t120*55 F#2/t120*38 C2/t120*58 F#2/t120*40 D2/t240*52 F#2/t120*42 F#2/t120*38 C2/t240*60 F#2/t120*40 F#2/t120*35 D2/t240*50 F#2/t120*40 A#2/t120*45 C2/t240*58 D#3/t120*45 D#3/t120*42 D2/t240*55 F#2/t120*40 C2/t120*60 F#2/t240*38" --bpm 0 --ch 9 --patch 0 > drums.jsonl
+
+cat piano.jsonl guitar.jsonl bass.jsonl drums.jsonl | viz | to-midi --out soft-prog.mid
+
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F soft-prog-raw.wav "$SF2" soft-prog.mid
+ffmpeg -y -i soft-prog-raw.wav -t 12 -af "volume=1.8,afade=t=out:st=10:d=2" soft-prog.wav</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Inspired by Erik Satie's Gnossiennes (1890) - modal, dreamlike</li>
+                            <li>D Dorian mode with syncopated rhythms</li>
+                            <li>Rhodes piano (patch 4), Clean guitar (patch 27), Fretless bass (patch 35)</li>
+                            <li>Soft brushed drums at 60 BPM</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-soft-prog.wav?ts=1772411924000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~12s</span>
+                        <span>D Dorian</span>
+                        <span>Rhodes/Guitar</span>
+                        <span>60 BPM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="demo-card">
+                <h2>Hard Rock - Arensky Inverted & Reversed</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Anton Arensky's String Quartet No. 2 in A minor (1894), with voices INVERTED
+                    around A4 and played REVERSED. Arensky (1861-1906) was a contemporary of
+                    Tchaikovsky but far more obscure. Transformed into aggressive hard rock with
+                    funky syncopation at 150 BPM.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Lead Guitar - Violin 1 inverted around A4 and reversed
+# Original: A4-B4-C5-D5-E5-D5-C5-B4... Inverted: A4-G4-F4-E4... Reversed: play backwards
+seq --notes "A3/t60*115 D4/t60*118 E4/t60*120 F4/t60*122 G4/t60*125 A4/t120*127 A#4/t60*125 A4/t60*127 G4/t60*125 F4/t60*122 E4/t60*120 D4/t120*118 R/t60 E4/t60*120 F4/t60*122 G4/t60*125 A4/t180*127 R/t120 A3/t60*115 D4/t60*118 E4/t60*120 F4/t60*122 G4/t60*125 A4/t120*127 A#4/t60*125 A4/t60*127 G4/t60*125 F4/t60*122 E4/t60*120 D4/t120*118 R/t60 E4/t60*120 F4/t60*122 G4/t60*125 A4/t180*127 R/t240 A5/t60*127 G5/t60*125 F5/t60*122 E5/t60*120 D5/t120*118 E5/t60*120 F5/t60*122 G5/t60*125 A5/t240*127" --bpm 150 --ch 0 --patch 30 > lead.jsonl
+
+# Rhythm Guitar - Violin 2 inverted/reversed as funky power chords
+seq --notes "[D3,A3,D4]/t90*110 R/t30 [D3,A3,D4]/t30*80 R/t30 [G3,D4,G4]/t60*108 R/t30 [A3,E4,A4]/t60*110 R/t30 [A#3,F4,A#4]/t90*115 R/t30 [A#3,F4,A#4]/t30*85 R/t60 [C4,G4,C5]/t90*118 R/t30 [C4,G4,C5]/t30*88 R/t30 [D4,A4,D5]/t60*112 R/t30 [D#4,A#4,D#5]/t90*120 R/t30 [D4,A4,D5]/t90*118 R/t30 [D4,A4,D5]/t30*90 R/t30 [C4,G4,C5]/t60*115 R/t30 [A#3,F4,A#4]/t60*112" --bpm 0 --ch 1 --patch 29 > rhythm.jsonl
+
+# Bass - Cello inverted/reversed with funky slap syncopation
+seq --notes "A2/t60*120 R/t30 A2/t30*70 R/t30 F2/t60*115 R/t30 F2/t30*65 G2/t60*118 R/t30 A2/t90*122 R/t30 A2/t30*72 R/t30 A2/t60*118 R/t30 A2/t30*68 A2/t60*120 R/t30 D2/t60*115 R/t30 D2/t30*65 D2/t60*118 R/t30 D2/t90*120 R/t30 D2/t30*70 R/t60 A2/t60*118 R/t30 A2/t30*68 A2/t60*120 R/t30 A2/t90*122" --bpm 0 --ch 2 --patch 34 > bass.jsonl
+
+# Heavy Drums with funk syncopation - C2=kick, D2=snare, F#2=hihat, C#3=crash
+seq --notes "C#3/t30*127 C2/t30*120 F#2/t30*90 F#2/t30*70 C2/t30*100 F#2/t30*85 D2/t30*75 F#2/t30*90 D2/t30*120 F#2/t30*85 F#2/t30*70 C2/t30*115 F#2/t30*90 F#2/t30*75 D2/t30*80 F#2/t30*90 C2/t30*118 F#2/t30*85 F#2/t30*70 C2/t30*110 F#2/t30*90 D2/t30*75 F#2/t30*85 D2/t30*122" --bpm 0 --ch 9 --patch 0 > drums.jsonl
+
+cat lead.jsonl rhythm.jsonl bass.jsonl drums.jsonl | viz | to-midi --out hard-rock.mid
+
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F hard-rock-raw.wav "$SF2" hard-rock.mid
+ffmpeg -y -i hard-rock-raw.wav -af "volume=2.0,apad=whole_dur=20,afade=t=out:st=18:d=2" -t 20 hard-rock.wav</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>Source: Arensky String Quartet No. 2 (1894) - obscure Russian chamber music</li>
+                            <li>Transformation: pitches INVERTED around A4, sequence REVERSED</li>
+                            <li>Violin 1 → Distortion lead (patch 30), Violin 2 → Overdriven rhythm (patch 29)</li>
+                            <li>Cello → Picked bass (patch 34), 16th-note funk syncopation throughout</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="demo-hard-rock.wav?ts=1772411924000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~20s</span>
+                        <span>A minor</span>
+                        <span>Distortion</span>
+                        <span>150 BPM</span>
                     </div>
                 </div>
             </div>
