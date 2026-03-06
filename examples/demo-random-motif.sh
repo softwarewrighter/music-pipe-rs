@@ -111,7 +111,7 @@ CHORD_PROB_IDX=$(( (SEED / 3000) % 4 ))
 SWING_IDX=$(( (SEED / 4000) % 3 ))
 
 # Ensemble selection
-ENSEMBLE_IDX=$(( (SEED / 9000) % 12 ))
+ENSEMBLE_IDX=$(( (SEED / 9000) % 13 ))
 SIMILARITY=$(( (SEED / 12000) % 4 ))
 OVERLAP=$(( (SEED / 13000) % 4 ))
 
@@ -174,6 +174,9 @@ get_ensemble() {
             HAS_DRUMS=0; HAS_BASS=0; BASS_PATCH=32;;
         11) ENSEMBLE_NAME="Latin Jazz"
             PATCHES=(0 56 65)
+            HAS_DRUMS=2; HAS_BASS=1; BASS_PATCH=32;;
+        12) ENSEMBLE_NAME="Rockabilly"
+            PATCHES=(0 27 25)
             HAS_DRUMS=2; HAS_BASS=1; BASS_PATCH=32;;
     esac
 }

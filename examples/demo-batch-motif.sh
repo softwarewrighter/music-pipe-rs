@@ -112,6 +112,7 @@ get_ensemble_name() {
         9)  echo "Organ Trio";;
         10) echo "Chamber Orchestra";;
         11) echo "Latin Jazz";;
+        12) echo "Rockabilly";;
     esac
 }
 
@@ -147,6 +148,7 @@ get_ensemble_patches() {
         9)  echo "16 16 26";;
         10) echo "48 48 40 42 73";;
         11) echo "0 56 65";;
+        12) echo "0 27 25";;
     esac
 }
 
@@ -167,7 +169,7 @@ for (( i=1; i<=COUNT; i++ )); do
     REST_PROB_IDX=$(( (SEED / 2000) % 4 ))
     CHORD_PROB_IDX=$(( (SEED / 3000) % 4 ))
     SWING_IDX=$(( (SEED / 4000) % 3 ))
-    ENSEMBLE_IDX=$(( (SEED / 9000) % 12 ))
+    ENSEMBLE_IDX=$(( (SEED / 9000) % 13 ))
     SIMILARITY=$(( (SEED / 12000) % 4 ))
     OVERLAP=$(( (SEED / 13000) % 4 ))
 
