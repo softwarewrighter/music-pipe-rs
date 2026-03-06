@@ -213,6 +213,7 @@
             <button class="tab-btn" onclick="showTab('folk')">American Folk</button>
             <button class="tab-btn" onclick="showTab('polka')">Polka</button>
             <button class="tab-btn" onclick="showTab('rock')">Rock</button>
+            <button class="tab-btn" onclick="showTab('rockabilly')">Rockabilly</button>
         </div>
 
         <!-- ==================== BACH TAB ==================== -->
@@ -305,52 +306,48 @@ fluidsynth -ni -F arcade.wav soundfont.sf2 arcade.mid</code>
             <div class="separator"></div>
 
             <div class="demo-card">
-                <h2>Bach-esque - Algorithmic Baroque</h2>
+                <h2>Bach-esque - Toccata and Fugue Style</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
-                    Procedurally generated baroque-style organ music. Three voices
-                    generated algorithmically with seed 1685 (Bach's birth year).
+                    Composed in the style of J.S. Bach's organ works, featuring D minor fugal
+                    counterpoint with subject, countersubject, and pedal bass. Three voices
+                    on church organ with baroque ornamentation.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>SEED=1685  # Bach's birth year
+                        <code># Upper manual - fugue subject with baroque flourishes
+seq --notes "D5/t240*95 C#5/t120*85 D5/t120*90 E5/t240*92 F5/t360*95 E5/t120*85 D5/t120*88 C#5/t120*85 D5/t480*98 R/t240 A4/t120*88 B4/t120*85 C#5/t120*88 D5/t120*90 E5/t120*88 F5/t120*90 G5/t120*92 A5/t360*95 G5/t120*88 F5/t120*85 E5/t120*88 D5/t240*92 R/t120 D5/t120*90 E5/t120*88 F5/t240*92 G5/t240*90 A5/t480*95 R/t240 G5/t120*85 F5/t120*82 E5/t120*85 D5/t120*88 C#5/t120*85 D5/t120*88 E5/t120*90 F5/t360*95 E5/t120*85 D5/t240*92 C#5/t240*88 D5/t720*100" --bpm 120 --ch 0 --patch 19 > upper.jsonl
 
-seed $SEED | motif --base 62 --notes 48 --complexity 9 --bpm 132 \
-                   --ch 0 --patch 19 --dur 0.5 --rest-prob 0.1 \
-           | scale --root D --mode minor > upper.jsonl
+# Lower manual - countersubject (imitative, enters on A)
+seq --notes "R/t960 A4/t240*88 G#4/t120*78 A4/t120*82 B4/t240*85 C5/t360*88 B4/t120*78 A4/t120*80 G#4/t120*78 A4/t480*90 R/t240 E4/t120*80 F4/t120*78 G4/t120*80 A4/t120*82 B4/t120*80 C5/t120*82 D5/t120*85 E5/t360*88 D5/t120*80 C5/t120*78 B4/t120*80 A4/t240*85 R/t120 A4/t120*82 B4/t120*80 C5/t240*85 D5/t240*82 E5/t480*88 R/t240 D5/t120*78 C5/t120*75 B4/t120*78 A4/t120*80 G#4/t120*78 A4/t120*80 B4/t120*82 C5/t360*88 B4/t120*78 A4/t240*85 G#4/t240*80 A4/t720*92" --bpm 0 --ch 1 --patch 19 > lower.jsonl
 
-seed $((SEED+1)) | motif --base 38 --notes 12 --complexity 2 \
-                         --ch 1 --patch 19 --dur 2.0 \
-                 | scale --root D --mode minor > bass.jsonl
+# Pedal bass - foundational, outlines D minor progression
+seq --notes "D2/t720*85 A2/t480*80 D2/t480*85 F2/t480*82 A2/t720*85 D3/t480*88 A2/t480*82 D2/t720*85 G2/t480*80 C3/t480*78 F2/t720*82 Bb2/t480*78 A2/t720*85 D2/t480*82 G2/t480*80 A2/t720*88 D2/t960*92" --bpm 0 --ch 2 --patch 19 > pedal.jsonl
 
-seed $((SEED+2)) | motif --base 50 --notes 24 --complexity 6 \
-                         --ch 2 --patch 19 --dur 0.75 --chord-prob 0.15 \
-                 | scale --root D --mode minor > mid.jsonl
+cat upper.jsonl lower.jsonl pedal.jsonl | viz | to-midi --out bach-esque.mid
 
-cat upper.jsonl bass.jsonl mid.jsonl | viz | to-midi --out bach-esque.mid
-
-# RENDER TO AUDIO
-fluidsynth -ni -F bach-esque.wav soundfont.sf2 bach-esque.mid</code>
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F bach-raw.wav "$SF2" bach-esque.mid
+ffmpeg -y -i bach-raw.wav -t 18 -af "volume=1.3,afade=t=out:st=16:d=2" bach-esque.wav</code>
                         <h4>Approach</h4>
                         <ul>
-                            <li><code>seed</code> stage provides deterministic randomness</li>
-                            <li><code>motif</code> stage generates melodic patterns algorithmically</li>
-                            <li><code>scale</code> stage quantizes to D minor scale</li>
-                            <li>Complexity 9 = high melodic variation for upper voice</li>
-                            <li>Complexity 2 = simple, stable bass foundation</li>
-                            <li>Each voice uses different seed offset for variety</li>
+                            <li>Composed fugue structure: subject on D, answer on A</li>
+                            <li>Countersubject enters after subject with imitative motion</li>
+                            <li>Pedal bass moves in half/whole notes, outlines harmony</li>
+                            <li>Baroque ornamentation with scalar runs and sequences</li>
+                            <li>Church Organ (patch 19) for authentic baroque sound</li>
                         </ul>
                     </div>
                 </details>
 
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls><source src="demo-bach-esque.wav?ts=1772343941000" type="audio/wav"></audio>
+                    <audio controls><source src="demo-bach-esque.wav?ts=1741286000000" type="audio/wav"></audio>
                     <div class="meta">
-                        <span>~14s</span>
-                        <span>Algorithmic</span>
+                        <span>~18s</span>
+                        <span>Composed</span>
                         <span>D minor</span>
                         <span>3 voices</span>
                     </div>
@@ -511,44 +508,53 @@ ffmpeg -i raw.wav -t 14 -af "afade=t=out:st=12:d=2" valkyries.wav</code>
             <div class="separator"></div>
 
             <div class="demo-card">
-                <h2>Wagner-esque - Algorithmic Germanic Opera</h2>
+                <h2>Wagner-esque - Ride of the Valkyries Style</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
-                    Procedurally generated Wagner-style music with cartoony instrumentation.
-                    French horn fanfares, pompous tuba, xylophone accents, vibraphone shimmer.
+                    Heroic brass fanfares composed in the style of Richard Wagner's "Ride of the Valkyries".
+                    French horn melody with triplet gallop rhythm, trombone harmony, tuba foundation,
+                    and thunderous timpani accents.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>SEED=1813  # Wagner's birth year
+                        <code># French Horn - the iconic Valkyrie fanfare with triplet gallop
+seq --notes "B4/t160*100 B4/t160*95 B4/t160*90 F#5/t320*105 D5/t160*95 B4/t160*90 B4/t160*88 B4/t160*85 F#5/t320*102 D5/t160*92 B4/t480*98 R/t160 B4/t160*95 D5/t160*92 F#5/t320*105 B5/t480*110 A5/t160*100 F#5/t160*95 D5/t320*98 B4/t480*95 R/t320 B4/t160*98 B4/t160*92 B4/t160*88 F#5/t320*105 D5/t160*95 B4/t160*90 B4/t160*88 B4/t160*85 F#5/t320*102 D5/t160*92 B4/t320*95 D5/t160*90 F#5/t160*95 B5/t480*110 A5/t320*100 G5/t320*98 F#5/t640*105" --bpm 152 --ch 0 --patch 60 > horn.jsonl
 
-seed $SEED   | motif --base 53 --complexity 5 --bpm 152 --patch 60  # Horn
-seed $SEED+1 | motif --base 36 --complexity 2 --patch 58            # Tuba
-seed $SEED+2 | motif --base 72 --complexity 7 --patch 13            # Xylophone
-seed $SEED+3 | motif --base 65 --complexity 4 --patch 11            # Vibraphone
+# Trombone - powerful harmonic countermelody
+seq --notes "R/t480 D4/t320*95 D4/t160*88 F#4/t320*98 D4/t160*90 B3/t480*95 R/t160 D4/t160*92 F#4/t160*90 A4/t320*98 F#4/t160*92 D4/t480*95 B3/t320*90 D4/t160*88 F#4/t480*98 R/t320 D4/t320*95 D4/t160*88 F#4/t320*98 D4/t160*90 B3/t320*92 D4/t160*88 B3/t160*85 D4/t160*90 F#4/t320*98 A4/t480*100 G4/t160*92 F#4/t160*90 E4/t160*88 D4/t480*95 F#4/t640*100" --bpm 0 --ch 1 --patch 57 > trombone.jsonl
 
-cat horn.jsonl tuba.jsonl xylo.jsonl vibe.jsonl | scale --root B --mode minor | to-midi --out wagner.mid
+# Tuba - thunderous bass with galloping rhythm
+seq --notes "B2/t160*92 B2/t160*85 B2/t160*80 B2/t320*95 F#2/t160*88 B2/t160*85 B2/t160*80 B2/t160*78 B2/t320*92 F#2/t160*85 B2/t480*95 R/t160 D3/t160*88 D3/t160*82 F#3/t320*92 D3/t160*85 B2/t480*95 B2/t160*88 D3/t160*85 F#3/t320*92 B2/t480*95 R/t320 B2/t160*92 B2/t160*85 B2/t160*80 B2/t320*95 F#2/t160*88 B2/t160*85 B2/t160*80 B2/t160*78 B2/t320*92 F#2/t160*85 B2/t320*95 D3/t160*88 F#3/t160*90 B3/t480*98 A2/t320*88 G2/t320*85 F#2/t640*92" --bpm 0 --ch 2 --patch 58 > tuba.jsonl
 
-# RENDER TO AUDIO
-fluidsynth -ni -F wagner.wav soundfont.sf2 wagner.mid</code>
+# Timpani - dramatic accents on strong beats
+seq --notes "B2/t160*100 R/t320 R/t480 B2/t160*95 R/t320 R/t480 B2/t160*98 R/t640 F#2/t160*90 B2/t160*95 R/t640 B2/t160*100 R/t320 R/t480 B2/t160*95 R/t320 R/t480 B2/t160*98 R/t320 R/t160 B2/t160*92 R/t160 B2/t160*100 R/t320 R/t480 B2/t160*95 R/t320 R/t480 B2/t160*98 R/t640 F#2/t160*90 B2/t160*95 R/t480 B2/t160*105 B2/t160*100 B2/t160*95 B2/t640*110" --bpm 0 --ch 3 --patch 47 > timpani.jsonl
+
+cat horn.jsonl trombone.jsonl tuba.jsonl timpani.jsonl | viz | to-midi --out wagner.mid
+
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F wagner-raw.wav "$SF2" wagner.mid
+ffmpeg -y -i wagner-raw.wav -t 14 -af "volume=1.4,afade=t=out:st=12:d=2" wagner.wav</code>
                         <h4>Approach</h4>
                         <ul>
-                            <li>Algorithmic generation using <code>motif</code> stage</li>
-                            <li>Cartoony instruments for "What's Opera, Doc?" feel</li>
-                            <li>B minor scale for dramatic Germanic sound</li>
+                            <li>Composed heroic brass with Valkyrie triplet gallop rhythm</li>
+                            <li>French horn fanfare with dramatic leaps and phrases</li>
+                            <li>Trombone provides harmonic depth and countermelody</li>
+                            <li>Tuba drives the galloping bass foundation</li>
+                            <li>Timpani accents reinforce dramatic downbeats</li>
                         </ul>
                     </div>
                 </details>
 
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls><source src="demo-wagner-esque.wav?ts=1772343941000" type="audio/wav"></audio>
+                    <audio controls><source src="demo-wagner-esque.wav?ts=1741286000000" type="audio/wav"></audio>
                     <div class="meta">
-                        <span>~8s</span>
-                        <span>Algorithmic</span>
-                        <span>Cartoony</span>
-                        <span>4 channels</span>
+                        <span>~14s</span>
+                        <span>Composed</span>
+                        <span>B minor</span>
+                        <span>4 voices</span>
                     </div>
                 </div>
             </div>
@@ -557,68 +563,53 @@ fluidsynth -ni -F wagner.wav soundfont.sf2 wagner.mid</code>
         <!-- ==================== VERDI TAB ==================== -->
         <div id="verdi" class="tab-content">
             <div class="demo-card">
-                <h2>Verdi-esque - Italian Opera</h2>
+                <h2>Verdi-esque - Lyrical Bel Canto</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
-                    Lyrical, passionate Italian opera style inspired by La Traviata and Rigoletto.
-                    Singing violin melodies over warm cello and lush string ensemble,
-                    with clarinet woodwind color.
+                    Composed in the style of Giuseppe Verdi's romantic operas. Singable, flowing
+                    bel canto violin melody over warm cello bass, lush string ensemble chords,
+                    and delicate clarinet fills.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>SEED=1813  # Verdi's birth year
+                        <code># Solo Violin - aria-like melody, singable and passionate
+seq --notes "G5/t480*85 A5/t240*88 B5/t480*92 A5/t240*85 G5/t240*82 F#5/t240*80 E5/t480*85 R/t240 D5/t360*82 E5/t120*80 F#5/t240*85 G5/t480*90 A5/t480*95 B5/t720*100 R/t240 A5/t240*88 G5/t240*85 F#5/t240*82 G5/t480*88 A5/t240*85 B5/t240*88 C6/t480*95 B5/t240*90 A5/t360*88 G5/t600*92 R/t240 E5/t240*80 F#5/t240*82 G5/t360*88 A5/t360*92 B5/t480*98 C6/t240*95 B5/t240*92 A5/t360*90 G5/t720*95" --bpm 72 --ch 0 --patch 40 > violin.jsonl
 
-# Solo Violin - aria melody
-seed $SEED | motif --base 67 --notes 24 --complexity 6 --bpm 72 \
-                   --ch 0 --patch 40 --dur 1.0 --rest-prob 0.2 --swing 0.1 \
-           | scale --root G --mode major > violin.jsonl
+# Cello - warm, singing bass supporting the melody
+seq --notes "G3/t720*78 D3/t480*75 G3/t480*78 E3/t480*75 D3/t720*78 R/t240 G3/t480*75 B3/t480*78 A3/t720*80 D3/t480*75 G3/t720*78 R/t240 E3/t480*75 F#3/t480*78 G3/t720*82 C4/t480*80 B3/t480*78 A3/t720*80 D3/t480*75 G3/t720*82" --bpm 0 --ch 1 --patch 42 > cello.jsonl
 
-# Cello - singing bass
-seed $((SEED+1)) | motif --base 48 --notes 16 --complexity 3 \
-                         --ch 1 --patch 42 --dur 1.5 \
-                 | scale --root G --mode major > cello.jsonl
+# String Ensemble - lush sustained chords
+seq --notes "[G3,B3,D4]/t960*68 [D3,F#3,A3]/t720*65 [G3,B3,D4]/t720*70 [E3,G3,B3]/t720*68 [D3,F#3,A3]/t960*70 R/t240 [G3,B3,D4]/t720*68 [B3,D4,F#4]/t720*72 [A3,C4,E4]/t960*75 [D3,F#3,A3]/t720*70 [G3,B3,D4]/t960*72 R/t240 [E3,G3,B3]/t720*68 [F#3,A3,C4]/t720*70 [G3,B3,D4]/t960*75 [C4,E4,G4]/t720*78 [B3,D4,F#4]/t720*75 [A3,C4,E4]/t960*72 [D3,F#3,A3]/t720*68 [G3,B3,D4]/t960*75" --bpm 0 --ch 2 --patch 48 > strings.jsonl
 
-# String Ensemble - harmonic bed
-seed $((SEED+2)) | motif --base 55 --notes 20 --complexity 4 \
-                         --ch 2 --patch 48 --dur 2.0 --chord-prob 0.4 \
-                 | scale --root G --mode major > strings.jsonl
-
-# Clarinet - woodwind color
-seed $((SEED+3)) | motif --base 60 --notes 12 --complexity 5 \
-                         --ch 3 --patch 71 --dur 0.75 --rest-prob 0.3 \
-                 | scale --root G --mode major > clarinet.jsonl
+# Clarinet - gentle countermelody in the rests
+seq --notes "R/t1200 B4/t240*65 A4/t240*62 G4/t360*68 R/t960 D5/t240*68 E5/t240*70 F#5/t360*72 R/t1440 G4/t240*65 A4/t240*68 B4/t480*72 R/t960 E5/t240*70 D5/t240*68 C5/t240*65 B4/t480*70 R/t720 D5/t360*72 E5/t240*70 D5/t600*75" --bpm 0 --ch 3 --patch 71 > clarinet.jsonl
 
 cat violin.jsonl cello.jsonl strings.jsonl clarinet.jsonl | viz | to-midi --out verdi.mid
 
-# RENDER TO AUDIO
-fluidsynth -ni -F verdi.wav soundfont.sf2 verdi.mid</code>
-                        <h4>Instrumentation (4 channels)</h4>
-                        <ul>
-                            <li><strong>Solo Violin</strong> (patch 40) - Aria-like lyrical melody with swing</li>
-                            <li><strong>Cello</strong> (patch 42) - Warm, singing bass line</li>
-                            <li><strong>String Ensemble</strong> (patch 48) - Lush harmonic support with chords</li>
-                            <li><strong>Clarinet</strong> (patch 71) - Woodwind color and ornamentation</li>
-                        </ul>
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F verdi-raw.wav "$SF2" verdi.mid
+ffmpeg -y -i verdi-raw.wav -t 20 -af "volume=1.5,afade=t=out:st=18:d=2" verdi.wav</code>
                         <h4>Approach</h4>
                         <ul>
-                            <li>G major for bright, operatic sound</li>
-                            <li>72 BPM moderate tempo for lyrical phrasing</li>
-                            <li>Swing parameter adds expressive rubato feel</li>
-                            <li>High chord-prob on strings for lush harmonies</li>
+                            <li>Composed bel canto melody - long phrases, expressive intervals</li>
+                            <li>Violin carries the aria-like lead, cello provides warm bass</li>
+                            <li>String ensemble sustains lush chord progressions</li>
+                            <li>Clarinet fills in violin rests with delicate countermelody</li>
+                            <li>G major for bright, romantic operatic sound at 72 BPM</li>
                         </ul>
                     </div>
                 </details>
 
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls><source src="demo-verdi-esque.wav?ts=1772343941000" type="audio/wav"></audio>
+                    <audio controls><source src="demo-verdi-esque.wav?ts=1741286000000" type="audio/wav"></audio>
                     <div class="meta">
-                        <span>~36s</span>
+                        <span>~20s</span>
+                        <span>Composed</span>
                         <span>G major</span>
-                        <span>Lyrical</span>
-                        <span>4 channels</span>
+                        <span>4 voices</span>
                     </div>
                 </div>
             </div>
@@ -679,63 +670,53 @@ fluidsynth -ni -F mikado.wav soundfont.sf2 mikado.mid</code>
             <div class="separator"></div>
 
             <div class="demo-card">
-                <h2>Gilbert & Sullivan-esque - Algorithmic Operetta</h2>
+                <h2>Gilbert & Sullivan-esque - Patter Song Operetta</h2>
                 <div class="section-label">Abstract</div>
                 <div class="abstract">
-                    Procedurally generated operetta style. Bouncy rhythms, cheerful major keys,
-                    and playful woodwind interplay inspired by the G&S style.
+                    Composed in the style of Gilbert & Sullivan's comic operas. Bouncy, witty
+                    patter-song rhythms with playful flute melody, cheeky oboe counterpoint,
+                    pizzicato bounce, and pompous bassoon bass.
                 </div>
 
                 <details>
                     <summary>Script Details & Explanation</summary>
                     <div class="details-content">
-                        <code>SEED=1842  # Sullivan's birth year
+                        <code># Flute - bright, playful patter-song melody
+seq --notes "C5/t160*82 D5/t160*80 E5/t160*82 G5/t320*85 E5/t160*80 C5/t160*78 R/t160 G5/t160*85 A5/t160*82 G5/t160*80 E5/t320*82 C5/t160*78 D5/t160*80 E5/t320*85 R/t160 F5/t160*80 E5/t160*78 D5/t160*80 C5/t160*78 B4/t160*75 C5/t320*82 R/t160 E5/t160*80 G5/t160*85 C6/t320*88 B5/t160*82 A5/t160*80 G5/t320*85 R/t160 C5/t160*80 D5/t160*78 E5/t160*82 G5/t320*85 E5/t160*80 C5/t160*78 R/t160 A5/t160*85 G5/t160*82 E5/t160*80 C5/t320*82 D5/t160*78 E5/t160*80 F5/t160*82 E5/t160*80 D5/t160*78 C5/t480*85" --bpm 132 --ch 0 --patch 73 > flute.jsonl
 
-seed $SEED   | motif --base 72 --notes 32 --complexity 7 --bpm 132 \
-                     --ch 0 --patch 73 --dur 0.5 --rest-prob 0.15 \
-             | scale --root C --mode major > flute.jsonl
+# Oboe - comic counterpoint, echoing with cheeky delays
+seq --notes "R/t320 E5/t160*72 G5/t160*75 E5/t160*72 C5/t320*75 R/t320 E5/t160*75 D5/t160*72 C5/t160*70 B4/t320*72 R/t160 C5/t160*75 E5/t160*78 G5/t320*80 R/t480 D5/t160*72 E5/t160*75 F5/t160*78 E5/t160*75 D5/t160*72 C5/t320*75 R/t320 G5/t160*78 E5/t160*75 C5/t320*78 R/t320 E5/t160*75 G5/t160*78 E5/t160*75 C5/t320*75 R/t320 F5/t160*78 E5/t160*75 D5/t160*72 C5/t160*70 B4/t160*68 C5/t320*75 E5/t160*72 C5/t480*78" --bpm 0 --ch 1 --patch 68 > oboe.jsonl
 
-seed $SEED+1 | motif --base 67 --notes 20 --complexity 5 \
-                     --ch 1 --patch 68 --dur 0.5 --rest-prob 0.25 \
-             | scale --root C --mode major > oboe.jsonl
+# Pizzicato Strings - bouncy off-beat chords
+seq --notes "R/t160 [C4,E4,G4]/t160*70 R/t160 [C4,E4,G4]/t160*68 R/t160 [C4,E4,G4]/t160*70 R/t160 [G3,B3,D4]/t160*68 R/t160 [C4,E4,G4]/t160*72 R/t160 [C4,E4,G4]/t160*68 R/t160 [F3,A3,C4]/t160*70 R/t160 [G3,B3,D4]/t160*72 R/t160 [C4,E4,G4]/t160*70 R/t160 [C4,E4,G4]/t160*68 R/t160 [E4,G4,C5]/t160*72 R/t160 [D4,F4,A4]/t160*70 R/t160 [C4,E4,G4]/t160*72 R/t160 [G3,B3,D4]/t160*68 R/t160 [C4,E4,G4]/t160*70 R/t160 [C4,E4,G4]/t160*68 R/t160 [C4,E4,G4]/t160*72 R/t160 [G3,B3,D4]/t160*70 R/t160 [C4,E4,G4]/t160*68 R/t160 [C4,E4,G4]/t160*72 R/t160 [F3,A3,C4]/t160*70 R/t160 [G3,B3,D4]/t160*72 R/t160 [C4,E4,G4]/t320*75" --bpm 0 --ch 2 --patch 45 > pizz.jsonl
 
-seed $SEED+2 | motif --base 48 --notes 24 --complexity 3 \
-                     --ch 2 --patch 45 --dur 0.25 \
-             | scale --root C --mode major > pizz.jsonl
-
-seed $SEED+3 | motif --base 41 --notes 16 --complexity 2 \
-                     --ch 3 --patch 70 --dur 0.75 \
-             | scale --root C --mode major > bassoon.jsonl
+# Bassoon - pompous comic bass
+seq --notes "C3/t320*78 R/t160 G3/t320*75 R/t160 C3/t320*78 E3/t160*72 G3/t320*75 R/t160 F3/t320*75 R/t160 G3/t320*78 R/t160 C3/t480*80 R/t160 E3/t160*72 G3/t160*75 C4/t320*78 R/t160 G3/t320*75 R/t160 C3/t320*78 R/t160 G3/t320*75 R/t160 C3/t320*78 E3/t160*72 G3/t320*75 R/t160 F3/t320*75 R/t160 G3/t320*78 R/t160 C3/t480*82" --bpm 0 --ch 3 --patch 70 > bassoon.jsonl
 
 cat flute.jsonl oboe.jsonl pizz.jsonl bassoon.jsonl | viz | to-midi --out gands.mid
 
-# RENDER TO AUDIO
-fluidsynth -ni -F gands.wav soundfont.sf2 gands.mid</code>
-                        <h4>Instrumentation (4 channels)</h4>
-                        <ul>
-                            <li><strong>Flute</strong> (patch 73) - Bright, playful melody</li>
-                            <li><strong>Oboe</strong> (patch 68) - Comic counterpoint lines</li>
-                            <li><strong>Pizzicato Strings</strong> (patch 45) - Bouncy accompaniment</li>
-                            <li><strong>Bassoon</strong> (patch 70) - Pompous comic bass</li>
-                        </ul>
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F gands-raw.wav "$SF2" gands.mid
+ffmpeg -y -i gands-raw.wav -t 12 -af "volume=1.4,afade=t=out:st=10:d=2" gands.wav</code>
                         <h4>Approach</h4>
                         <ul>
-                            <li>C major for bright, cheerful sound</li>
-                            <li>132 BPM fast, energetic tempo</li>
-                            <li>Short note durations (0.25-0.5) for bouncy feel</li>
-                            <li>High complexity on melody for playful variation</li>
+                            <li>Composed patter-song style with quick, articulated notes</li>
+                            <li>Flute carries witty melody, oboe echoes with comic timing</li>
+                            <li>Pizzicato strings provide bouncy off-beat accompaniment</li>
+                            <li>Bassoon adds pompous gravitas for comedic effect</li>
+                            <li>C major, 132 BPM for bright, energetic operetta feel</li>
                         </ul>
                     </div>
                 </details>
 
                 <div class="section-label">Player</div>
                 <div class="player">
-                    <audio controls><source src="demo-gands-esque.wav?ts=1772343941000" type="audio/wav"></audio>
+                    <audio controls><source src="demo-gands-esque.wav?ts=1741286000000" type="audio/wav"></audio>
                     <div class="meta">
-                        <span>~9s</span>
-                        <span>Algorithmic</span>
+                        <span>~12s</span>
+                        <span>Composed</span>
                         <span>C major</span>
-                        <span>4 channels</span>
+                        <span>4 voices</span>
                     </div>
                 </div>
             </div>
@@ -1096,6 +1077,65 @@ ffmpeg -y -i hard-rock-raw.wav -af "volume=2.0,apad=whole_dur=20,afade=t=out:st=
                         <span>A minor</span>
                         <span>Distortion</span>
                         <span>150 BPM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ROCKABILLY TAB ==================== -->
+        <div id="rockabilly" class="tab-content">
+            <div class="demo-card">
+                <h2>Rockabilly - 1950s Rock & Roll</h2>
+                <div class="section-label">Abstract</div>
+                <div class="abstract">
+                    Classic 1950s rockabilly in E major with shuffle rhythm. Boogie-woogie piano
+                    walking octaves, rhythm guitar chops on upbeats, twangy steel guitar fills,
+                    slap bass walking pattern, and driving shuffle drums with backbeat.
+                </div>
+
+                <details>
+                    <summary>Script Details & Explanation</summary>
+                    <div class="details-content">
+                        <code># Piano - boogie-woogie walking octaves (root-fifth-sixth-fifth)
+seq --notes "E2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 A2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 E2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 A2/t160*85 E3/t160*75 B2/t160*85 E3/t160*75 A2/t160*85 A3/t160*75 C#3/t160*85 A3/t160*75 D3/t160*85 A3/t160*75 C#3/t160*85 A3/t160*75 E2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 B2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 E2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 A2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 E2/t160*85 E3/t160*75 G#2/t160*85 E3/t160*75 A2/t160*85 E3/t160*75 B2/t160*85 E3/t160*75 A2/t160*85 A3/t160*75 C#3/t160*85 A3/t160*75 D3/t160*85 A3/t160*75 C#3/t160*85 A3/t160*75 B2/t160*90 B3/t160*80 D#3/t160*90 B3/t160*80 E3/t320*95 R/t160 E2/t480*100" --bpm 160 --ch 0 --patch 0 > piano.jsonl
+
+# Rhythm Guitar - chunky shuffle chords on upbeats
+seq --notes "R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*68 R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*68 R/t320 [E4,G#4,B4]/t160*72 R/t320 [A4,C#5,E5]/t160*70 R/t320 [A4,C#5,E5]/t160*72 R/t320 [A4,C#5,E5]/t160*68 R/t320 [A4,C#5,E5]/t160*70 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*70 R/t320 [B4,D#5,F#5]/t160*74 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*68 R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*72 R/t320 [E4,G#4,B4]/t160*70 R/t320 [E4,G#4,B4]/t160*68 R/t320 [E4,G#4,B4]/t160*72 R/t320 [A4,C#5,E5]/t160*70 R/t320 [A4,C#5,E5]/t160*72 R/t320 [A4,C#5,E5]/t160*68 R/t320 [A4,C#5,E5]/t160*70 R/t320 [B4,D#5,F#5]/t160*75 R/t320 [B4,D#5,F#5]/t160*78 R/t320 [E4,G#4,B4]/t240*80 R/t240" --bpm 0 --ch 1 --patch 27 > rhythm.jsonl
+
+# Steel Guitar - twangy melodic fills between phrases
+seq --notes "R/t1920 B4/t240*65 G#4/t160*60 E4/t320*68 R/t1280 E5/t160*70 D#5/t160*65 C#5/t160*62 B4/t320*68 R/t1440 G#4/t240*65 A4/t160*62 B4/t480*70 R/t960 E5/t320*72 D#5/t160*68 B4/t240*65 G#4/t480*70 R/t640 B4/t160*68 C#5/t160*65 D#5/t160*68 E5/t480*75 R/t320 B4/t320*70 G#4/t320*68 E4/t480*72" --bpm 0 --ch 2 --patch 25 > lead.jsonl
+
+# Walking Bass - classic slap pattern (root-root-fifth-approach)
+seq --notes "E2/t320*90 E2/t160*85 B2/t320*88 D#2/t160*82 E2/t320*90 E2/t160*85 G#2/t320*88 A2/t160*82 E2/t320*90 E2/t160*85 B2/t320*88 D#2/t160*82 E2/t320*90 G#2/t160*85 A2/t320*88 B2/t160*85 A2/t320*90 A2/t160*85 E3/t320*88 G#2/t160*82 A2/t320*90 A2/t160*85 C#3/t320*88 E2/t160*82 E2/t320*90 E2/t160*85 B2/t320*88 G#2/t160*82 B2/t320*92 B2/t160*88 F#2/t320*90 A2/t160*85 E2/t320*90 E2/t160*85 B2/t320*88 D#2/t160*82 E2/t320*90 E2/t160*85 G#2/t320*88 A2/t160*82 E2/t320*90 E2/t160*85 B2/t320*88 D#2/t160*82 E2/t320*90 G#2/t160*85 A2/t320*88 B2/t160*85 A2/t320*90 A2/t160*85 E3/t320*88 G#2/t160*82 A2/t320*90 C#3/t160*85 D3/t160*82 D#3/t160*85 B2/t320*95 B2/t160*90 F#2/t320*92 B2/t160*88 E2/t640*100" --bpm 0 --ch 7 --patch 32 > bass.jsonl
+
+# Drums - shuffle with strong backbeat (C2=kick, D2=snare, F#2=hihat, A#2=open-hat)
+seq --notes "C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*92 F#2/t160*62 D2/t160*70 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*95 F#2/t160*60 F#2/t160*55 D2/t160*90 F#2/t160*60 F#2/t160*55 C2/t160*92 F#2/t160*58 F#2/t160*55 D2/t160*88 F#2/t160*60 A#2/t160*65 C2/t160*98 F#2/t160*65 D2/t160*75 D2/t160*95 C2/t160*90 D2/t160*70 C2/t320*100 R/t160 C#3/t320*80" --bpm 0 --ch 9 --patch 0 > drums.jsonl
+
+cat piano.jsonl rhythm.jsonl lead.jsonl bass.jsonl drums.jsonl | viz | to-midi --out rockabilly.mid
+
+SF2="${HOME}/github/softwarewrighter/midi-cli-rs/soundfonts/GeneralUser_GS.sf2"
+fluidsynth -ni -F rockabilly-raw.wav "$SF2" rockabilly.mid
+ffmpeg -y -i rockabilly-raw.wav -t 14 -af "volume=1.5,afade=t=out:st=12:d=2" rockabilly.wav</code>
+                        <h4>Approach</h4>
+                        <ul>
+                            <li>E major (classic rockabilly key) at 160 BPM shuffle</li>
+                            <li>Boogie-woogie piano with walking octave pattern</li>
+                            <li>Rhythm guitar plays upbeat chord stabs for shuffle feel</li>
+                            <li>Steel guitar provides sparse twangy fills between phrases</li>
+                            <li>Walking bass with slap-style root-fifth motion</li>
+                            <li>Shuffle drums with triplet hi-hats and strong snare backbeat</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <div class="section-label">Player</div>
+                <div class="player">
+                    <audio controls><source src="gend-rockabilly.wav?ts=1741286000000" type="audio/wav"></audio>
+                    <div class="meta">
+                        <span>~14s</span>
+                        <span>E major</span>
+                        <span>Shuffle</span>
+                        <span>160 BPM</span>
                     </div>
                 </div>
             </div>
