@@ -1,0 +1,32 @@
+# Motif Generation Parameters
+# Generated: 2026-03-05T10:30:12-08:00
+# Recreate with: ./examples/demo-random-motif.sh -s 1772735412112
+
+SEED=1772735412112
+
+# Musical Parameters
+BPM=92
+ROOT=C#
+MODE=mixolydian
+BASE_NOTE=60
+COMPLEXITY=5
+NUM_NOTES=27
+VELOCITY=81
+DURATION=0.25
+REST_PROB=0.2
+CHORD_PROB=0.0
+SWING=0.0
+
+# Ensemble
+ENSEMBLE_NAME="Organ Trio"
+ENSEMBLE_IDX=9
+PATCHES=(16 16 26)
+
+# Variation Controls
+SIMILARITY=3  # 0=varied, 3=similar
+OVERLAP=2        # 0=sparse, 3=dense
+
+# Instruments
+CH0=Drawbar Organ (patch 16)
+CH1=Drawbar Organ (patch 16)
+CH2=Jazz Guitar (patch 26)

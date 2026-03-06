@@ -1,0 +1,5 @@
+# WAV files are generated and should not be tracked
+*.wav
+
+# TXT files document the seeds and should be tracked
+!*.txt

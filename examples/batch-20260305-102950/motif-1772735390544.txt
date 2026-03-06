@@ -1,0 +1,32 @@
+# Motif Generation Parameters
+# Generated: 2026-03-05T10:29:50-08:00
+# Recreate with: ./examples/demo-random-motif.sh -s 1772735390544
+
+SEED=1772735390544
+
+# Musical Parameters
+BPM=124
+ROOT=C#
+MODE=phrygian
+BASE_NOTE=62
+COMPLEXITY=4
+NUM_NOTES=27
+VELOCITY=84
+DURATION=0.5
+REST_PROB=0.3
+CHORD_PROB=0.0
+SWING=0.0
+
+# Ensemble
+ENSEMBLE_NAME="Piano Trio"
+ENSEMBLE_IDX=6
+PATCHES=(0 40 42)
+
+# Variation Controls
+SIMILARITY=1  # 0=varied, 3=similar
+OVERLAP=0        # 0=sparse, 3=dense
+
+# Instruments
+CH0=Acoustic Piano (patch 0)
+CH1=Violin (patch 40)
+CH2=Cello (patch 42)
