@@ -210,6 +210,49 @@ Creates a complete jazz trio arrangement with piano, bass, and drums.
 - Plays each instrument solo, then the full trio together
 - Demonstrates multi-channel composition and expressive parameters
 
+### demo-random-motif.sh - Random Ensemble Generator
+Generates a complete multi-instrument piece from a single seed. One motif is created and then derived into harmonized or canon parts for an entire ensemble.
+
+```bash
+# Basic: random everything
+./examples/demo-random-motif.sh
+
+# Reproducible with a specific seed
+./examples/demo-random-motif.sh --seed 42
+
+# Override tempo
+./examples/demo-random-motif.sh --bpm 160
+
+# Style hints filter ensemble and tempo range
+./examples/demo-random-motif.sh --style fast-strings
+./examples/demo-random-motif.sh --style slow-brass
+./examples/demo-random-motif.sh --style jazz
+
+# Combine overrides
+./examples/demo-random-motif.sh --bpm 220 --style brass --duration 30
+
+# Force canon/rounds mode
+./examples/demo-random-motif.sh --style strings --use-rounds 1
+```
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `-s, --seed SEED` | Use a specific seed for reproducibility |
+| `-b, --bpm BPM` | Override tempo (beats per minute) |
+| `-t, --style HINT` | Style hint: `[fast\|slow-]CATEGORY` |
+| `-d, --duration SECS` | Target duration in seconds (default: 20) |
+| `-r, --use-rounds 0\|1` | Force harmony (0) or rounds/canon (1) mode |
+| `-v, --verbose` | Show detailed internal steps |
+| `-l, --log-file [FILE]` | Write timestamped log |
+
+**Style categories:** `strings`, `brass`, `woodwind`, `jazz`, `rock`, `synth`, `folk`, `keys`
+
+**Tempo prefixes:** `fast` (140–180 BPM), `slow` (55–80 BPM) — combined as `fast-strings`, `slow-brass`, etc. Ignored when `--bpm` is also set.
+
+**Ensembles:** String Quartet, Jazz Trio, Rock Band, Brass Quintet, Big Band, Woodwind Quintet, Piano Trio, Synth Pop, Folk Ensemble, Organ Trio, Chamber Orchestra, Latin Jazz, Rockabilly
+
 ## Event Format
 
 Stages communicate via JSONL (JSON Lines). Each event is a single JSON object:

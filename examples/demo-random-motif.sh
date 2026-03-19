@@ -1,19 +1,30 @@
 #!/bin/bash
 # =============================================================================
-# Random Motif Generator - Every run produces unique music
+# Random Motif Generator - Coherent ensemble music from a single seed
 # =============================================================================
 #
-# Uses milliseconds since epoch as the primary seed, then derives random
-# values for tempo, key, mode, instruments, complexity, and more.
+# Generates ONE motif, then derives all instrument parts from it:
+#   - Lead instrument plays the primary melody
+#   - Other instruments play transposed/harmonized versions
+#   - Bass doubles the melody two octaves down
+#   - Drums provide rhythmic support (if ensemble includes them)
+#
+# This ensures all parts are musically coherent - they play the SAME
+# melodic material at different pitches, not unrelated random notes.
 #
 # Instrumentation uses common ensemble groupings:
 #   - String Quartet, Jazz Trio, Rock Band, Brass Quintet, etc.
 #
 # Options:
-#   -v, --verbose     Show detailed internal steps
-#   -l, --log-file    Write timestamped log (default: music-pipe-rs-<timestamp>.log)
-#   -s, --seed        Use specific seed instead of current time
-#   -h, --help        Show this help
+#   -v, --verbose         Show detailed internal steps
+#   -l, --log-file        Write timestamped log (default: music-pipe-rs-<timestamp>.log)
+#   -s, --seed            Use specific seed instead of current time
+#   -r, --use-rounds 0|1  Force harmony (0) or rounds/canon (1) mode
+#   -b, --bpm BPM         Override tempo (beats per minute)
+#   -t, --style HINT      Style hint: [fast-|slow-]CATEGORY
+#                          Categories: strings, brass, woodwind, jazz, rock, synth, folk, keys
+#                          Examples: fast-strings, slow-brass, jazz, fast
+#   -h, --help            Show this help
 #
 # Output: examples/gend-motif.wav (20 seconds)
 
@@ -24,6 +35,10 @@ cd "$(dirname "$0")/.."
 VERBOSE=0
 LOG_FILE=""
 CUSTOM_SEED=""
+USE_ROUNDS=""  # Empty means use seed to decide; 0/1 means explicit choice
+DURATION_SECS=20  # Target duration in seconds
+CUSTOM_BPM=""  # Empty means derive from seed
+STYLE_HINT=""  # Empty means derive from seed
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -45,14 +60,49 @@ while [[ $# -gt 0 ]]; do
             CUSTOM_SEED="$2"
             shift 2
             ;;
+        -r|--use-rounds)
+            case "$2" in
+                1|true|yes)
+                    USE_ROUNDS=1
+                    shift 2
+                    ;;
+                0|false|no)
+                    USE_ROUNDS=0
+                    shift 2
+                    ;;
+                *)
+                    echo "Error: --use-rounds requires 0/1, true/false, or yes/no"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        -b|--bpm)
+            CUSTOM_BPM="$2"
+            shift 2
+            ;;
+        -t|--style)
+            STYLE_HINT="$2"
+            shift 2
+            ;;
+        -d|--duration)
+            DURATION_SECS="$2"
+            shift 2
+            ;;
         -h|--help)
-            echo "Usage: $0 [-v|--verbose] [-l|--log-file [FILE]] [-s|--seed SEED]"
+            echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  -v, --verbose     Show detailed internal steps"
-            echo "  -l, --log-file    Write timestamped log (optionally specify filename)"
-            echo "  -s, --seed SEED   Use specific seed instead of current time"
-            echo "  -h, --help        Show this help"
+            echo "  -v, --verbose           Show detailed internal steps"
+            echo "  -l, --log-file          Write timestamped log (optionally specify filename)"
+            echo "  -s, --seed SEED         Use specific seed instead of current time"
+            echo "  -r, --use-rounds 0|1    Force harmony mode (0) or rounds mode (1)"
+            echo "  -b, --bpm BPM           Override tempo (beats per minute, 40-240)"
+            echo "  -t, --style HINT        Style hint: [fast-|slow-]CATEGORY"
+            echo "                           Categories: strings, brass, woodwind, jazz, rock,"
+            echo "                                       synth, folk, keys"
+            echo "                           Examples: fast-strings, slow-brass, jazz, fast"
+            echo "  -d, --duration SECS     Target duration in seconds (default: 20)"
+            echo "  -h, --help              Show this help"
             exit 0
             ;;
         *)
@@ -99,7 +149,8 @@ log "SEED: $SEED"
 
 # Derive random values using simple hash-like operations
 BPM=$(( 80 + (SEED % 100) ))
-BASE_NOTE=$(( 48 + ((SEED / 1000) % 24) ))
+# Base note in comfortable mid-range (C3=48 to G4=67) - avoid extreme highs
+BASE_NOTE=$(( 48 + ((SEED / 1000) % 20) ))
 ROOT_IDX=$(( (SEED / 100) % 12 ))
 MODE_IDX=$(( (SEED / 10000) % 8 ))
 COMPLEXITY=$(( 1 + ((SEED / 100000) % 10) ))
@@ -110,13 +161,22 @@ REST_PROB_IDX=$(( (SEED / 2000) % 4 ))
 CHORD_PROB_IDX=$(( (SEED / 3000) % 4 ))
 SWING_IDX=$(( (SEED / 4000) % 3 ))
 
-# Ensemble selection
+# Ensemble selection (may be overridden by --style)
 ENSEMBLE_IDX=$(( (SEED / 9000) % 13 ))
-SIMILARITY=$(( (SEED / 12000) % 4 ))
 OVERLAP=$(( (SEED / 13000) % 4 ))
 
+# Style: 0=harmony (transposed parts), 1=rounds (canonical entries)
+if [ -n "$USE_ROUNDS" ]; then
+    STYLE=$USE_ROUNDS
+else
+    STYLE=$(( (SEED / 15000) % 2 ))
+fi
+
+# For rounds: how many bars between entries (1-2 for tighter canon)
+ROUND_BARS=$(( 1 + ((SEED / 16000) % 2) ))
+
 log "Derived values: BPM=$BPM BASE_NOTE=$BASE_NOTE COMPLEXITY=$COMPLEXITY NUM_NOTES=$NUM_NOTES"
-log "Ensemble selection: ENSEMBLE_IDX=$ENSEMBLE_IDX SIMILARITY=$SIMILARITY OVERLAP=$OVERLAP"
+log "Ensemble selection: ENSEMBLE_IDX=$ENSEMBLE_IDX OVERLAP=$OVERLAP STYLE=$STYLE ROUND_BARS=$ROUND_BARS"
 
 # Arrays for lookups
 ROOTS=("C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B")
@@ -181,6 +241,71 @@ get_ensemble() {
     esac
 }
 
+# =============================================================================
+# Apply style hint overrides
+# =============================================================================
+# Parse style hint into tempo modifier and category
+if [[ -n "$STYLE_HINT" ]]; then
+    STYLE_TEMPO=""
+    STYLE_CATEGORY="$STYLE_HINT"
+
+    # Extract tempo prefix if present
+    case "$STYLE_HINT" in
+        fast-*)
+            STYLE_TEMPO="fast"
+            STYLE_CATEGORY="${STYLE_HINT#fast-}"
+            ;;
+        slow-*)
+            STYLE_TEMPO="slow"
+            STYLE_CATEGORY="${STYLE_HINT#slow-}"
+            ;;
+        fast)
+            STYLE_TEMPO="fast"
+            STYLE_CATEGORY=""
+            ;;
+        slow)
+            STYLE_TEMPO="slow"
+            STYLE_CATEGORY=""
+            ;;
+    esac
+
+    # Apply tempo modifier (only if --bpm not explicitly set)
+    if [[ -z "$CUSTOM_BPM" && -n "$STYLE_TEMPO" ]]; then
+        case "$STYLE_TEMPO" in
+            fast) BPM=$(( 140 + (SEED % 41) )) ;;   # 140-180
+            slow) BPM=$(( 55 + (SEED % 26) )) ;;     # 55-80
+        esac
+    fi
+
+    # Map category to eligible ensemble indices
+    if [[ -n "$STYLE_CATEGORY" ]]; then
+        case "$STYLE_CATEGORY" in
+            strings)   ELIGIBLE=(0 10) ;;              # String Quartet, Chamber Orchestra
+            brass)     ELIGIBLE=(3) ;;                # Brass Quintet
+            woodwind)  ELIGIBLE=(5) ;;                # Woodwind Quintet
+            jazz)      ELIGIBLE=(1 9 11) ;;           # Jazz Trio, Organ Trio, Latin Jazz
+            rock)      ELIGIBLE=(2 12) ;;             # Rock Band, Rockabilly
+            synth)     ELIGIBLE=(7) ;;                # Synth Pop
+            folk)      ELIGIBLE=(8) ;;                # Folk Ensemble
+            keys)      ELIGIBLE=(1 6 9) ;;            # Piano/keys: Jazz Trio, Piano Trio, Organ Trio
+            *)
+                echo "Unknown style category: $STYLE_CATEGORY"
+                echo "Valid categories: strings, brass, woodwind, jazz, rock, synth, folk, keys"
+                exit 1
+                ;;
+        esac
+        # Pick from eligible ensembles using seed
+        NUM_ELIGIBLE=${#ELIGIBLE[@]}
+        ENSEMBLE_IDX=${ELIGIBLE[$(( SEED % NUM_ELIGIBLE ))]}
+        log "Style hint '$STYLE_HINT' -> eligible ensembles: ${ELIGIBLE[*]}, selected idx: $ENSEMBLE_IDX"
+    fi
+fi
+
+# Apply explicit BPM override (takes precedence over everything)
+if [[ -n "$CUSTOM_BPM" ]]; then
+    BPM=$CUSTOM_BPM
+fi
+
 get_ensemble $ENSEMBLE_IDX
 NUM_INSTRUMENTS=${#PATCHES[@]}
 log "Ensemble: $ENSEMBLE_NAME (${#PATCHES[@]} instruments) PATCHES=(${PATCHES[*]})"
@@ -206,7 +331,13 @@ patch_name() {
 # Report configuration
 echo ""
 echo "Configuration:"
-echo "  BPM: $BPM"
+if [[ -n "$CUSTOM_BPM" ]]; then
+    echo "  BPM: $BPM (override)"
+elif [[ -n "$STYLE_HINT" ]]; then
+    echo "  BPM: $BPM (from style: $STYLE_HINT)"
+else
+    echo "  BPM: $BPM"
+fi
 echo "  Root: $ROOT, Mode: $MODE"
 echo "  Base Note: $BASE_NOTE"
 echo "  Complexity: $COMPLEXITY"
@@ -216,7 +347,11 @@ echo "  Duration: $DUR"
 echo "  Rest Prob: $REST_PROB"
 echo "  Swing: $SWING"
 echo ""
-echo "Ensemble: $ENSEMBLE_NAME ($NUM_INSTRUMENTS instruments)"
+if [[ -n "$STYLE_HINT" ]]; then
+    echo "Ensemble: $ENSEMBLE_NAME ($NUM_INSTRUMENTS instruments) [style: $STYLE_HINT]"
+else
+    echo "Ensemble: $ENSEMBLE_NAME ($NUM_INSTRUMENTS instruments)"
+fi
 for (( i=0; i<NUM_INSTRUMENTS; i++ )); do
     echo "  Ch $i: $(patch_name ${PATCHES[$i]}) (patch ${PATCHES[$i]})"
 done
@@ -227,108 +362,177 @@ if [ $HAS_DRUMS -gt 0 ]; then
     echo "  Drums: $( [ $HAS_DRUMS -eq 2 ] && echo "Full kit" || echo "Simple" )"
 fi
 echo ""
-echo "  Similarity: $SIMILARITY (0=varied, 3=similar)"
-echo "  Overlap: $OVERLAP (0=sparse, 3=dense)"
+echo "  Density: $OVERLAP (0=sparse, 3=dense)"
+if [ $STYLE -eq 1 ]; then
+    echo "  Style: ROUNDS (canon - entries $ROUND_BARS bar(s) apart)"
+    if [[ -n "$CUSTOM_BPM" ]]; then
+        echo "  (Adjusted: longer notes, no chords; BPM kept at $BPM per override)"
+    else
+        echo "  (Adjusted: BPM 70-90, longer notes, no chords)"
+    fi
+else
+    echo "  Style: HARMONY (transposed parts, tight entries)"
+fi
 echo ""
 
 # Clear temp files
 rm -f /tmp/random-motif-*.jsonl
 
-# Generate each melodic instrument
+# =============================================================================
+# Generate ONE shared motif, then derive all parts from it
+# =============================================================================
+
+# HARMONY mode: transposed parts with tight entries
+# Transposition offsets (in semitones): lead unchanged, others harmonize
+# Prefer downward transpositions to avoid shrillness
+HARMONY_TRANSPOSE=(0 -12 -5 -7 -24 -19 -12 -24)
+HARMONY_DELAYS=(0 240 480 120 360 600 180 420)
+
+# ROUNDS mode: canonical entries at bar intervals
+# For clearer canon effect, minimal transposition (octave down only for lower voices)
+ROUNDS_TRANSPOSE=(0 0 0 -12 0 0 -12 0)
+
+# Velocity offsets (lead is loudest, others slightly softer)
+VEL_OFFSETS=(0 -10 -5 -15 -8 -12 -6 -18)
+
+# Calculate bar length in ticks (480 ticks per beat, 4 beats per bar)
+TICKS_PER_BAR=$((480 * 4))
+ROUND_DELAY_TICKS=$((ROUND_BARS * TICKS_PER_BAR))
+
+# Adjust parameters for rounds mode
+ACTUAL_BPM=$BPM
+ACTUAL_NOTES=$NUM_NOTES
+ACTUAL_DUR=$DUR
+ACTUAL_CHORD_PROB=$CHORD_PROB
+
+if [ $STYLE -eq 1 ]; then
+    # Rounds work better with:
+    # - Slower tempo (70-90 BPM range) - unless user overrode BPM
+    # - Longer phrases (more notes)
+    # - Longer note durations
+    # - No chords (cleaner counterpoint)
+    if [[ -z "$CUSTOM_BPM" ]]; then
+        ACTUAL_BPM=$(( 70 + (BPM % 20) ))
+    fi
+    ACTUAL_NOTES=$(( NUM_NOTES + 8 ))
+    ACTUAL_DUR="0.75"
+    ACTUAL_CHORD_PROB="0.0"
+fi
+
+# Calculate repeat count dynamically to fill the target duration
+# Formula: total_seconds = (notes * repeat * dur * 60) / bpm
+# So: repeat = ceil(target_seconds * bpm / (notes * dur * 60))
+REPEAT_COUNT=$(python3 -c "
+import math
+bpm = $ACTUAL_BPM
+notes = $ACTUAL_NOTES
+dur = $ACTUAL_DUR
+target = $DURATION_SECS
+repeats = math.ceil((target * bpm) / (notes * dur * 60))
+# At least 2 repeats, and add extra for rounds (staggered entries need more material)
+minimum = 2
+if $STYLE == 1:
+    minimum = $NUM_INSTRUMENTS + 2
+print(max(repeats, minimum))
+")
+
+log "Calculated REPEAT_COUNT=$REPEAT_COUNT for ${DURATION_SECS}s at ${ACTUAL_BPM}bpm (${ACTUAL_NOTES} notes, dur=${ACTUAL_DUR})"
+
+echo "Generating shared motif (seed: $SEED)..."
+log "Generating shared motif with seed=$SEED base=$BASE_NOTE notes=$ACTUAL_NOTES complexity=$COMPLEXITY"
+
+# Generate the PRIMARY motif once - all instruments derive from this
+./target/release/seed $SEED | \
+    ./target/release/motif \
+        --base $BASE_NOTE \
+        --notes $ACTUAL_NOTES \
+        --complexity $COMPLEXITY \
+        --bpm $ACTUAL_BPM \
+        --ch 0 \
+        --vel $VELOCITY \
+        --patch ${PATCHES[0]} \
+        --dur $ACTUAL_DUR \
+        --rest-prob $REST_PROB \
+        --chord-prob $ACTUAL_CHORD_PROB \
+        --swing $SWING \
+        --repeat $REPEAT_COUNT | \
+    ./target/release/scale --root $ROOT --mode $MODE \
+    > /tmp/random-motif-primary.jsonl
+
+log "Generated primary motif: /tmp/random-motif-primary.jsonl ($(wc -l < /tmp/random-motif-primary.jsonl) lines)"
+
+# Now create each instrument's part by transforming the primary motif
 for (( i=0; i<NUM_INSTRUMENTS; i++ )); do
     PATCH=${PATCHES[$i]}
+    VEL_OFFSET=${VEL_OFFSETS[$((i % ${#VEL_OFFSETS[@]}))]}
 
-    # Vary parameters based on similarity
-    if [ $SIMILARITY -eq 3 ]; then
-        INST_SEED=$((SEED + i))
-        INST_NOTES=$NUM_NOTES
-        INST_COMPLEXITY=$COMPLEXITY
-        INST_DUR=$DUR
-        INST_REST=$REST_PROB
-        INST_BASE=$((BASE_NOTE + (i % 2) * 12))
-    elif [ $SIMILARITY -eq 2 ]; then
-        INST_SEED=$((SEED + i * 100))
-        INST_NOTES=$(( NUM_NOTES + ((i * 3) % 5) - 2 ))
-        INST_COMPLEXITY=$COMPLEXITY
-        INST_DUR=$DUR
-        INST_REST="${REST_PROBS[$(( (REST_PROB_IDX + i) % 4 ))]}"
-        INST_BASE=$((BASE_NOTE + (i % 3 - 1) * 7))
-    elif [ $SIMILARITY -eq 1 ]; then
-        INST_SEED=$((SEED + i * 1000))
-        INST_NOTES=$(( NUM_NOTES / 2 + ((i * 5) % NUM_NOTES) ))
-        INST_COMPLEXITY=$(( (COMPLEXITY + i * 2) % 10 + 1 ))
-        INST_DUR="${DURS[$(( (DUR_IDX + i) % 4 ))]}"
-        INST_REST="${REST_PROBS[$(( (REST_PROB_IDX + i * 2) % 4 ))]}"
-        INST_BASE=$((BASE_NOTE + (i % 4 - 2) * 5))
+    if [ $STYLE -eq 1 ]; then
+        # ROUNDS mode: canonical entries at bar intervals
+        TRANSPOSE=${ROUNDS_TRANSPOSE[$((i % ${#ROUNDS_TRANSPOSE[@]}))]}
+        DELAY=$((i * ROUND_DELAY_TICKS))
+        STYLE_DESC="round entry at bar $((i * ROUND_BARS))"
     else
-        INST_SEED=$((SEED + i * 10000))
-        INST_NOTES=$(( 6 + ((SEED / (100 + i)) % 20) ))
-        INST_COMPLEXITY=$(( 1 + ((SEED / (200 + i*7)) % 10) ))
-        INST_DUR="${DURS[$(( (SEED / (300 + i*11)) % 4 ))]}"
-        INST_REST="${REST_PROBS[$(( (SEED / (400 + i*13)) % 4 ))]}"
-        INST_BASE=$((36 + ((SEED / (500 + i*17)) % 36)))
+        # HARMONY mode: transposed parts with small timing offsets
+        TRANSPOSE=${HARMONY_TRANSPOSE[$((i % ${#HARMONY_TRANSPOSE[@]}))]}
+        DELAY=${HARMONY_DELAYS[$((i % ${#HARMONY_DELAYS[@]}))]}
+        STYLE_DESC="harmony"
     fi
 
-    if [ $INST_NOTES -lt 4 ]; then INST_NOTES=4; fi
+    # Calculate target velocity
+    TARGET_VEL=$((VELOCITY + VEL_OFFSET))
+    if [ $TARGET_VEL -lt 50 ]; then TARGET_VEL=50; fi
+    if [ $TARGET_VEL -gt 120 ]; then TARGET_VEL=120; fi
 
-    INST_VEL=$(( VELOCITY - 20 + ((i * 7) % 40) ))
-    if [ $INST_VEL -lt 50 ]; then INST_VEL=50; fi
-    if [ $INST_VEL -gt 120 ]; then INST_VEL=120; fi
+    log "Instrument $i: patch=$PATCH transpose=$TRANSPOSE vel=$TARGET_VEL delay=$DELAY ($STYLE_DESC)"
+    echo "Deriving: $(patch_name $PATCH) (transpose: $TRANSPOSE, delay: $DELAY ticks)..."
 
-    INST_REPEAT=$(( 2 + OVERLAP + (i % 2) ))
-
-    log "Instrument $i: patch=$PATCH seed=$INST_SEED base=$INST_BASE notes=$INST_NOTES complexity=$INST_COMPLEXITY dur=$INST_DUR rest=$INST_REST vel=$INST_VEL repeat=$INST_REPEAT"
-
-    echo "Generating: $(patch_name $PATCH)..."
-
-    CMD="./target/release/seed $INST_SEED | ./target/release/motif --base $INST_BASE --notes $INST_NOTES --complexity $INST_COMPLEXITY --bpm $( [ $i -eq 0 ] && echo $BPM || echo 0 ) --ch $i --vel $INST_VEL --patch $PATCH --dur $INST_DUR --rest-prob $INST_REST --chord-prob $CHORD_PROB --swing $SWING --repeat $INST_REPEAT | ./target/release/scale --root $ROOT --mode $MODE"
-    log_cmd "$CMD"
-
-    ./target/release/seed $INST_SEED | \
-        ./target/release/motif \
-            --base $INST_BASE \
-            --notes $INST_NOTES \
-            --complexity $INST_COMPLEXITY \
-            --bpm $( [ $i -eq 0 ] && echo $BPM || echo 0 ) \
-            --ch $i \
-            --vel $INST_VEL \
-            --patch $PATCH \
-            --dur $INST_DUR \
-            --rest-prob $INST_REST \
-            --chord-prob $CHORD_PROB \
-            --swing $SWING \
-            --repeat $INST_REPEAT | \
-        ./target/release/scale --root $ROOT --mode $MODE \
-        > /tmp/random-motif-inst$i.jsonl
+    # Transform the primary motif for this instrument:
+    # - Change channel to $i
+    # - Change patch to $PATCH
+    # - Transpose notes by $TRANSPOSE semitones
+    # - Delay all events by $DELAY ticks
+    # - Adjust velocity
+    jq -c "
+        if .type == \"ProgramChange\" then
+            .ch = $i | .patch = $PATCH
+        elif .type == \"NoteOn\" or .type == \"NoteOff\" then
+            .ch = $i | .note = (.note + $TRANSPOSE) |
+            if .type == \"NoteOn\" then .vel = ((.vel + $VEL_OFFSET) | if . < 50 then 50 elif . > 120 then 120 else . end) else . end
+        elif .type == \"Tempo\" then
+            if $i > 0 then empty else . end
+        else
+            .
+        end |
+        if .tick != null then .tick = (.tick + $DELAY) else . end
+    " /tmp/random-motif-primary.jsonl > /tmp/random-motif-inst$i.jsonl
 
     log "Generated /tmp/random-motif-inst$i.jsonl ($(wc -l < /tmp/random-motif-inst$i.jsonl) lines)"
 done
 
-# Generate bass
+# Generate bass - derived from primary motif, transposed down 2 octaves
 if [ $HAS_BASS -gt 0 ]; then
-    BASS_BASE=$(( BASE_NOTE - 24 ))
-    BASS_COMPLEXITY=$(( (COMPLEXITY + 1) / 2 ))
-    BASS_NOTES=$(( NUM_NOTES / 2 ))
-    if [ $BASS_NOTES -lt 6 ]; then BASS_NOTES=6; fi
-    BASS_REPEAT=$(( 3 + OVERLAP ))
+    BASS_TRANSPOSE=-24  # Two octaves down
+    BASS_VEL_OFFSET=-10
 
-    log "Bass: patch=$BASS_PATCH base=$BASS_BASE notes=$BASS_NOTES complexity=$BASS_COMPLEXITY repeat=$BASS_REPEAT"
-    echo "Generating: $(patch_name $BASS_PATCH) (bass)..."
+    log "Bass: patch=$BASS_PATCH transpose=$BASS_TRANSPOSE"
+    echo "Deriving: $(patch_name $BASS_PATCH) (bass from melody, -2 octaves)..."
 
-    ./target/release/seed $((SEED + 1000)) | \
-        ./target/release/motif \
-            --base $BASS_BASE \
-            --notes $BASS_NOTES \
-            --complexity $BASS_COMPLEXITY \
-            --bpm 0 \
-            --ch 7 \
-            --vel $(( VELOCITY - 10 )) \
-            --patch $BASS_PATCH \
-            --dur 1.0 \
-            --rest-prob 0.1 \
-            --repeat $BASS_REPEAT | \
-        ./target/release/scale --root $ROOT --mode $MODE \
-        > /tmp/random-motif-bass.jsonl
+    # Transform the primary motif for bass:
+    # - Change to channel 7 with bass patch
+    # - Transpose down 2 octaves
+    # - Slightly lower velocity
+    jq -c "
+        if .type == \"ProgramChange\" then
+            .ch = 7 | .patch = $BASS_PATCH
+        elif .type == \"NoteOn\" or .type == \"NoteOff\" then
+            .ch = 7 | .note = (.note + $BASS_TRANSPOSE) |
+            if .type == \"NoteOn\" then .vel = ((.vel + $BASS_VEL_OFFSET) | if . < 50 then 50 elif . > 120 then 120 else . end) else . end
+        elif .type == \"Tempo\" then
+            empty
+        else
+            .
+        end
+    " /tmp/random-motif-primary.jsonl > /tmp/random-motif-bass.jsonl
 
     log "Generated /tmp/random-motif-bass.jsonl ($(wc -l < /tmp/random-motif-bass.jsonl) lines)"
 fi
@@ -386,11 +590,13 @@ log "Created /tmp/random-motif-raw.wav"
 
 # Trim to 20 seconds
 log "Trimming to 20 seconds with fade..."
-ffmpeg -y -i /tmp/random-motif-raw.wav -t 20 -af "afade=t=out:st=18:d=2" examples/gend-motif.wav 2>/dev/null
+# Trim to target duration with fade
+FADE_START=$((DURATION_SECS - 2))
+ffmpeg -y -i /tmp/random-motif-raw.wav -t $DURATION_SECS -af "afade=t=out:st=$FADE_START:d=2" examples/gend-motif.wav 2>/dev/null
 log "Created examples/gend-motif.wav"
 
 echo ""
-echo "Created: examples/gend-motif.wav (20 seconds)"
+echo "Created: examples/gend-motif.wav (${DURATION_SECS} seconds)"
 echo "Ensemble: $ENSEMBLE_NAME"
 if [[ -n "$LOG_FILE" ]]; then
     echo "Log: $LOG_FILE"

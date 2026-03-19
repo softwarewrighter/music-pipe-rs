@@ -13,6 +13,7 @@ members = [
   "crates/stage-scale",
   "crates/stage-viz",
   "crates/stage-trim",
+  "crates/stage-orchestrate",
   "crates/mid2seq",
 ]
 resolver = "2"

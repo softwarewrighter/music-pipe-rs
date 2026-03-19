@@ -18,7 +18,7 @@
 #   -h, --help        Show this help
 #
 # To recreate a WAV from its TXT:
-#   ./examples/demo-random-motif.sh -s <SEED_FROM_TXT>
+#   ./examples/demo-random-motif.sh -s <SEED> -d <DURATION>
 #
 
 set -e
@@ -28,6 +28,7 @@ cd "$(dirname "$0")/.."
 COUNT=5
 DELAY_MS=100
 CUSTOM_OUTPUT=""
+DURATION_SECS=20
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -44,14 +45,19 @@ while [[ $# -gt 0 ]]; do
             CUSTOM_OUTPUT="$2"
             shift 2
             ;;
+        -t|--duration)
+            DURATION_SECS="$2"
+            shift 2
+            ;;
         -h|--help)
-            echo "Usage: $0 [-n|--count NUM] [-d|--delay MS] [-o|--output DIR]"
+            echo "Usage: $0 [-n|--count NUM] [-d|--delay MS] [-o|--output DIR] [-t|--duration SECS]"
             echo ""
             echo "Options:"
-            echo "  -n, --count NUM   Number of examples to generate (default: 5)"
-            echo "  -d, --delay MS    Delay between examples in ms (default: 100)"
-            echo "  -o, --output DIR  Custom output directory"
-            echo "  -h, --help        Show this help"
+            echo "  -n, --count NUM      Number of examples to generate (default: 5)"
+            echo "  -d, --delay MS       Delay between examples in ms (default: 100)"
+            echo "  -o, --output DIR     Custom output directory"
+            echo "  -t, --duration SECS  Duration of each piece in seconds (default: 20)"
+            echo "  -h, --help           Show this help"
             echo ""
             echo "Output: examples/batch-YYYYMMDD-HHMMSS/"
             echo "  - *.wav files are gitignored"
@@ -87,6 +93,7 @@ EOF
 echo "=== Batch Motif Generator ==="
 echo "Output: $OUTPUT_DIR"
 echo "Count: $COUNT examples"
+echo "Duration: ${DURATION_SECS}s each"
 echo ""
 
 # Arrays for lookups (same as demo-random-motif.sh)
@@ -170,7 +177,6 @@ for (( i=1; i<=COUNT; i++ )); do
     CHORD_PROB_IDX=$(( (SEED / 3000) % 4 ))
     SWING_IDX=$(( (SEED / 4000) % 3 ))
     ENSEMBLE_IDX=$(( (SEED / 9000) % 13 ))
-    SIMILARITY=$(( (SEED / 12000) % 4 ))
     OVERLAP=$(( (SEED / 13000) % 4 ))
 
     ROOT="${ROOTS[$ROOT_IDX]}"
@@ -192,9 +198,10 @@ for (( i=1; i<=COUNT; i++ )); do
     cat > "$TXT_FILE" << EOF
 # Motif Generation Parameters
 # Generated: $(date -Iseconds)
-# Recreate with: ./examples/demo-random-motif.sh -s $SEED
+# Recreate with: ./examples/demo-random-motif.sh -s $SEED -d $DURATION_SECS
 
 SEED=$SEED
+DURATION_SECS=$DURATION_SECS
 
 # Musical Parameters
 BPM=$BPM
@@ -214,8 +221,7 @@ ENSEMBLE_NAME="$ENSEMBLE_NAME"
 ENSEMBLE_IDX=$ENSEMBLE_IDX
 PATCHES=($PATCHES)
 
-# Variation Controls
-SIMILARITY=$SIMILARITY  # 0=varied, 3=similar
+# Density Control
 OVERLAP=$OVERLAP        # 0=sparse, 3=dense
 
 # Instruments
@@ -228,7 +234,7 @@ EOF
     done
 
     # Run the actual generator (suppress most output)
-    ./examples/demo-random-motif.sh -s "$SEED" > /dev/null 2>&1
+    ./examples/demo-random-motif.sh -s "$SEED" -d "$DURATION_SECS" > /dev/null 2>&1
 
     # Move the output to our batch directory
     mv examples/gend-motif.wav "$WAV_FILE"
@@ -247,7 +253,7 @@ echo "=== Batch Complete ==="
 echo "Generated $COUNT examples in $OUTPUT_DIR"
 echo ""
 echo "TXT files document all parameters for reproduction."
-echo "To recreate any WAV: ./examples/demo-random-motif.sh -s <SEED>"
+echo "To recreate any WAV: ./examples/demo-random-motif.sh -s <SEED> -d $DURATION_SECS"
 echo ""
 
 # List the generated files
