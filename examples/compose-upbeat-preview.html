@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>music-pipe-rs — upbeat candidates</title>
+<style>
+  :root { color-scheme: dark; --bg:#0f1117; --card:#181b24; --line:#2a2f3d; --fg:#e7e9ee; --dim:#9aa3b5; --acc:#7dd3fc; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--fg); }
+  main { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.lede { color: var(--dim); margin: 0 0 28px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card.picked { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+  .head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .num { color: var(--acc); font-weight: 700; }
+  h2 { font-size: 18px; margin: 0; }
+  .tags { color: var(--dim); font-size: 13px; }
+  .desc { margin: 6px 0 10px; color: var(--dim); }
+  img.wave { width:100%; height:70px; object-fit: fill; display:block; opacity:.85; border-radius:6px; background:#11141b; }
+  audio { width:100%; margin-top:10px; }
+  .row { display:flex; gap:14px; align-items:center; margin-top:10px; font-size:13px; flex-wrap:wrap; }
+  .row a { color: var(--acc); }
+  button { background:transparent; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:5px 12px; cursor:pointer; font: inherit; }
+  button:hover { border-color: var(--acc); }
+  .card.picked button { background: var(--acc); color:#0b1220; border-color: var(--acc); }
+  code { background:#11141b; border:1px solid var(--line); border-radius:6px; padding:2px 6px; font-size:12.5px; }
+  h2.set { font-size: 16px; color: var(--acc); margin: 30px 0 10px; text-transform: uppercase; letter-spacing: .06em; }
+  footer { color: var(--dim); font-size: 13px; margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Upbeat candidates (10–15 s)</h1>
+  <p class="lede">Five new pieces, all made with this repo's stages (<code>seq</code>, <code>seed | euclid</code>, <code>seed | humanize</code>, <code>viz</code>, <code>to-midi</code>), then rendered with FluidSynth and GeneralUser GS. Loudness is normalized, so they're easy to compare. Mark the ones you like.</p>
+  <h2 class="set">Set 1 — modern upbeat</h2>
+  <div id="list-modern"></div>
+  <h2 class="set">Set 2 — ca. 1970, pre-disco / Loft-inspired</h2>
+  <p class="lede">Original material written in the style of the soul, funk, Afro-Latin and jazz-rock records David Mancuso played at The Loft before disco existed. Expect looser, swung grooves, live-sounding percussion, horns, strings and organ.</p>
+  <div id="list-1970"></div>
+  <footer>
+    Regenerate all: <code>work/.venv/bin/python work/gen.py</code><br>
+    Regenerate one: <code>work/.venv/bin/python work/gen.py neon</code> (neon, disco, pixel, sunburst, skank, unity, breakit, sunrise, hammond)
+  </footer>
+</main>
+<script>
+const sets = {
+  "list-modern": ["neon-drive", "disco-strut", "pixel-quest", "sunburst", "island-skank"],
+  "list-1970": ["unity-train", "break-it-down", "sunrise-drums", "hammond-glide"],
+};
+const pieces = Object.entries(sets).flatMap(([id, names]) => names.map(n => [id, n]));
+const ts = Date.now();
+const picks = new Set(JSON.parse(localStorage.getItem("mp-picks") || "[]"));
+pieces.forEach(async ([listId, name], i) => {
+  const card = document.createElement("section");
+  card.className = "card";
+  document.getElementById(listId).appendChild(card);
+  const m = await (await fetch(`${name}.json?ts=${ts}`)).json();
+  card.innerHTML = `
+    <div class="head"><span class="num">#${i + 1}</span><h2>${m.title}</h2>
+      <span class="tags">${m.style} · ${m.key} · ${m.bpm} BPM · ${m.seconds}s</span></div>
+    <div class="desc">${m.seed_note}. <br>${m.instruments}.${m.influence ? `<br><em>Feel inspired by ${m.influence}.</em>` : ""}</div>
+    <img class="wave" src="${name}.png?ts=${ts}" alt="">
+    <audio controls preload="metadata" src="${name}.wav?ts=${ts}"></audio>
+    <div class="row"><button>${picks.has(name) ? "★ Picked" : "☆ Pick"}</button>
+      <a href="${name}.wav" download>WAV</a><a href="${name}.mid" download>MIDI</a></div>`;
+  if (picks.has(name)) card.classList.add("picked");
+  card.querySelector("button").onclick = (e) => {
+    picks.has(name) ? picks.delete(name) : picks.add(name);
+    card.classList.toggle("picked");
+    e.target.textContent = picks.has(name) ? "★ Picked" : "☆ Pick";
+    localStorage.setItem("mp-picks", JSON.stringify([...picks]));
+  };
+  // only one track plays at a time
+  card.querySelector("audio").addEventListener("play", (e) =>
+    document.querySelectorAll("audio").forEach(a => a !== e.target && a.pause()));
+});
+</script>
+</body>
+</html>

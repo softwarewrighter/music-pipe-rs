@@ -58,3 +58,6 @@ criterion/
 # OS files
 Thumbs.db
 .DS_Store
+
+# Scratch work / previews
+/work/
