@@ -10,7 +10,7 @@ Suggested plan: A x1, B x2, C x1, D x1, repeat.  A player may stop at the end
 of ANY phrase and jump to the A phrase of any other set.
 
 Compatibility contract (why set-to-set switches are not jarring):
-  * every set is centred on D (major / lydian / dorian / minor / phrygian)
+  * every set is centred on D (major / lydian / mixolydian / dorian / minor / phrygian)
   * every phrase ENDS on an open A-sus chord (dominant, no 3rd)
   * every set's A phrase BEGINS on a D chord  -> each switch is V -> I
   * tempos come from one family: 72, 96, 108, 144 BPM
@@ -52,9 +52,11 @@ PCS = {"C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#":
        "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11}
 QUAL = {"": [0, 4, 7], "m": [0, 3, 7], "m7": [0, 3, 7, 10], "maj7": [0, 4, 7, 11], "7": [0, 4, 7, 10],
         "sus": [0, 5, 7], "sus2": [0, 2, 7], "5": [0, 7], "add9": [0, 4, 7, 2], "m9": [0, 3, 7, 10, 2],
-        "m6": [0, 3, 7, 9], "dim": [0, 3, 6]}
+        "m6": [0, 3, 7, 9], "dim": [0, 3, 6],
+        "aug": [0, 4, 8], "m7b5": [0, 3, 6, 10]}
 MODES = {"major": [0, 2, 4, 5, 7, 9, 11], "minor": [0, 2, 3, 5, 7, 8, 10], "dorian": [0, 2, 3, 5, 7, 9, 10],
-         "phrygian": [0, 1, 3, 5, 7, 8, 10], "lydian": [0, 2, 4, 6, 7, 9, 11]}
+         "phrygian": [0, 1, 3, 5, 7, 8, 10], "lydian": [0, 2, 4, 6, 7, 9, 11],
+         "mixolydian": [0, 2, 4, 5, 7, 9, 10]}
 
 
 def nn(m):
@@ -257,6 +259,19 @@ def render_phrase(tag, layers, bpm, bars):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-",
                     "-c:a", "pcm_f32le", str(cut)], input=loop.tobytes(), check=True)
     return cut, n
+
+
+def variety(layers, bars):
+    """Share of bars in a phrase that are unique (notes per channel on a 16th grid,
+    humanize jitter and velocity ignored). 1.0 = no bar repeats inside the phrase."""
+    sig = [set() for _ in range(bars)]
+    for l in "".join(layers).splitlines():
+        e = json.loads(l)
+        if e["type"] == "NoteOn" and e["t"] < bars * BAR:
+            t = round(e["t"] / E16) * E16
+            if t < bars * BAR:
+                sig[t // BAR].add((t % BAR, e["key"], e["ch"]))
+    return round(len({frozenset(s) for s in sig}) / bars, 2)
 
 
 def measure(path):
@@ -519,7 +534,273 @@ def set_battle():
                 desc="Driving 8th-note string ostinato under brass. The theme is played in long notes so it never competes with gameplay.")
 
 
-SETS = {"calm": set_calm, "explore": set_explore, "sinister": set_sinister, "battle": set_battle}
+# --------------------------------------------------------------------------
+# second wave: six more moods. Each uses its own instruments, groove and
+# harmony, and only fragments / inversions / retrogrades of the theme, so
+# none of them sounds like a re-orchestration of the first four.
+# Most phrases are 12 bars, and accompaniment patterns cycle over 2, 3 or 5
+# bars, so bar-for-bar repeats inside a phrase are rare (see "variety").
+# --------------------------------------------------------------------------
+def inv(phrase, axis=1):
+    """Melodic inversion around a scale degree."""
+    return [(2 * axis - d, b) for d, b in phrase]
+
+
+def retro(phrase):
+    return list(reversed(phrase))
+
+
+def swell(chords, bars, lo, hi, n, v0, v1, per_bar=8):
+    """Repeated (tremolo-like) chord whose velocity rises across the bar: a crescendo without CC."""
+    ev = []
+    for b in bars:
+        v = voice(chord(chords[b])["pcs"], lo, hi, n, None)
+        step = BAR // per_bar
+        for i in range(per_bar):
+            ev.append((b * BAR + i * step, step, v, int(v0 + (v1 - v0) * i / (per_bar - 1))))
+    return ev
+
+
+def hold(note, bars, vel):
+    """One long tied note (pedal) across the whole phrase."""
+    return [(0, bars * BAR, [note], vel)]
+
+
+def set_eerie():
+    """Eerie — D lydian / whole-tone colour, 72 BPM, no pulse at all."""
+    ch = {
+        "A": ["D", "D", "C/D", "C/D", "Bb/D", "Bb/D", "E/D", "E/D", "D", "C/D", "Gm/D", "Asus"],
+        "B": ["Dsus2", "C/D", "Dsus2", "Bb/D", "Dsus2", "E/D", "Dsus2", "C/D", "Bb/D", "Bb/D", "E/D", "Asus"],
+        "C": ["D", "Bbaug", "Gm/D", "Ab/D", "D", "C/D", "Bbaug", "E/D", "Gm/D", "Ab/D", "Bbaug", "Asus"],
+        "D": ["Gm/D", "Gm/D", "Bbaug", "Bbaug", "C/D", "C/D", "Ab/D", "Ab/D", "E/D", "E/D", "Asus", "Asus"],
+    }
+    bells = {"A": [0, 7], "B": [5], "C": [3, 9], "D": [6]}
+    L = {}
+    for k, c in ch.items():
+        s = 500 + ord(k)
+        lay = [
+            layer(pad(c, 62, 79, 3, 34), 2, 94, s),                       # halo pad
+            layer(hold(26, 12, 44), 4, 43, s + 1),                          # contrabass pedal D1
+            layer(motif_events(s + 2, 12 * BAR, 76, 48, "whole-tone" if k == "C" else "lydian", 32, 1.0,
+                               0.75 if k != "D" else 0.85), 5, 10, s + 2, 12, 8),   # music box, scattered
+            layer(pat(c, "1-------........", 62, 30, bars=bells[k], accent=0), 8, 14, s + 3, 0, 4),  # tubular bell
+            layer(pat(c, "........r-------", 26, 40, bars={"A": [2, 5, 9], "B": [3, 10], "C": [1, 4, 7, 10], "D": [8]}[k],
+                      accent=0), 6, 0, s + 4, 6, 6),                      # low piano note, off the beat
+        ]
+        if k in "BC":
+            lay.append(layer(pad(c, 81, 93, 2, 26, bars=list(range(2, 12))), 3, 49, s + 5))  # high string harmonics
+        if k == "A":
+            lay.append(layer(tune(inv(THEME[:5]), "lydian", 74, 2, aug=2, vel=38), 1, 78, s + 6))  # whistle, inverted
+        if k == "C":
+            lay += [layer(pad(c, 55, 70, 2, 32), 7, 54, s + 7),             # synth voice "ooh"
+                    layer(tune(retro(ANSWER[:5]), "lydian", 62, 4, aug=2, vel=36), 1, 78, s + 8)]
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="eerie", title="Eerie", bpm=72, bars=12, mode="D lydian / whole-tone", target=-24, L=L,
+                intensity=2, valence="uneasy / strange", energy="very low",
+                orchestration="Halo pad, contrabass pedal, music box (motif|scale), tubular bell, low piano, high string harmonics, whistle, synth voice",
+                phases=["abandoned place / ruins", "puzzle: strange room", "RPG: haunted or magical area",
+                        "RTS: alien / unknown map region", "after a reveal: something is off"],
+                desc="Weightless and strange, with no beat at all. Scattered music-box notes over a held D; chords slide by whole steps and tritones.")
+
+
+THREAT_OST = ("r..r..r.r..r..r." "r..r..r.r..f..r." "r..r..r.r.r.r.r." "r..r..r.r..r...." "r..r..r.o..f..r.")
+THREAT_TOMS = ("X..x..x........." "................" "X..x..x.x..x..x." "................" "x..x..x.........")
+
+
+def set_threat():
+    """Threatening — D phrygian, 108 BPM, 3+3+2 cello/piano ostinato, tom swells."""
+    ch = {
+        "A": ["Dm", "Dm", "Eb/D", "Dm", "Dm", "Bb/D", "Eb/D", "Eb/D", "Dm", "Gm/D", "Eb/D", "Asus"],
+        "B": ["Dm", "Dm", "Dm", "Eb/D", "Dm", "Dm", "Dm", "Eb/D", "Gm/D", "Gm/D", "Eb/D", "Asus"],
+        "C": ["Dm", "Eb", "Dm", "Bb", "Dm", "Eb", "Gm", "Asus", "Dm", "Eb", "Bbaug", "Asus"],
+        "D": ["Gm/D", "Gm/D", "Eb/D", "Eb/D", "Dm", "Dm", "Bbaug", "Bbaug", "Eb/D", "Eb/D", "Asus", "Asus"],
+    }
+    L = {}
+    for k, c in ch.items():
+        s = 600 + ord(k)
+        ost_bars = None if k != "D" else [0, 1, 2, 3, 8, 9, 10, 11]
+        lay = [
+            layer(pat(c, THREAT_OST, 38, 60, bars=ost_bars), 3, 42, s, 3, 7),            # cello 3+3+2
+            layer(pat(c, "r.....r.....r..." "r.......r.......", 26, 46, bars=ost_bars), 4, 0, s + 1, 3, 5),  # low piano
+            layer(pad(c, 26, 40, 1, 52), 5, 58, s + 2),                                    # tuba root
+            layer(pat(["D"] * 12, THREAT_TOMS, 41, 50, drum=True, bars=ost_bars), 9, None, s + 3, 2, 6),
+            layer(pat(["D"] * 12, "....x.......x..." "................" "....x.....x.x...", 45, 34, drum=True,
+                      bars=ost_bars), 9, None, s + 4, 2, 6),
+        ]
+        sw = {"A": [3, 7, 10], "B": [7], "C": [3, 7, 11], "D": [5, 9]}[k]
+        lay.append(layer(swell(c, sw, 53, 69, 3, 26, 78), 6, 60, s + 5, 2, 3))           # horn crescendo
+        if k in "BD":
+            lay.append(layer(pad(c, 62, 76, 2, 30), 7, 44, s + 6))                         # tremolo cluster
+        if k == "A":
+            lay.append(layer(tune(THEME[:3], "phrygian", 50, 8, aug=2, vel=56), 1, 70, s + 7))  # bassoon fragment
+        if k == "C":
+            lay += [layer(tune(THEME[:4], "phrygian", 38, 1, aug=2, vel=62), 1, 70, s + 7),
+                    layer(tune(inv(THEME[:3], 5), "phrygian", 50, 8, aug=2, vel=58), 0, 57, s + 8),
+                    layer(pat(c, "bbbbbbbbbbbbbbbb", 33, lambda b, i: 30 + i * 3, bars=[6, 10]), 8, 47, s + 9, 2, 3)]
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="threat", title="Threatening", bpm=108, bars=12, mode="D phrygian", target=-21, L=L,
+                intensity=4, valence="negative", energy="medium",
+                orchestration="Cello 3+3+2 ostinato, low piano, tuba, floor & low toms, French horn crescendos, tremolo strings, bassoon & trombone fragments, timpani rolls",
+                phases=["RTS: enemy army approaching / under attack warning", "FPS: hunted, enemies near",
+                        "RPG: boss lair approach", "puzzle: timer running low", "any: pre-battle"],
+                desc="A lopsided 3+3+2 pulse in low cellos and piano, horn swells every few bars. Pressure without melody; it pushes toward battle but never arrives.")
+
+
+PUZ_VIBES = ("..1...3...2...4." "....3...1...5..." "..2.....4...3..." "1.......3.5.....")
+PUZ_BASS = "r.....f.....r..." "r.......o...f..." "r.....r...f....."
+
+
+def set_puzzle():
+    """Puzzling — D lydian, 108 BPM. Vibraphone, kalimba, bass, bassoon, woodblocks."""
+    ch = {
+        "A": ["Dmaj7", "Dmaj7", "E/D", "E/D", "Dmaj7", "Bm7", "E/D", "C/D", "Dmaj7", "G/D", "Em7", "Asus"],
+        "B": ["Dmaj7", "E/D", "Dmaj7", "E/D", "Bm7", "Bm7", "Gmaj7", "Gmaj7", "Dmaj7", "E/D", "Em7", "Asus"],
+        "C": ["Dmaj7", "F#m", "Gmaj7", "E/D", "Bm7", "C", "Gmaj7", "Asus", "Dmaj7", "F#m", "Em7", "Asus"],
+        "D": ["Gmaj7", "Gmaj7", "E/D", "E/D", "Em7", "Em7", "C/D", "C/D", "Gmaj7", "E/D", "Asus", "Asus"],
+    }
+    L = {}
+    for k, c in ch.items():
+        s = 700 + ord(k)
+        lay = [
+            layer(pat(c, PUZ_VIBES, 62, 44, accent=4), 2, 11, s, 4, 6),
+            layer(pat(c, PUZ_BASS, 38, 56, bars=None if k != "D" else [0, 2, 4, 6, 8, 10]), 4, 32, s + 1, 4, 6),
+            layer(pad(c, 57, 72, 2, 32), 6, 71, s + 2),                                         # clarinets, soft
+            layer(motif_events(s + 3, 12 * BAR, 74, 96, "lydian", 36, 0.5, 0.7 if k != "D" else 0.85), 3, 108, s + 3, 4, 8),
+            layer(pat(["D"] * 12, "x.....x...x....." "....x.......x..." "x.......x.x.....", 76, 32, drum=True,
+                      bars=None if k in "AC" else [1, 3, 5, 8, 9, 11]), 9, None, s + 4, 3, 6),
+            layer(pat(["D"] * 12, "....x.......x...", 77, 28, drum=True, bars=[2, 5, 7, 10]), 9, None, s + 5, 3, 6),
+        ]
+        q = {"A": [1, 4, 9], "B": [6], "C": [2, 8, 10], "D": [3, 7]}[k]
+        lay.append(layer(pat(c, "1.3.2...........", 50, 46, bars=q, accent=0), 5, 70, s + 6, 3, 6))   # bassoon "hm?"
+        if k == "A":
+            lay.append(layer(tune(retro(THEME), "lydian", 62, 4, vel=46), 1, 70, s + 7))     # bassoon, theme backwards
+        if k == "C":
+            lay.append(layer(tune(inv(ANSWER, 5), "lydian", 62, 2, vel=44), 1, 71, s + 7))  # clarinet, answer inverted
+            lay.append(layer(pat(c, "...........1....", 86, 34, bars=[0, 4, 8], accent=0), 8, 9, s + 8, 2, 6))  # glock
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="puzzle", title="Puzzling", bpm=108, bars=12, mode="D lydian", target=-22, L=L,
+                intensity=2, valence="curious / playful", energy="medium-low",
+                orchestration="Vibraphone, kalimba (motif|scale), acoustic bass, clarinet pad, bassoon, woodblocks, glockenspiel",
+                phases=["puzzle: active solving", "adventure: inventory / riddle", "RPG: crafting / shop",
+                        "RTS: research / tech tree screen", "any: confusing or tricky section"],
+                desc="Light and a little sideways. Off-beat vibraphone, plucked bass and woodblocks; the bassoon asks short questions; lydian chords never quite settle.")
+
+
+def set_victory():
+    """Victory — D major, 96 BPM. Horn & trombone chorale, trumpet theme, timpani, glockenspiel."""
+    ch = {
+        "A": ["D", "G/D", "D", "A/C#", "Bm", "G", "Em7", "Asus"],
+        "B": ["D", "D", "G", "G", "Bm", "Bm", "G", "Asus"],
+        "C": ["D", "Bm", "G", "A", "D", "F#m", "G", "Asus"],
+        "D": ["G", "G", "Em7", "Em7", "Bm", "Bm", "G", "Asus"],
+    }
+    L = {}
+    for k, c in ch.items():
+        s = 800 + ord(k)
+        lay = [
+            layer(pad(c, 50, 67, 4, 56 if k != "B" else 48), 2, 60, s),                       # horn chorale
+            layer(pad(c, 38, 52, 2, 50 if k != "D" else 40), 3, 57, s + 1),                   # trombones
+            layer(pat(c, "1.2.3.4.5.4.3.2." "1.3.5.3.2.4.6.4." "1.2.3.5.6.5.3.2.", 62, 38, accent=4,
+                      bars=None if k != "D" else [0, 1, 2, 3]), 4, 48, s + 2, 4, 6),          # string 8ths
+            layer(pat(c, "b---------------", 26, 56, accent=0), 5, 43, s + 3),
+            layer(pat(c, "b.......b.b....." "b...............", 38, 54, bars=None if k != "B" else [0, 4]), 6, 47, s + 4, 2, 5),
+        ]
+        if k == "A":
+            lay += [layer(tune(THEME, "major", 74, 0, aug=2, vel=66), 1, 56, s + 5),                # trumpet theme
+                    layer(pat(c, "X...............", 49, 56, drum=True, bars=[0]), 9, None, s + 6),
+                    layer(pat(c, "....5.......3...", 86, 36, bars=[1, 5], accent=0), 8, 9, s + 7, 2, 6)]
+        if k == "C":
+            lay += [layer(tune(ANSWER, "major", 74, 0, vel=62) + tune(THEME[:4], "major", 74, 4, aug=2, vel=62), 1, 56, s + 5),
+                    layer(tune(inv(ANSWER, 3), "major", 62, 0, vel=50), 7, 60, s + 8),            # horn counter-line
+                    layer(pat(c, "....3.......5...", 86, 36, bars=[2, 6], accent=0), 8, 9, s + 7, 2, 6)]
+        if k == "D":
+            lay.append(layer(pat(c, "1-3-5-6-5-3-2-1-", 50, 40, accent=4, bars=[4, 5, 6, 7]), 7, 46, s + 9, 4, 6))  # harp
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="victory", title="Victory", bpm=96, bars=8, mode="D major", target=-19, L=L,
+                intensity=3, valence="positive / triumphant", energy="medium",
+                orchestration="French horn chorale, trombones, trumpet theme, string 8ths, contrabass, timpani, glockenspiel, harp, crash",
+                phases=["RTS: mission won / results screen", "RPG: battle won", "puzzle: level solved",
+                        "any: achievement, reward, level-up", "FPS: objective captured"],
+                desc="Broad and warm rather than loud: a brass chorale with the theme in long trumpet notes. Celebrates without fanfare blasts.")
+
+
+def set_defeat():
+    """Defeat — D minor, 72 BPM. Lament bass, English horn, cello, piano, voices."""
+    ch = {
+        "A": ["Dm", "Dm/C", "Bb", "Asus", "Gm/Bb", "Dm/A", "Em7b5/G", "Asus"],
+        "B": ["Dm", "Dm", "Bb", "Bb", "Gm", "Gm", "Bb", "Asus"],
+        "C": ["Dm", "Dm/C", "Bb", "Gm", "Dm", "Em7b5", "Bb", "Asus"],
+        "D": ["Gm", "Gm", "Dm", "Dm", "Bb", "Bb", "Em7b5", "Asus"],
+    }
+    L = {}
+    for k, c in ch.items():
+        s = 900 + ord(k)
+        lay = [
+            layer(pat(c, "b---------------", 38, 52, accent=0), 3, 42, s),                    # cello lament bass
+            layer(pad(c, 50, 67, 3, 38), 4, 49, s + 1),                                        # low strings
+            layer(pat(c, "....5.......3..." "........4...2..." "................", 62, 32, accent=0,
+                      bars=None if k != "D" else [1, 3, 5]), 5, 0, s + 2, 6, 5),            # falling piano
+        ]
+        if k == "A":
+            lay.append(layer(tune(THEME, "minor", 62, 1, vel=54), 1, 69, s + 3))               # English horn
+        if k == "C":
+            lay += [layer(tune(ANSWER[:6], "minor", 62, 0, vel=50), 6, 40, s + 3),           # solo violin
+                    layer(tune(inv(THEME[:4], 3), "minor", 62, 4, aug=2, vel=50), 1, 69, s + 4),
+                    layer(pad(c, 57, 69, 2, 28), 7, 53, s + 5)]                              # voices, very soft
+        if k == "B":
+            lay.append(layer(pad(c, 62, 74, 2, 26, bars=[4, 5, 6, 7]), 7, 53, s + 5))
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="defeat", title="Defeat", bpm=72, bars=8, mode="D minor (aeolian)", target=-24, L=L,
+                intensity=1, valence="negative / sad", energy="low",
+                orchestration="Cello lament bass (D-C-Bb-A), slow strings, sparse piano, English horn theme, solo violin, voice oohs",
+                phases=["any: game over / mission failed", "RPG: party wiped, story loss", "RTS: base destroyed",
+                        "story: grief, farewell", "puzzle: out of moves"],
+                desc="Quiet and resigned. A descending lament bass under the theme on English horn; piano notes fall away. Sad, not melodramatic.")
+
+
+MARCH_SNARE = ("x..gx.g.x.g.x..." "x..gx.g.x.gxx.g." "x..gx.g.x.g.x..." "x.g.x.g.x.g.xxxx")
+
+
+def set_march():
+    """March / Resolve — D mixolydian, 108 BPM. Snare march, tuba, quarter-note strings, horns, fife."""
+    ch = {
+        "A": ["D", "C", "G/B", "D", "D", "C", "G", "D", "Bm", "C", "G", "Asus"],
+        "B": ["D", "D", "C", "C", "D", "D", "G", "G", "D", "C", "G", "Asus"],
+        "C": ["D", "C", "Em7", "D", "G", "C", "D", "Asus", "D", "C", "G/B", "Asus"],
+        "D": ["G", "G", "C", "C", "Em7", "Em7", "C", "C", "G", "G", "Asus", "Asus"],
+    }
+    L = {}
+    for k, c in ch.items():
+        s = 1000 + ord(k)
+        drums_bars = None if k != "D" else [0, 1, 2, 3, 4, 5, 6, 7]
+        lay = [
+            layer(pat(["D"] * 12, MARCH_SNARE, 38, 40, drum=True, bars=drums_bars), 9, None, s, 3, 6),
+            layer(pat(["D"] * 12, "x.......x.......", 35, 50, drum=True, bars=drums_bars), 9, None, s + 1, 2, 4),
+            layer(pat(c, "r.......f......." "r.......o.......", 26, 58), 2, 58, s + 2, 3, 5),       # tuba
+            layer(pat(c, "c...c...c...c..." "c...c...c.c.c...", 50, 42, accent=6), 3, 48, s + 3, 3, 5),  # string quarters
+        ]
+        if k == "A":
+            lay.append(layer(tune(THEME, "mixolydian", 62, 2, aug=2, vel=62), 1, 60, s + 4))    # horns
+        if k == "B":
+            lay.append(layer(pad(c, 50, 64, 3, 40), 4, 60, s + 4))                           # horns, held
+        if k == "C":
+            lay += [layer(tune(ANSWER, "mixolydian", 62, 0, aug=2, vel=60), 1, 60, s + 4),
+                    layer(tune(inv(THEME, 5), "mixolydian", 74, 4, vel=40), 5, 72, s + 5),     # piccolo counter
+                    layer(pat(c, "X...............", 49, 50, drum=True, bars=[0, 8]), 9, None, s + 6)]
+        if k == "D":
+            lay.append(layer(pad(c, 50, 64, 3, 44, bars=list(range(6, 12))), 4, 60, s + 4))
+        L[k] = [x for x in lay if x]
+    return dict(chords=ch, id="march", title="March / Resolve", bpm=108, bars=12, mode="D mixolydian", target=-20, L=L,
+                intensity=3, valence="determined / heroic", energy="medium",
+                orchestration="Field snare & bass drum, tuba, strings on quarter notes, French horns, piccolo (fife), crash",
+                phases=["RTS: army mustering / moving out", "RPG: quest accepted, travelling to a goal",
+                        "FPS: briefing, regrouping", "strategy: turn planning", "any: determination after a setback"],
+                desc="Steady, purposeful quarter-note pulse with a field snare. Mixolydian (flat 7th) keeps it hopeful but earthy, not triumphant.")
+
+
+SETS = {"calm": set_calm, "explore": set_explore, "sinister": set_sinister, "battle": set_battle,
+        "eerie": set_eerie, "threat": set_threat, "puzzle": set_puzzle, "victory": set_victory,
+        "defeat": set_defeat, "march": set_march}
 ROLES = {"A": ("establish", 1, "Full texture; theme stated softly. Entry point from any other set (starts on D)."),
          "B": ("bed", 2, "Lowest-attention texture, no melody. Designed to loop."),
          "C": ("develop", 1, "Theme + answer, slightly richer."),
@@ -527,7 +808,9 @@ ROLES = {"A": ("establish", 1, "Full texture; theme stated softly. Entry point f
 
 
 # extra renders of the same composition at other tempos (same chords/entry/exit)
-TEMPO_VARIANTS = {"calm": [64, 80], "explore": [88, 104], "sinister": [64, 80], "battle": [132, 156]}
+TEMPO_VARIANTS = {"calm": [64, 80], "explore": [88, 104], "sinister": [64, 80], "battle": [132, 156],
+                  "eerie": [64, 80], "threat": [100, 116], "puzzle": [100, 116], "victory": [88, 104],
+                  "defeat": [64, 80], "march": [100, 116]}
 
 
 def build(set_fn, bpm_override=None):
@@ -554,9 +837,10 @@ def build(set_fn, bpm_override=None):
         run(["sox", f, "-C", "5", f.with_suffix(".ogg")])  # Ogg Vorbis q5 (sox/libvorbis)
         role, loops, note = ROLES[k]
         secs = n / SR
-        print(f"  {k} {role:10s} {secs:5.1f}s")
+        var = variety(spec["L"][k], bars)
+        print(f"  {k} {role:10s} {secs:5.1f}s  variety {var:.2f}")
         phrases.append(dict(part=k, role=role, suggested_loops=loops, file=f.name, ogg=f.with_suffix(".ogg").name,
-                            midi=f"{pre}-{k}.mid", seconds=round(secs, 3), samples=n, bars=bars,
+                            midi=f"{pre}-{k}.mid", seconds=round(secs, 3), samples=n, bars=bars, variety=var,
                             chords=spec_chords(spec, k), starts_on=spec_chords(spec, k)[0],
                             ends_on=spec_chords(spec, k)[-1], note=note))
     print(f"  loudness {li:.1f} LUFS -> gain {gain:+.1f} dB (target {spec['target']})")
