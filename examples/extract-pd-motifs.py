@@ -40,6 +40,16 @@ SPECS = [
     ("prelude", "bach/bwv846.mxl", None, None, (1, 4), "C", "major",
      dict(title="Prelude in C major, WTC I", composer="J. S. Bach", year="1722",
           source="music21 corpus: bach/bwv846.mxl")),
+    # used by examples/video-beds.py
+    ("k545", "mozart/k545/movement1_exposition.mxl", None, [0, 1], (1, 4), "C", "major",
+     dict(title="Piano Sonata No. 16 in C, K. 545 ('Sonata facile'), I", composer="W. A. Mozart", year="1788",
+          source="music21 corpus: mozart/k545/movement1_exposition.mxl")),
+    ("maple", "joplin/maple_leaf_rag.mxl", None, [0, 1], (1, 8), "Ab", "major",
+     dict(title="Maple Leaf Rag (A strain)", composer="Scott Joplin", year="1899",
+          source="music21 corpus: joplin/maple_leaf_rag.mxl")),
+    ("soldiers", "ryansMammoth/SoldiersJoy.abc", None, [0], (0, 8), "D", "major",
+     dict(title="Soldier's Joy", composer="traditional (Scottish / American fiddle reel)", year="pub. 1883",
+          source="music21 corpus: Ryan's Mammoth Collection (ryansMammoth/SoldiersJoy.abc)")),
 ]
 
 # Not in the corpus: the Dies irae sequence (13th-century chant, first phrase),
@@ -49,7 +59,17 @@ DIES_IRAE = dict(id="dies", title="Dies irae (first phrase)", composer="plaincha
                  meter="free", parts=[[[0, 1, 65], [1, 1, 64], [2, 1, 65], [3, 1, 62], [4, 1, 64], [5, 1, 60],
                                        [6, 1, 62], [7, 1, 62]]])
 
-PCS = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+# Not in the corpus: the "Ode to Joy" theme (Symphony No. 9, finale, 1824), first
+# eight bars, written out by hand in D major.
+ODE = dict(id="ode", title="Ode to Joy (Symphony No. 9, finale)", composer="L. van Beethoven", year="1824",
+           source="written out by hand: F#F#GA AGF#E DDEF# F#. E8 E2 | F#F#GA AGF#E DDEF# E. D8 D2",
+           tonic="D", mode="major", meter="4/4",
+           parts=[[[i, 1, k] for i, k in enumerate([66, 66, 67, 69, 69, 67, 66, 64, 62, 62, 64, 66])]
+                  + [[12, 1.5, 66], [13.5, 0.5, 64], [14, 2, 64]]
+                  + [[16 + i, 1, k] for i, k in enumerate([66, 66, 67, 69, 69, 67, 66, 64, 62, 62, 64, 66])]
+                  + [[28, 1.5, 64], [29.5, 0.5, 62], [30, 2, 62]]])
+
+PCS = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "Ab": 8, "A": 9, "B": 11}
 
 
 def pick(path, title):
@@ -84,6 +104,8 @@ def main():
         print(f"{mid:11s} {len(motifs[-1]['parts'])} part(s), {sum(len(p) for p in motifs[-1]['parts'])} notes  {meta['title']}")
     DIES_IRAE["tonic_pc"] = 2
     motifs.append(DIES_IRAE)
+    ODE["tonic_pc"] = 2
+    motifs.append(ODE)
     OUT.write_text(json.dumps({"note": "Public-domain quotations; see examples/extract-pd-motifs.py", "motifs": motifs},
                               indent=1))
     print("wrote", OUT)
