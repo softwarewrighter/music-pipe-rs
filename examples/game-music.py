@@ -23,6 +23,9 @@ Each phrase is rendered once from silence and everything after its end
 sample-identical to continuous playback (seamless loop).
 All seeds fixed -> reproducible.
 
+Public-domain quotations (examples/pd-motifs.json) appear once per set as a
+quiet counter-melody, and in short "bridge" one-shots for fast mood changes.
+
 Usage (repo root):  uv venv .venv && .venv/bin/python examples/game-music.py [set ...]
 Output: work/game-music/ (override OUT_DIR): per-phrase WAVs, set-plan previews,
 catalog.json and index.html.
@@ -292,6 +295,56 @@ def seam_check(path):
 
 
 # --------------------------------------------------------------------------
+# public-domain quotations (examples/pd-motifs.json, from extract-pd-motifs.py)
+# Used sparingly: one quote in one phrase of a set, quiet, as a counter-melody.
+# --------------------------------------------------------------------------
+PD = {m["id"]: m for m in json.loads((Path(__file__).resolve().parent / "pd-motifs.json").read_text())["motifs"]}
+QUOTE_LOG = []   # (set, phrase, motif id, clash ratio) for the build report / catalog
+
+
+def quote(mid, start_bar, beat=0.0, part=0, center=72, stretch=1.0, vel=60, mode_from=None, mode_to=None,
+          upto=None, octaves=(0,), hold_last=None, chords=None, tag=None):
+    """A public-domain quotation transposed to D (chromatically, or diatonically
+    from mode_from to mode_to), starting at start_bar + beat. Optional: only
+    notes before beat `upto`, stretch (augmentation), octave doubling, a held
+    final note. With chords, the share of strong-beat notes that clash
+    (a semitone off the chord, not a chord tone) is logged."""
+    m = PD[mid]
+    notes = [n for n in m["parts"][part] if upto is None or n[0] < upto]
+    o0 = min(n[0] for n in m["parts"][0])
+    shift = (2 - m["tonic_pc"]) % 12
+    mean = sum(n[2] for n in notes) / len(notes) + shift
+    shift += 12 * round((center - mean) / 12)
+    ev = []
+    for i, (o, d, k) in enumerate(notes):
+        k += shift
+        if mode_to:
+            rel = (k - 2) % 12
+            if rel in MODES[mode_from]:
+                j = MODES[mode_from].index(rel)
+                k += MODES[mode_to][j] - MODES[mode_from][j]
+        if hold_last and i == len(notes) - 1:
+            d = hold_last
+        t = start_bar * BAR + round(beat * TPQ + (o - o0) * TPQ * stretch)
+        ev.append((t, max(60, round(d * TPQ * stretch * 0.96)), [k + 12 * x for x in octaves], vel))
+    if chords is not None:
+        strong = [(t, n[0]) for t, d, n, v in ev if d >= TPQ * 0.9]
+        bad = 0
+        for t, k in strong:
+            pcs = chord(chords[min(len(chords) - 1, t // BAR)])["pcs"]
+            if k % 12 not in pcs and any(abs((k - p) % 12) in (1, 11) for p in pcs):
+                bad += 1
+        QUOTE_LOG.append((tag, mid, round(bad / max(1, len(strong)), 2)))
+    return ev
+
+
+def quote_info(mid, phrase, where):
+    m = PD[mid]
+    return dict(phrase=phrase, motif=mid, title=m["title"], composer=m["composer"], year=m["year"], where=where,
+                source=m["source"])
+
+
+# --------------------------------------------------------------------------
 # set definitions
 # --------------------------------------------------------------------------
 def x2(seq_):
@@ -304,7 +357,7 @@ def set_calm():
         "A": ["D", "Gmaj7", "Bm7", "Gmaj7", "D", "E/D", "Gmaj7", "Asus"],
         "B": ["D", "E/D", "D", "E/D", "Bm7", "Gmaj7", "Em7", "Asus"],
         "C": ["D", "G", "Em7", "A", "D", "Gmaj7", "Bm7", "Asus"],
-        "D": ["Gmaj7", "Gmaj7", "Em7", "Em7", "Bm7", "Gmaj7", "Em7", "Asus"],
+        "D": ["D", "D", "Em7", "Gmaj7", "Bm7", "Gmaj7", "Em7", "Asus"],
     }
     harp = {"A": "1-2-3-5-4-3-2-3-" "1-3-5-6-5-3-2---",
             "B": "1---3-5-6---5-3-" "1---2-3-5-------",
@@ -327,6 +380,8 @@ def set_calm():
         if k == "C":
             lay += [layer(tune(ANSWER, "major", 74, 0, vel=60) + tune(THEME, "major", 74, 4, vel=60), 0, 73, s + 4),
                     layer(pat(c, "2---------------", 55, 40, accent=0), 1, 60, s + 6)]
+        if k == "D":  # Celtic colour: 'The Water of Tyne', 6/8 bars stretched to fill 4/4 bars
+            lay.append(layer(quote("tyne", 0, 0, center=72, stretch=4 / 3, vel=46, chords=c, tag="calm-D"), 7, 74, s + 7, 4, 6))
         L[k] = lay
     return dict(chords=ch, id="calm", title="Calm", bpm=72, bars=8, mode="D major (lydian colour)", target=-23, L=L,
                 intensity=1, valence="positive", energy="low",
@@ -368,6 +423,8 @@ def set_explore():
                     layer(pat(c, "1-2-3-4-5-4-3-2-", 55, 38, accent=4), 5, 46, s + 9, 4, 6)]
         if k == "D":
             lay.append(layer(pat(c, "1-3-5-3-", 55, 36, accent=4), 5, 46, s + 9, 4, 6))
+            lay.append(layer(quote("minstrel", 0, 3, center=69, vel=44, mode_from="major", mode_to="dorian",
+                                   chords=c, tag="explore-D"), 7, 110, s + 10, 4, 6))
         L[k] = [x for x in lay if x]
     return dict(chords=ch, id="explore", title="Exploring", bpm=96, bars=8, mode="D dorian", target=-21, L=L,
                 intensity=2, valence="curious / positive", energy="medium-low",
@@ -513,6 +570,8 @@ def set_battle():
             lay.append(layer(stab_calls(c, [1, 4, 6, 9, 12, 15], vel_shift=4), 10, 61, s + 12, 3, 4))
         if k == "A":
             lay.append(layer(tune(THEME, "minor", 62, 0, aug=2, vel=82), 0, 60, s + 8))
+            lay.append(layer(quote("dies", 8, 0, center=50, stretch=4, vel=60, octaves=(0, -1), chords=c, tag="battle-A"),
+                             11, 57, s + 13, 3, 4))
         if k == "B":
             lay.append(layer(pad(c, 45, 60, 2, 58), 2, 57, s + 8))
         if k == "C":
@@ -654,7 +713,7 @@ def set_puzzle():
     """Puzzling — D lydian, 108 BPM. Vibraphone, kalimba, bass, bassoon, woodblocks."""
     ch = {
         "A": ["Dmaj7", "Dmaj7", "E/D", "E/D", "Dmaj7", "Bm7", "E/D", "C/D", "Dmaj7", "G/D", "Em7", "Asus"],
-        "B": ["Dmaj7", "E/D", "Dmaj7", "E/D", "Bm7", "Bm7", "Gmaj7", "Gmaj7", "Dmaj7", "E/D", "Em7", "Asus"],
+        "B": ["D", "Em7/D", "A7/C#", "D", "Bm7", "Bm7", "Gmaj7", "Gmaj7", "Dmaj7", "E/D", "Em7", "Asus"],
         "C": ["Dmaj7", "F#m", "Gmaj7", "E/D", "Bm7", "C", "Gmaj7", "Asus", "Dmaj7", "F#m", "Em7", "Asus"],
         "D": ["Gmaj7", "Gmaj7", "E/D", "E/D", "Em7", "Em7", "C/D", "C/D", "Gmaj7", "E/D", "Asus", "Asus"],
     }
@@ -662,7 +721,7 @@ def set_puzzle():
     for k, c in ch.items():
         s = 700 + ord(k)
         lay = [
-            layer(pat(c, PUZ_VIBES, 62, 44, accent=4), 2, 11, s, 4, 6),
+            layer(pat(c, PUZ_VIBES, 62, 44, accent=4, bars=None if k != "B" else list(range(4, 12))), 2, 11, s, 4, 6),
             layer(pat(c, PUZ_BASS, 38, 56, bars=None if k != "D" else [0, 2, 4, 6, 8, 10]), 4, 32, s + 1, 4, 6),
             layer(pad(c, 57, 72, 2, 32), 6, 71, s + 2),                                         # clarinets, soft
             layer(motif_events(s + 3, 12 * BAR, 74, 96, "lydian", 36, 0.5, 0.7 if k != "D" else 0.85), 3, 108, s + 3, 4, 8),
@@ -670,6 +729,10 @@ def set_puzzle():
                       bars=None if k in "AC" else [1, 3, 5, 8, 9, 11]), 9, None, s + 4, 3, 6),
             layer(pat(["D"] * 12, "....x.......x...", 77, 28, drum=True, bars=[2, 5, 7, 10]), 9, None, s + 5, 3, 6),
         ]
+        if k == "B":  # Bach, Prelude in C (WTC I), bars 1-4, in D on harp: a quiet nod, then the vibes take over
+            pre = [e for e in quote("prelude", 0, 0, part=0, center=72, vel=36, chords=c, tag="puzzle-B")
+                   + quote("prelude", 0, 0, part=1, center=55, vel=34) if e[0] < 4 * BAR]
+            lay.append(layer(pre, 7, 46, s + 9, 3, 5))
         q = {"A": [1, 4, 9], "B": [6], "C": [2, 8, 10], "D": [3, 7]}[k]
         lay.append(layer(pat(c, "1.3.2...........", 50, 46, bars=q, accent=0), 5, 70, s + 6, 3, 6))   # bassoon "hm?"
         if k == "A":
@@ -691,7 +754,7 @@ def set_victory():
     ch = {
         "A": ["D", "G/D", "D", "A/C#", "Bm", "G", "Em7", "Asus"],
         "B": ["D", "D", "G", "G", "Bm", "Bm", "G", "Asus"],
-        "C": ["D", "Bm", "G", "A", "D", "F#m", "G", "Asus"],
+        "C": ["D", "D", "Em7", "A", "D", "F#m", "G", "Asus"],
         "D": ["G", "G", "Em7", "Em7", "Bm", "Bm", "G", "Asus"],
     }
     L = {}
@@ -710,8 +773,8 @@ def set_victory():
                     layer(pat(c, "X...............", 49, 56, drum=True, bars=[0]), 9, None, s + 6),
                     layer(pat(c, "....5.......3...", 86, 36, bars=[1, 5], accent=0), 8, 9, s + 7, 2, 6)]
         if k == "C":
-            lay += [layer(tune(ANSWER, "major", 74, 0, vel=62) + tune(THEME[:4], "major", 74, 4, aug=2, vel=62), 1, 56, s + 5),
-                    layer(tune(inv(ANSWER, 3), "major", 62, 0, vel=50), 7, 60, s + 8),            # horn counter-line
+            lay += [layer(quote("hero", 0, 0, center=74, upto=20, vel=60, chords=c, tag="victory-C"), 1, 56, s + 5, 3, 4),
+                    layer(tune(inv(ANSWER[:4], 3), "major", 62, 5, vel=46), 7, 60, s + 8),       # horn answer after it
                     layer(pat(c, "....3.......5...", 86, 36, bars=[2, 6], accent=0), 8, 9, s + 7, 2, 6)]
         if k == "D":
             lay.append(layer(pat(c, "1-3-5-6-5-3-2-1-", 50, 40, accent=4, bars=[4, 5, 6, 7]), 7, 46, s + 9, 4, 6))  # harp
@@ -749,6 +812,9 @@ def set_defeat():
                     layer(pad(c, 57, 69, 2, 28), 7, 53, s + 5)]                              # voices, very soft
         if k == "B":
             lay.append(layer(pad(c, 62, 74, 2, 26, bars=[4, 5, 6, 7]), 7, 53, s + 5))
+        if k == "D":  # Scottish lament (Niel Gow), first strain, major -> minor, solo violin
+            lay.append(layer(quote("gow", 2, 3.5, center=69, upto=8.5, vel=46, mode_from="major", mode_to="minor",
+                                   hold_last=2, chords=c, tag="defeat-D"), 6, 40, s + 6, 4, 5))
         L[k] = [x for x in lay if x]
     return dict(chords=ch, id="defeat", title="Defeat", bpm=72, bars=8, mode="D minor (aeolian)", target=-24, L=L,
                 intensity=1, valence="negative / sad", energy="low",
@@ -766,7 +832,7 @@ def set_march():
     ch = {
         "A": ["D", "C", "G/B", "D", "D", "C", "G", "D", "Bm", "C", "G", "Asus"],
         "B": ["D", "D", "C", "C", "D", "D", "G", "G", "D", "C", "G", "Asus"],
-        "C": ["D", "C", "Em7", "D", "G", "C", "D", "Asus", "D", "C", "G/B", "Asus"],
+        "C": ["D", "C", "Em7", "D", "G", "C", "D", "Asus", "D", "D", "A", "Asus"],
         "D": ["G", "G", "C", "C", "Em7", "Em7", "C", "C", "G", "G", "Asus", "Asus"],
     }
     L = {}
@@ -785,7 +851,7 @@ def set_march():
             lay.append(layer(pad(c, 50, 64, 3, 40), 4, 60, s + 4))                           # horns, held
         if k == "C":
             lay += [layer(tune(ANSWER, "mixolydian", 62, 0, aug=2, vel=60), 1, 60, s + 4),
-                    layer(tune(inv(THEME, 5), "mixolydian", 74, 4, vel=40), 5, 72, s + 5),     # piccolo counter
+                    layer(quote("grenadiers", 8, 3, center=81, vel=46, chords=c, tag="march-C"), 5, 72, s + 5, 3, 4),  # fife
                     layer(pat(c, "X...............", 49, 50, drum=True, bars=[0, 8]), 9, None, s + 6)]
         if k == "D":
             lay.append(layer(pad(c, 50, 64, 3, 44, bars=list(range(6, 12))), 4, 60, s + 4))
@@ -796,6 +862,140 @@ def set_march():
                 phases=["RTS: army mustering / moving out", "RPG: quest accepted, travelling to a goal",
                         "FPS: briefing, regrouping", "strategy: turn planning", "any: determination after a setback"],
                 desc="Steady, purposeful quarter-note pulse with a field snare. Mixolydian (flat 7th) keeps it hopeful but earthy, not triumphant.")
+
+
+# --------------------------------------------------------------------------
+# bridges: short one-shot stingers for fast mood changes. The app fades the
+# current phrase out at the next bar line (0.5-1 s) while the bridge starts:
+# its lead-in is a soft swell (cymbal / snare / timpani roll, harp glissando)
+# that covers the fade. At handoff_seconds the app starts the target set's
+# phrase A; the bridge's ringing tail overlaps it. Every bridge ends on a
+# dominant (A / Asus / A7), which phrase A (starting on D) resolves.
+# --------------------------------------------------------------------------
+def roll(note, beats, v0, v1, start_beat):
+    n = int(beats * 4)
+    return [(round(start_beat * TPQ) + i * E16, E16, [note], int(v0 + (v1 - v0) * i / max(1, n - 1))) for i in range(n)]
+
+
+def bridge_defs():
+    out = []
+    # 1. battle -> victory: Handel, "See the Conquering Hero Comes", first two bars
+    hero = quote("hero", 0, 0, center=74, upto=8, vel=74, octaves=(0, -1))
+    c = ["D", "D", "Asus"]
+    out.append(dict(id="to-victory", title="Bridge: to Victory", bpm=96, body_bars=3, quote="hero",
+                    frm=["battle", "threat", "march"], to=["victory"],
+                    desc="Cymbal swell, then the opening of Handel's 'See the Conquering Hero Comes' in trumpets & horns; ends on A-sus.",
+                    L=[(roll(51, 2, 18, 66, -2), 9, None, 1, 1, 3),
+                       (hero, 1, 56, 2, 3, 3),
+                       (pad(c, 50, 67, 4, 54), 2, 60, 3),
+                       (pat(c, "b.......b.b....." "b...b...b.b.b.b.", 38, 58, bars=[0, 1]), 6, 47, 4, 2, 4),
+                       (pat(c, "b---------------", 26, 56, accent=0), 5, 43, 6)]))
+
+    # 2. battle/threat -> calm/explore: Bach, Passion Chorale, first phrase (SATB, his harmony), then A-sus
+    sat = [quote("passion", 0, -1, part=p, center=cc, upto=8, hold_last=2, vel=v)
+           for p, cc, v in ((0, 69, 56), (1, 62, 48), (2, 55, 48), (3, 43, 52))]
+    out.append(dict(id="release", title="Bridge: release (to calm)", bpm=80, body_bars=3, quote="passion",
+                    frm=["battle", "threat", "sinister", "march"], to=["calm", "explore", "puzzle", "eerie"],
+                    desc="A timpani roll dying away under the cut, then the first phrase of Bach's Passion Chorale (his own harmony, in D minor) on strings and horn; settles on A-sus.",
+                    L=[(roll(38, 2, 70, 16, -3), 6, 47, 11, 1, 2),
+                       (sat[0], 1, 60, 12, 2, 3), (sat[0] + sat[1] + sat[2], 2, 49, 13, 2, 3), (sat[3], 3, 42, 14, 2, 3),
+                       (pad(["Dm", "Dm", "Asus"], 57, 72, 3, 40, bars=[2]), 4, 49, 15),
+                       (pat(["Dm", "Dm", "Asus"], "b---------------", 33, 46, accent=0, bars=[2]), 5, 43, 16)]))
+
+    # 3. any -> defeat/sinister: Dies irae (chant; Berlioz 1830) in low horns & cellos over a held D
+    dies = quote("dies", 0, 0, center=50, vel=62, octaves=(0, -1), hold_last=1)
+    c = ["Dm", "Dm", "Asus"]
+    out.append(dict(id="fall", title="Bridge: fall (to defeat / sinister)", bpm=72, body_bars=3, quote="dies",
+                    frm=["battle", "threat", "march", "explore"], to=["defeat", "sinister", "eerie"],
+                    desc="A soft cymbal swell, then the Dies irae in low horns and cellos over a held D; ends on A-sus.",
+                    L=[(roll(51, 2, 14, 50, -2), 9, None, 21, 1, 3),
+                       (dies, 1, 60, 22, 2, 3), ([(t, d, [n[1]], v - 6) for t, d, n, v in dies], 3, 42, 23, 2, 3),
+                       (hold(26, 2, 50) + [(2 * BAR, BAR, [33], 48)], 4, 43, 24),
+                       (pad(c, 57, 72, 3, 34), 5, 49, 25)]))
+
+    # 4. calm/explore/puzzle -> march/battle/threat: The British Grenadiers on fife over drums
+    gren = quote("grenadiers", 0, -1, center=81, vel=62)
+    c = ["D", "A", "Asus"]
+    out.append(dict(id="call-to-arms", title="Bridge: call to arms (to march / battle)", bpm=108, body_bars=3, quote="grenadiers",
+                    frm=["calm", "explore", "puzzle", "victory", "eerie"], to=["march", "battle", "threat"],
+                    desc="Snare roll crescendo, then the opening of 'The British Grenadiers' on fife over drums and tuba; ends on A-sus.",
+                    L=[(roll(38, 2, 16, 64, -3), 9, None, 31, 1, 3),
+                       (gren, 1, 72, 32, 2, 4),
+                       (pat(c, "x...g.g.x...x.g." "x...g.g.x.g.xxxx" "X...............", 38, 50, drum=True), 9, None, 33, 2, 5),
+                       (pat(c, "r.......f......." "r.......r......." "r---------------", 26, 60), 2, 58, 34, 2, 4),
+                       (pad(c, 50, 64, 3, 46), 3, 60, 35)]))
+
+    # 5. any -> puzzle/eerie: Bach, Prelude in C (WTC I) bars 1-3 = I - ii7 - V7 in D, on harp & celesta
+    pre = [e for e in quote("prelude", 0, 0, part=0, center=72, vel=46) + quote("prelude", 0, 0, part=1, center=55, vel=44)
+           if e[0] < 3 * BAR]
+    gl = [(-2 * TPQ + i * E16 // 2, E16, [62 + MODES["major"][i % 7] + 12 * (i // 7)], 24 + i * 2) for i in range(16)]
+    out.append(dict(id="riddle", title="Bridge: riddle (to puzzle / eerie)", bpm=96, body_bars=3, quote="prelude",
+                    frm=["calm", "explore", "battle", "threat", "march", "victory"], to=["puzzle", "eerie", "explore"],
+                    desc="A harp glissando, then the first bars of Bach's C-major Prelude (in D) on harp with celesta; ends on its A7 bar.",
+                    L=[(gl, 7, 46, 41, 0, 3), (pre, 7, 46, 42, 2, 4),
+                       ([(t, d, n, v - 16) for t, d, n, v in pre if n[0] >= 69], 8, 8, 43, 2, 3),
+                       (pad(["D", "Em7/D", "A7/C#"], 57, 72, 3, 28), 3, 49, 44)]))
+    return out
+
+
+def build_bridge(bd):
+    """Render a bridge once (not a loop): lead-in + body + 3 s tail, faded and loudness-normalized."""
+    tag = bd["id"]
+    shift = -min(min(e[0] for e in L[0]) for L in bd["L"] if L[0])
+    layers = [layer([(t + shift, d, n, v) for t, d, n, v in ev], ch, patch, seed, *jit) for ev, ch, patch, seed, *jit in bd["L"]]
+    tempo = json.dumps({"type": "Tempo", "t": 0, "bpm": bd["bpm"]}) + "\n"
+    merged = run([BIN / "viz", "--width", 72], tempo + "".join(x for x in layers if x))
+    mid = OUT / f"bridge-{tag}.mid"
+    run([BIN / "to-midi", "--out", mid], merged)
+    raw = TMP / f"bridge-{tag}-raw.wav"
+    run(["fluidsynth", "-ni", "-g", "0.5", "-r", SR, "-O", "float", "-T", "wav", "-F", raw, SF2, mid])
+    spt = 60 / bd["bpm"] / TPQ
+    lead = shift * spt
+    handoff = (shift + bd["body_bars"] * BAR) * spt
+    total = handoff + 3.0
+    cut = TMP / f"bridge-{tag}-cut.wav"
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-t", f"{total:.3f}", "-af",
+         f"afade=t=out:st={total - 1.8:.3f}:d=1.8", "-c:a", "pcm_f32le", cut])
+    li, tp = measure(cut)
+    gain = min(-20.0 - li, -1.0 - tp)
+    f = OUT / f"bridge-{tag}.wav"
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", cut, "-af", f"volume={gain:.2f}dB", "-c:a", "pcm_s16le", f])
+    run(["sox", f, "-C", "5", f.with_suffix(".ogg")])
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", f, "-filter_complex", "showwavespic=s=1000x90:scale=sqrt:colors=#fbbf24",
+         "-frames:v", "1", f.with_suffix(".png")])
+    m = PD[bd["quote"]]
+    print(f"  bridge {tag:13s} {total:4.1f}s  lead-in {lead:3.1f}s  handoff {handoff:4.1f}s  ({m['composer']}: {m['title'][:44]})")
+    return dict(id=tag, title=bd["title"], file=f.name, ogg=f.with_suffix(".ogg").name, midi=mid.name,
+                png=f.with_suffix(".png").name, bpm=bd["bpm"], seconds=round(total, 3), lead_in_seconds=round(lead, 3),
+                handoff_seconds=round(handoff, 3), from_sets=bd["frm"], to_sets=bd["to"], desc=bd["desc"],
+                quote=dict(title=m["title"], composer=m["composer"], year=m["year"], source=m["source"]))
+
+
+def demo_transition(a, bridge, b, catalog):
+    """Audition file: end of set a's phrase C, faded at a bar line 6 bars in, the bridge, then set b's A."""
+    sa = next(s for s in catalog["sets"] if s["id"] == a)
+    bar = 240 / sa["bpm"]
+    cut_at = 6 * bar
+    br = next(x for x in catalog["bridges"] if x["id"] == bridge)
+    out = OUT / f"demo-{a}-{bridge}-{b}.mp3"
+    fc = (f"[0:a]atrim=0:{cut_at + 0.8:.3f},afade=t=out:st={cut_at:.3f}:d=0.8[x];"
+          f"[1:a]adelay={int(cut_at * 1000)}|{int(cut_at * 1000)}[y];"
+          f"[2:a]adelay={int((cut_at + br['handoff_seconds']) * 1000)}|{int((cut_at + br['handoff_seconds']) * 1000)}[z];"
+          "[x][y][z]amix=inputs=3:normalize=0:duration=longest[m]")
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", OUT / f"{a}-C.wav", "-i", OUT / br["file"], "-i", OUT / f"{b}-A.wav",
+         "-filter_complex", fc, "-map", "[m]", "-c:a", "libmp3lame", "-q:a", "2", out])
+    return dict(file=out.name, a=a, bridge=bridge, b=b, cut_at_seconds=round(cut_at, 2))
+
+
+QUOTES = {
+    "calm": [quote_info("tyne", "D", "recorder, bars 1-4, 6/8 lilt over 4/4")],
+    "explore": [quote_info("minstrel", "D", "fiddle, bars 1-4, recast in D dorian")],
+    "puzzle": [quote_info("prelude", "B", "harp, bars 1-4 (Bach's harmony, in D)")],
+    "battle": [quote_info("dies", "A", "trombones in octaves, one note per bar, bars 9-16")],
+    "victory": [quote_info("hero", "C", "trumpet, bars 1-5")],
+    "defeat": [quote_info("gow", "D", "solo violin, bars 4-6, recast in D minor")],
+    "march": [quote_info("grenadiers", "C", "fife, bars 9-11")],
+}
 
 
 SETS = {"calm": set_calm, "explore": set_explore, "sinister": set_sinister, "battle": set_battle,
@@ -814,8 +1014,12 @@ TEMPO_VARIANTS = {"calm": [64, 80], "explore": [88, 104], "sinister": [64, 80], 
 
 
 def build(set_fn, bpm_override=None):
+    n_log = len(QUOTE_LOG)
     spec = set_fn()
     sid, bars = spec["id"], spec["bars"]
+    if bpm_override is None:
+        for tag, mid, clash in QUOTE_LOG[n_log:]:
+            print(f"  quote {mid:10s} in {tag}: {clash:.0%} strong-beat clashes")
     bpm = bpm_override or spec["bpm"]
     pre = sid if bpm_override is None else f"{sid}-{bpm}bpm"
     print(f"== {pre}")
@@ -853,6 +1057,8 @@ def build(set_fn, bpm_override=None):
     return {kk: spec[kk] for kk in ("id", "title", "bpm", "mode", "intensity", "valence", "energy",
                                     "orchestration", "phases", "desc")} | {
         "key_center": "D", "loudness_target_lufs": spec["target"], "bars_per_phrase": bars,
+        "beat_seconds": round(60 / spec["bpm"], 6), "bar_seconds": round(240 / spec["bpm"], 6),
+        "quotes": QUOTES.get(sid, []),
         "plan": order, "plan_preview": f"{sid}-plan.wav", "phrases": phrases,
         "tempo_variants": [build(set_fn, b) for b in TEMPO_VARIANTS.get(sid, [])]}
 
@@ -884,6 +1090,17 @@ def main():
         },
         "sets": [by_id[k] for k in SETS if k in by_id] + [s for i, s in by_id.items() if i not in SETS],
     }
+    print("== bridges")
+    catalog["bridges"] = [build_bridge(b) for b in bridge_defs()]
+    catalog["contract"]["fast_switch"] = (
+        "To change mood without waiting for the phrase to end: at the next bar line of the current set "
+        "(bar_seconds), fade the current phrase out over 0.5-1 s and start a bridge whose from_sets/to_sets fit "
+        "at the same moment (its lead-in swell covers the fade). At the bridge's handoff_seconds start the "
+        "target set's phrase A at full volume (or with a short 0.3 s fade-in); let the bridge's tail ring under it.")
+    have = {s["id"] for s in catalog["sets"]}
+    demos = [("battle", "release", "calm"), ("battle", "to-victory", "victory"), ("battle", "fall", "defeat"),
+             ("explore", "call-to-arms", "battle"), ("calm", "riddle", "puzzle")]
+    catalog["transition_demos"] = [demo_transition(a, br, b, catalog) for a, br, b in demos if a in have and b in have]
     cat_path.write_text(json.dumps(catalog, indent=2))
     write_page(catalog)
     # tour: every set's plan back-to-back (exercises set-to-set transitions)
