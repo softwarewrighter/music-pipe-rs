@@ -173,6 +173,7 @@ seq --notes "[D#2,D#3]/t40*96 [G#3,G#4]/t156*86" --bpm 130
 - [Product Requirements](docs/prd.md) - Vision and requirements
 - [Architecture](docs/architecture.md) - System design and data flow
 - [Design Decisions](docs/design.md) - Technical choices and rationale
+- [Generated Music](docs/generated-music.md) - Upbeat video clips, loopable game music sets, slide-transition beds
 
 ## Example Demo Scripts
 

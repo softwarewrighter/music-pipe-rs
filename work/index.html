@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>music-pipe-rs — all previews</title>
+<style>
+ :root { color-scheme: dark; --bg:#0f1117; --card:#181b24; --line:#2a2f3d; --fg:#e7e9ee; --dim:#9aa3b5; --acc:#7dd3fc; }
+ body { margin:0; font:15px/1.5 system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--fg); }
+ main { max-width:1060px; margin:0 auto; padding:26px 20px 60px; }
+ nav { position:sticky; top:0; background:var(--bg); padding:10px 0; border-bottom:1px solid var(--line); z-index:2; }
+ nav a { color:var(--acc); margin-right:16px; font-size:14px; }
+ h1 { font-size:22px; margin:0 0 4px; } h2.sec { font-size:17px; color:var(--acc); text-transform:uppercase; letter-spacing:.06em; margin:34px 0 6px; }
+ h3 { font-size:17px; margin:0; } .dim { color:var(--dim); } .small { font-size:13px; } a { color:var(--acc); }
+ .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:12px 0; }
+ .head { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; } .tags { color:var(--acc); font-size:13px; }
+ .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; } @media (max-width:800px){ .grid2{grid-template-columns:1fr;} }
+ img.wave { width:100%; height:54px; object-fit:fill; display:block; margin:6px 0; opacity:.85; border-radius:6px; background:#11141b; }
+ audio { width:100%; height:34px; }
+ .ph { display:grid; grid-template-columns: 1fr 300px auto; gap:10px; align-items:center; border-top:1px solid var(--line); padding:7px 0; }
+ .var { display:grid; grid-template-columns: 90px repeat(4, 14px 1fr); gap:6px; align-items:center; border-top:1px dashed var(--line); padding:6px 0; }
+ h2.part { font-size:21px; margin:44px 0 0; padding-top:10px; border-top:2px solid var(--acc); }
+ .toc { margin-top:16px; } .tocgrid { display:grid; grid-template-columns:1fr 1fr; gap:24px; } @media (max-width:800px){ .tocgrid{grid-template-columns:1fr;} }
+ .toc ol { margin:4px 0; padding-left:20px; } .toc ul { margin:2px 0 6px; padding-left:16px; list-style:none; }
+ .toc li { margin:2px 0; } .new { background:var(--acc); color:#0b1220; border-radius:4px; padding:0 5px; font-size:11px; margin-left:4px; }
+ :target, section[id] { scroll-margin-top:52px; }
+ .quote { color:#fbbf24; margin-top:4px; }
+ .cells { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:6px; margin:6px 0; }
+ button.cell { text-align:left; background:#11141b; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:12px/1.35 system-ui,sans-serif; cursor:pointer; }
+ button.cell:hover { border-color:var(--acc); } button.cell span { color:var(--dim); }
+ button.cell.motif { border-left:3px solid #34d399; } button.cell.bridge { border-left:3px solid #a78bfa; } button.cell.denouement { border-left:3px solid #fbbf24; }
+ .plan { background:#11141b; border-radius:8px; padding:8px 12px; margin:8px 0; }
+</style></head><body><main>
+<h1>music-pipe-rs — all previews</h1>
+<p class="dim small">Everything generated so far, all on one page. Regenerate with <code>.venv/bin/python examples/compose-upbeat.py</code>, <code>.venv/bin/python examples/game-music.py</code> and <code>.venv/bin/python examples/video-beds.py</code>; serve <code>work/</code> with basic-http-server (see docs/generated-music.md).</p>
+<nav><a href="#toc">Contents</a><a href="#video">Video backgrounds</a><a href="#game">Game background music</a><a href="#beds">Slide beds</a><a href="game-music/catalog.json">catalog.json</a></nav>
+
+<section class="card toc" id="toc">
+ <div class="tocgrid">
+  <div><h3>1 · Video backgrounds</h3><p class="dim small">Upbeat clips for video intros, backgrounds and slide transitions.</p>
+   <ol class="small">
+    <li><a href="#upbeat">Modern upbeat</a> <span class="dim">(5 clips)</span><ul id="toc-modern"></ul></li>
+    <li><a href="#loft">ca. 1970 pre-disco / Loft-inspired</a> <span class="dim">(4 clips)</span><ul id="toc-1970"></ul></li>
+    <li><a href="#beds">Slide-transition beds</a> <span class="new">new</span> <span class="dim">(20–30 s in 5-s cells, public-domain tunes)</span><ul id="toc-beds"></ul></li>
+   </ol></div>
+  <div><h3>2 · Game background music</h3><p class="dim small">Loopable, non-distracting orchestral mood sets. Each set has A/B/C/D phrase loops; any set can follow any other.</p>
+   <ol class="small"><li><a href="#tour">Tour of all sets</a></li><li>Mood sets <span class="dim">(intensity 1–5)</span><ul id="toc-game"></ul></li>
+    <li><a href="#transitions">Fast transitions</a> <span class="new">new</span><ul><li><a href="#demos">Transition demos</a> <span class="dim">— hear a cut + bridge + new set</span></li><li><a href="#bridges">Bridges</a> <span class="dim">— public-domain stingers</span></li></ul></li></ol></div>
+ </div>
+</section>
+
+<h2 class="part" id="video">1 · Video backgrounds</h2>
+<h2 class="sec" id="upbeat">Modern upbeat (10–15 s, one-shot)</h2><div class="grid2" id="list-modern"></div>
+<h2 class="sec" id="loft">ca. 1970 pre-disco / Loft-inspired (10–15 s, one-shot)</h2><div class="grid2" id="list-1970"></div>
+<h2 class="sec" id="beds">Slide-transition beds (20–30 s, 5-second cells)</h2>
+<div class="card small"><b>How to use:</b> every clip is a run of 5-second cells, each starting on a downbeat:
+ <b>motif</b> (0–5 s, opening slide) → <b>bridges</b> (each different: answer, dorian shadow, lift to G, break) → <b>dénouement</b> (last 5 s, ends on the home chord).
+ Take 0–5 for the title, any <i>n</i>…<i>n</i>+5 for separators (cell starts give whole phrases; no cell repeats another), and L−5…L for the closing slide.
+ Each cell is levelled to the same loudness. Click a cell to hear just that window.
+ Cut one: <code>examples/slice-5s.sh work/video-beds/CLIP.wav 10</code> (or <code>first</code> / <code>last</code>).</div>
+<div id="bed-list"></div>
+
+<h2 class="part" id="game">2 · Game background music</h2>
+<h2 class="sec">Loopable mood sets</h2>
+<p class="small dim">Each set is four separate seamless loops: <b>A</b> establish → <b>B</b> bed (×2) → <b>C</b> develop → <b>D</b> turnaround → repeat. Every phrase ends on A-sus and every A starts on D, so a player can stop after any phrase and jump to another set's A. Note: the browser's &lt;audio loop&gt; may leave a tiny gap at the loop point; the files themselves loop sample-exactly.</p>
+<div class="card" id="tour"><b>Tour</b> <span class="dim small">— all sets back to back (A B C D each), to judge set-to-set transitions</span><audio controls preload="none" src="game-music/tour.mp3"></audio></div>
+<div id="game-sets"></div>
+
+<h2 class="sec" id="transitions">Fast transitions (no waiting for the phrase to end)</h2>
+<div class="card small"><b>How the app uses these:</b>
+ <ol>
+  <li>At the next <b>bar line</b> of the current set (<code>bar_seconds</code> in the catalog: 1.7 s at 144 BPM), fade the current phrase out over 0.5–1 s.</li>
+  <li>At the same moment, start a <b>bridge</b> whose <code>from_sets</code>/<code>to_sets</code> fit. Its lead-in swell covers the fade.</li>
+  <li>At the bridge's <code>handoff_seconds</code>, start the target set's phrase <b>A</b>. Every bridge ends on A (the dominant), and every A starts on D, so it resolves naturally; the bridge's tail rings underneath.</li>
+ </ol></div>
+<h2 class="sec" id="demos">Transition demos</h2><p class="small dim">Each demo cuts a set's phrase C at a bar line 6 bars in, fades it, plays the bridge and starts the next set's A at the handoff point, exactly as the app would.</p>
+<div id="demo-list"></div>
+<h2 class="sec" id="bridges">Bridges</h2><div class="grid2" id="bridge-list"></div>
+
+<script>
+const ts = Date.now();
+const up = {"list-modern": ["neon-drive","disco-strut","pixel-quest","sunburst","island-skank"],
+            "list-1970": ["unity-train","break-it-down","sunrise-drums","hammond-glide"]};
+let n = 0;
+for (const [id, names] of Object.entries(up)) for (const name of names) {
+  const i = ++n, el = document.createElement("section"); el.className = "card"; el.id = `clip-${name}`;
+  document.getElementById(id).appendChild(el);
+  fetch(`preview/${name}.json?ts=${ts}`).then(r => r.json()).then(m => {
+    document.getElementById(id.replace("list", "toc")).insertAdjacentHTML("beforeend",
+      `<li><a href="#clip-${name}">#${i} ${m.title}</a> <span class="dim">— ${m.style}, ${m.bpm} BPM</span></li>`);
+    el.innerHTML = `<div class="head"><h3>#${i} ${m.title}</h3><span class="tags">${m.style} · ${m.key} · ${m.bpm} BPM · ${m.seconds}s</span></div>
+      <div class="dim small">${m.seed_note}.<br>${m.instruments}.${m.influence ? `<br><em>Feel inspired by ${m.influence}.</em>` : ""}</div>
+      <img class="wave" src="preview/${name}.png?ts=${ts}" alt=""><audio controls preload="none" src="preview/${name}.wav?ts=${ts}"></audio>
+      <div class="small"><a href="preview/${name}.wav" download>wav</a> · <a href="preview/${name}.mid" download>mid</a></div>`;
+  });
+}
+fetch(`video-beds/catalog.json?ts=${ts}`).then(r => r.json()).then(cat => {
+  const v = f => `video-beds/${f}?ts=${ts}`;
+  document.getElementById("toc-beds").innerHTML = cat.clips.map(c =>
+    `<li><a href="#bed-${c.id}">${c.title}</a> <span class="dim">— ${c.style}, ${c.seconds}s</span> <span class="quote">♪ ${c.quote.title.split(" (")[0]}</span></li>`).join("");
+  document.getElementById("bed-list").innerHTML = cat.clips.map(c => `
+    <section class="card" id="bed-${c.id}"><div class="head"><h3>${c.title}</h3><span class="tags">${c.style} · D · ${c.bpm} BPM · ${c.seconds}s = ${c.cells.length} × 5 s · ${Math.round(c.unique_bars * 100)}% unique bars</span></div>
+    <div class="small quote">♪ <i>${c.quote.title}</i> — ${c.quote.composer}, ${c.quote.year}</div>
+    <div class="dim small">${c.desc} ${c.instruments}.</div>
+    <img class="wave" style="height:70px" src="${v(c.png)}" alt=""><audio controls preload="none" src="${v(c.file)}"></audio>
+    <div class="cells">${c.cells.map(x => `<button class="cell ${x.role}" data-s="${x.start}" title="${x.label}"><b>${x.start}–${x.end}s</b> ${x.role}<br><span>${x.label}</span></button>`).join("")}</div>
+    <div class="small"><a href="${v(c.file)}" download>wav</a> · <a href="${v(c.midi)}" download>mid</a></div></section>`).join("");
+  document.querySelectorAll("#bed-list section").forEach(sec => {
+    const a = sec.querySelector("audio");
+    let stopAt = null;
+    a.addEventListener("timeupdate", () => { if (stopAt !== null && a.currentTime >= stopAt) { a.pause(); stopAt = null; } });
+    a.addEventListener("seeking", () => { if (stopAt !== null && Math.abs(a.currentTime - (stopAt - 5)) > 0.3) stopAt = null; });
+    sec.querySelectorAll("button.cell").forEach(btn => btn.onclick = () => {
+      const s0 = +btn.dataset.s;
+      stopAt = s0 + 5; a.currentTime = s0; a.play();
+    });
+  });
+  if (location.hash.startsWith("#bed")) document.querySelector(location.hash)?.scrollIntoView();
+});
+fetch(`game-music/catalog.json?ts=${ts}`).then(r => r.json()).then(cat => {
+  const g = f => `game-music/${f}?ts=${ts}`;
+  const NEW = ["eerie", "threat", "puzzle", "victory", "defeat", "march"];
+  document.getElementById("toc-game").innerHTML = [...cat.sets].sort((a, b) => a.intensity - b.intensity).map(s =>
+    `<li><a href="#set-${s.id}">${s.title}</a>${NEW.includes(s.id) ? '<span class="new">new</span>' : ""} <span class="dim">— ${s.intensity}/5, ${s.valence}, ${s.mode}, ${s.bpm} BPM</span>${(s.quotes || []).map(q => ` <span class="quote">♪ ${q.title.split(" (")[0]}</span>`).join("")}</li>`).join("");
+  document.getElementById("game-sets").innerHTML = cat.sets.map(s => `
+  <section class="card" id="set-${s.id}">
+    <div class="head"><h3>${s.title}${NEW.includes(s.id) ? '<span class="new">new</span>' : ""}</h3><span class="tags">${s.mode} · ${s.bpm} BPM · intensity ${s.intensity}/5 · ${s.valence} · energy ${s.energy}</span></div>
+    <div class="dim small">${s.desc}</div>
+    <div class="small"><b>Use for:</b> ${s.phases.join(" · ")}<br><b>Orchestration:</b> ${s.orchestration}</div>
+    ${(s.quotes || []).map(q => `<div class="small quote">♪ <b>Quote</b> in phrase ${q.phrase}: <i>${q.title}</i> — ${q.composer}, ${q.year} <span class="dim">(${q.where})</span></div>`).join("")}
+    <div class="plan small"><b>Full plan</b> (${s.plan.join(" → ")} → A), phrase files joined exactly as a player would:
+      <img class="wave" src="${g(s.plan_preview.replace('.wav','.png'))}" alt=""><audio controls preload="none" src="${g(s.plan_preview)}"></audio></div>
+    ${s.phrases.map(p => `<div class="ph"><div class="small"><b>${p.part}</b> · ${p.role} <span class="dim">× ${p.suggested_loops} · ${p.seconds.toFixed(1)}s · ${p.bars} bars${p.variety != null ? ` · ${Math.round(p.variety * 100)}% unique bars` : ""}</span>
+        <div class="dim">${p.note}<br>chords: ${p.chords.join(" – ")}</div></div>
+        <audio controls loop preload="none" src="${g(p.file)}"></audio>
+        <span class="small"><a href="${g(p.file)}" download>wav</a> <a href="${g(p.ogg || p.file)}" download>ogg</a> <a href="${g(p.midi)}" download>mid</a></span></div>`).join("")}
+    ${(s.tempo_variants || []).map(v => `<div class="var"><span class="small"><b>${v.bpm} BPM</b></span>${
+        v.phrases.map(p => `<span class="small">${p.part}</span><audio controls loop preload="none" src="${g(p.file)}"></audio>`).join("")}</div>`).join("")}
+  </section>`).join("");
+  document.getElementById("demo-list").innerHTML = (cat.transition_demos || []).map(d => `
+    <div class="card"><div class="head"><h3>${d.a} → <span class="tags">${d.bridge}</span> → ${d.b}</h3><span class="dim small">cut at ${d.cut_at_seconds}s</span></div>
+    <audio controls preload="none" src="${g(d.file)}"></audio></div>`).join("");
+  document.getElementById("bridge-list").innerHTML = (cat.bridges || []).map(b => `
+    <section class="card" id="bridge-${b.id}"><div class="head"><h3>${b.title}</h3><span class="tags">${b.bpm} BPM · ${b.seconds.toFixed(1)}s · handoff ${b.handoff_seconds.toFixed(1)}s</span></div>
+    <div class="small quote">♪ <i>${b.quote.title}</i> — ${b.quote.composer}, ${b.quote.year}</div>
+    <div class="dim small">${b.desc}<br>from: ${b.from_sets.join(", ")} → to: ${b.to_sets.join(", ")}</div>
+    <img class="wave" src="${g(b.png)}" alt=""><audio controls preload="none" src="${g(b.file)}"></audio>
+    <div class="small"><a href="${g(b.file)}" download>wav</a> · <a href="${g(b.ogg)}" download>ogg</a> · <a href="${g(b.midi)}" download>mid</a></div></section>`).join("");
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+});
+// only one player at a time
+document.addEventListener("play", e => document.querySelectorAll("audio").forEach(a => a !== e.target && a.pause()), true);
+</script>
+</main></body></html>

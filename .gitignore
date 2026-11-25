@@ -25,14 +25,30 @@ Cargo.lock
 *.profraw
 *.profdata
 
-# Generated files
+# Generated files (binary audio / images / archives)
 *.mid
 *.midi
 *.wav
+*.mp3
+*.ogg
+*.flac
+*.aif
+*.aiff
+*.m4a
+*.sf2
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mov
+*.zip
+*.tar.gz
 output/
 
 # Exception: pages directory WAV files are checked in for GitHub Pages
 !pages/*.wav
+!pages/images/*.png
 
 # Local configuration
 .env
@@ -59,5 +75,10 @@ criterion/
 Thumbs.db
 .DS_Store
 
-# Scratch work / previews
-/work/
+# Scratch work / previews (rendered output); only the preview page is tracked
+/work/*
+!/work/index.html
+
+# Python
+.venv/
+__pycache__/

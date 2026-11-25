@@ -20,8 +20,9 @@ Usage (from the repo root):
     .venv/bin/python examples/compose-upbeat.py unity neon   # some pieces
 
 Output goes to work/preview/ (gitignored); override with OUT_DIR=... .
-It contains <name>.wav/.mid/.png/.json plus index.html; to preview:
-    cd work/preview && ../../.venv/bin/python -m http.server 8765
+It contains <name>.wav/.mid/.png/.json plus index.html. The all-in-one preview
+page is work/index.html; see docs/generated-music.md for serving it with
+basic-http-server.
 """
 import json
 import os
